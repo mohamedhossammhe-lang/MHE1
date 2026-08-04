@@ -476,7 +476,6 @@ let mode = 'shelf';
 let passwords = JSON.parse(localStorage.getItem("system_passwords")) || {
     "محمد حسام": "321", "علاء": "123", "شوقي": "123", "محمود": "123", "احمد محمد امين": "123", "محمد ميدو جبر": "123"
 };
-// تحديث كلمة مرور محمد حسام سحابياً/محلياً فورياً لضمان اعتمادها
 passwords["محمد حسام"] = "321";
 
 let logs = [];
@@ -517,22 +516,22 @@ window.initCloudSystem = function() {
             let cloudShelves = docSnap.data().shelves;
             if(cloudShelves) { shelves = cloudShelves; renderShelves(); }
         }
-    });
+    }, (error) => { console.log("اتصال سحابي مؤقت جاري استئنافه..."); });
 
     onSnapshot(doc(db, "store_data", "products_doc"), (docSnap) => {
         if (docSnap.exists()) {
             let cloudProds = docSnap.data().products;
             if(cloudProds) { products = cloudProds; updateStatus(); }
         }
-    });
+    }, (error) => {});
 
     onSnapshot(doc(db, "store_data", "logs_doc"), (docSnap) => {
         if (docSnap.exists()) { logs = docSnap.data().logs || []; }
-    });
+    }, (error) => {});
 
     onSnapshot(doc(db, "store_data", "attendance_doc"), (docSnap) => {
         if (docSnap.exists()) { attendanceRecords = docSnap.data().records || []; }
-    });
+    }, (error) => {});
 
     onSnapshot(doc(db, "store_data", "leaves_doc"), (docSnap) => {
         if (docSnap.exists()) { 
@@ -540,7 +539,7 @@ window.initCloudSystem = function() {
             if(currentUser === "محمد حسام") renderManagerRequests();
             checkMyLeaveStatus();
         }
-    });
+    }, (error) => {});
 
     if(currentUser){
         document.getElementById("loginSection").style.display = "none";
@@ -557,7 +556,6 @@ window.initCloudSystem = function() {
         }
     }
 
-    // الحفظ التلقائي الفائق كل ثانية في الخلفية بلا توقف
     setInterval(() => {
         if(currentUser){ autoBackgroundSave(); }
     }, 1000);
@@ -584,6 +582,7 @@ function fetchLatestDataFromCloud(){
         alert("✅ تم تحديث وتحميل أحدث نسخة من الأرفف والمنتجات من السحابة بنجاح!");
     }).catch(err => {
         playErrorSound();
+        alert("⚠️ تعذر الاتصال اللحظي بالسحابة، تحقق من الإنترنت ثم أعد المحاولة.");
     });
 }
 
