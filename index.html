@@ -33,20 +33,20 @@
 
 <style>
 *{ margin:0; padding:0; box-sizing:border-box; font-family:Tahoma,sans-serif; touch-action: manipulation; }
-body{ background:#0b0f19; color:#f1f5f9; padding:10px; overscroll-behavior-y: none; }
-.card{ max-width:680px; margin:auto; background:#111827; border-radius:16px; padding:18px; box-shadow:0 10px 30px rgba(0,0,0,0.5); border:1px solid #1f2937; }
+body{ background:#f4f6f8; padding:10px; overscroll-behavior-y: none; }
+.card{ max-width:680px; margin:auto; background:#fff; border-radius:15px; padding:15px; box-shadow:0 4px 15px rgba(0,0,0,0.1); }
 .header-box{ text-align:center; margin-bottom:15px; }
-.logo-img{ max-width:180px; height:auto; margin-bottom:5px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5)); }
+.logo-img{ max-width:180px; height:auto; margin-bottom:5px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.25)); }
 
 .author-box {
     display: flex;
     flex-direction: column;
     align-items: center;
-    background: #1e293b;
+    background: #fff3e0;
     padding: 12px;
     border-radius: 12px;
     margin-top: 10px;
-    border: 1px solid #334155;
+    border: 1px dashed #ffa726;
     gap: 8px;
 }
 
@@ -63,7 +63,7 @@ body{ background:#0b0f19; color:#f1f5f9; padding:10px; overscroll-behavior-y: no
     height: 60px;
     border-radius: 50%;
     object-fit: cover;
-    border: 2px solid #38bdf8;
+    border: 2px solid #e65100;
     animation: verticalSpinPause 6s infinite ease-in-out;
 }
 @keyframes verticalSpinPause {
@@ -79,7 +79,7 @@ body{ background:#0b0f19; color:#f1f5f9; padding:10px; overscroll-behavior-y: no
     font-family: 'Reem Kufi', sans-serif;
     font-size: 17px;
     font-weight: 700;
-    color: #38bdf8;
+    color: #e65100;
     margin-bottom: 2px;
 }
 
@@ -89,19 +89,19 @@ body{ background:#0b0f19; color:#f1f5f9; padding:10px; overscroll-behavior-y: no
     justify-content: flex-start;
     gap: 10px;
 }
-.animated-phone { font-size: 14px; font-weight: bold; color: #4ade80; }
+.animated-phone { font-size: 14px; font-weight: bold; color: #2e7d32; }
 
 .mom-dua-small {
     font-family: 'Amiri', serif;
     font-size: 12px;
-    color: #f472b6;
+    color: #c2185b;
     font-weight: bold;
     text-align: center;
     width: 100%;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    border-top: 1px solid #334155;
+    border-top: 1px solid #ffe0b2;
     padding-top: 6px;
     margin-top: 2px;
 }
@@ -109,26 +109,24 @@ body{ background:#0b0f19; color:#f1f5f9; padding:10px; overscroll-behavior-y: no
 .ticker-wrap {
     width: 100%;
     overflow: hidden;
-    background: #1e293b;
+    background: #e3f2fd;
     border-radius: 8px;
     margin-top: 10px;
     padding: 8px 0;
-    border: 1px solid #334155;
+    border: 1px solid #90caf9;
 }
 .ticker {
     display: inline-block;
     white-space: nowrap;
     animation: marqueeLeftToRight 45s linear infinite;
-    color: #cbd5e1;
-    font-size: 13px;
 }
 @keyframes marqueeLeftToRight {
     0% { transform: translateX(-100%); }
     100% { transform: translateX(100%); }
 }
 
-#loginSection{ background:#111827; padding:15px; border-radius:10px; text-align:center; }
-.login-title{ font-size:17px; font-weight:bold; margin-bottom:12px; color: #38bdf8; }
+#loginSection{ background:#fff; padding:15px; border-radius:10px; text-align:center; }
+.login-title{ font-size:17px; font-weight:bold; margin-bottom:12px; color:#1565c0; }
 
 .login-select-container {
     display: flex;
@@ -137,31 +135,29 @@ body{ background:#0b0f19; color:#f1f5f9; padding:10px; overscroll-behavior-y: no
     gap: 10px;
     margin-bottom: 10px;
 }
-select, input, button{ width:100%; padding:12px; font-size:16px; border-radius:8px; border:1px solid #374151; background:#1f2937; color:#f9fafb; font-weight:bold; cursor:pointer; margin-bottom:10px; }
-select:focus, input:focus{ border-color:#38bdf8; outline:none; }
-button{ color:white; border:none; transition:0.2s; }
-button:hover{ opacity: 0.9; transform: translateY(-1px); }
-.btn-login{ background:#0284c7; }
-.btn-save-exit { background: #059669 !important; font-size: 13px; padding: 8px; width: auto; margin: 0; }
+select, input, button{ width:100%; padding:12px; font-size:16px; border-radius:8px; border:1px solid #ccc; font-weight:bold; cursor:pointer; margin-bottom:10px; }
+button{ color:white; border:none; }
+.btn-login{ background:#2e7d32; }
+.btn-save-exit { background: #1b5e20 !important; font-size: 13px; padding: 8px; width: auto; margin: 0; }
 
 .user-login-avatar {
     width: 50px;
     height: 50px;
     border-radius: 50%;
     object-fit: cover;
-    border: 2px solid #38bdf8;
+    border: 2px solid #1565c0;
     display: none;
-    box-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
+    box-shadow: 0 0 10px #ffeb3b, 0 0 20px #ff9800;
     animation: glowPulse 2s infinite alternate;
 }
 @keyframes glowPulse {
-    0% { box-shadow: 0 0 5px #38bdf8; }
-    100% { box-shadow: 0 0 15px #38bdf8, 0 0 25px #0284c7; }
+    0% { box-shadow: 0 0 5px #ffeb3b; }
+    100% { box-shadow: 0 0 15px #4caf50, 0 0 25px #2196f3; }
 }
 
 .celebrating {
     animation: yahooCelebrate 1s infinite linear !important;
-    border: 3px solid #facc15 !important;
+    border: 3px solid #ffeb3b !important;
 }
 @keyframes yahooCelebrate {
     0% { transform: rotate(0deg) scale(1.1); }
@@ -171,7 +167,7 @@ button:hover{ opacity: 0.9; transform: translateY(-1px); }
 
 .shaking {
     animation: shakeAnim 0.4s ease-in-out !important;
-    border: 3px solid #ef4444 !important;
+    border: 3px solid #d32f2f !important;
 }
 @keyframes shakeAnim {
     0%, 100% { transform: translateX(0); }
@@ -182,45 +178,45 @@ button:hover{ opacity: 0.9; transform: translateY(-1px); }
 #dashboardSection{ display:none; text-align:center; }
 .dash-grid{ display:grid; grid-template-columns:1fr; gap:15px; margin-top:15px; }
 @media(min-width: 500px){ .dash-grid{ grid-template-columns:repeat(2, 1fr); } }
-.dash-card{ background:linear-gradient(135deg, #1e293b, #0f172a); border:1px solid #334155; color:white; padding:20px; border-radius:12px; cursor:pointer; font-size:18px; font-weight:bold; box-shadow:0 4px 10px rgba(0,0,0,0.3); transition:0.3s; }
-.dash-card:hover{ transform: translateY(-3px); border-color:#38bdf8; }
-.dash-card.attendance{ background:linear-gradient(135deg, #064e3b, #022c22); border-color:#059669; }
+.dash-card{ background:linear-gradient(135deg, #1565c0, #0d47a1); color:white; padding:20px; border-radius:12px; cursor:pointer; font-size:18px; font-weight:bold; box-shadow:0 4px 10px rgba(0,0,0,0.2); transition:0.3s; }
+.dash-card:hover{ transform: translateY(-3px); }
+.dash-card.attendance{ background:linear-gradient(135deg, #2e7d32, #1b5e20); }
 
 #appSection{ display:none; }
 #attendanceSection{ display:none; }
 
-.user-bar{ display:flex; justify-content:space-between; align-items:center; background:#1e293b; border:1px solid #334155; padding:10px; border-radius:8px; margin-bottom:15px; font-size:14px; font-weight:bold; color:#38bdf8; }
+.user-bar{ display:flex; justify-content:space-between; align-items:center; background:#e3f2fd; padding:10px; border-radius:8px; margin-bottom:15px; font-size:14px; font-weight:bold; color:#0d47a1; }
 .toolbar{ display:flex; flex-direction:column; gap:8px; margin-bottom:15px; }
-.btn-file{ background:#d97706; }
-.btn-fetch-cloud{ background:#0284c7; }
-.btn-export{ background:#059669; }
-.btn-search{ background:#0d9488; }
-.btn-manual-search{ background:#4f46e5; }
-.btn-cloud-save{ background:#0891b2; }
-.btn-refresh{ background:#475569; }
-.btn-clear{ background:#dc2626; }
-.btn-logs{ background:#7c3aed; }
-.btn-pass{ background:#475569; font-size:12px; padding:6px; width:auto; margin:0; }
+.btn-file{ background:#ff9800; }
+.btn-fetch-cloud{ background:#0288d1; }
+.btn-export{ background:#2e7d32; }
+.btn-search{ background:#009688; }
+.btn-manual-search{ background:#3f51b5; }
+.btn-cloud-save{ background:#00acc1; }
+.btn-refresh{ background:#455a64; }
+.btn-clear{ background:#d32f2f; }
+.btn-logs{ background:#673ab7; }
+.btn-pass{ background:#607d8b; font-size:12px; padding:6px; width:auto; margin:0; }
 
-#reader { width:100%; max-width:350px; margin:10px auto; display:none; border-radius:8px; overflow:hidden; border:1px solid #374151; }
+#reader { width:100%; max-width:350px; margin:10px auto; display:none; border-radius:8px; overflow:hidden; }
 #liveCamModal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:2000; justify-content:center; align-items:center; }
-.cam-box { background:#111827; border:1px solid #374151; width:95%; max-width:400px; border-radius:12px; padding:15px; text-align:center; }
+.cam-box { background:#fff; width:95%; max-width:400px; border-radius:12px; padding:15px; text-align:center; }
 
 .shelves-grid{ display:grid; grid-template-columns:1fr; gap:10px; }
 @media(min-width: 500px){ .shelves-grid{ grid-template-columns:repeat(2, 1fr); } }
 
-.shelf-card{ background:#1e293b; border-radius:8px; padding:10px; border:1px solid #334155; border-right:5px solid #38bdf8; }
-.shelf-title{ font-size:14px; font-weight:bold; color:#f1f5f9; margin-bottom:6px; display:flex; justify-content:space-between; }
-.item-row{ background:#0f172a; padding:6px; margin-bottom:4px; border-radius:6px; border:1px solid #334155; font-size:12px; display:flex; justify-content:space-between; align-items:center; color:#e2e8f0; }
-.search-box-res{ background:#1e293b; padding:10px; border-radius:8px; margin-bottom:10px; display:none; font-size:14px; border:1px solid #38bdf8; color:#38bdf8; }
+.shelf-card{ background:#fafafa; border-radius:8px; padding:10px; border:1px solid #ddd; border-right:5px solid #1565c0; }
+.shelf-title{ font-size:14px; font-weight:bold; color:#333; margin-bottom:6px; display:flex; justify-content:space-between; }
+.item-row{ background:#fff; padding:6px; margin-bottom:4px; border-radius:6px; border:1px solid #eee; font-size:12px; display:flex; justify-content:space-between; align-items:center; }
+.search-box-res{ background:#e3f2fd; padding:10px; border-radius:8px; margin-bottom:10px; display:none; font-size:14px; border:1px solid #90caf9; }
 
-#manualSearchModal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.75); z-index:1500; justify-content:center; align-items:center; }
-.manual-box { background:#111827; border:1px solid #374151; width:92%; max-width:480px; border-radius:12px; padding:15px; text-align:center; }
-.clickable-item { background:#1e293b; padding:9px; margin-bottom:6px; border-radius:6px; border:1px solid #334155; cursor:pointer; text-align:right; transition:0.2s; font-size:13px; color:#e2e8f0; }
-.clickable-item:hover { background:#334155; border-color:#38bdf8; transform:scale(1.01); }
+#manualSearchModal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:1500; justify-content:center; align-items:center; }
+.manual-box { background:#fff; width:92%; max-width:480px; border-radius:12px; padding:15px; text-align:center; }
+.clickable-item { background:#f1f8e9; padding:9px; margin-bottom:6px; border-radius:6px; border:1px solid #c8e6c9; cursor:pointer; text-align:right; transition:0.2s; font-size:13px; }
+.clickable-item:hover { background:#ded; transform:scale(1.01); }
 
-#logsModal{ display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.75); z-index:1000; justify-content:center; align-items:center; }
-.logs-content{ background:#111827; border:1px solid #374151; width:90%; max-width:600px; max-height:80vh; border-radius:10px; padding:15px; overflow-y:auto; color:#f1f5f9; }
+#logsModal{ display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000; justify-content:center; align-items:center; }
+.logs-content{ background:#fff; width:90%; max-width:600px; max-height:80vh; border-radius:10px; padding:15px; overflow-y:auto; }
 </style>
 </head>
 <body>
@@ -228,7 +224,7 @@ button:hover{ opacity: 0.9; transform: translateY(-1px); }
 <div class="card">
     <div class="header-box">
         <img src="logo.png" alt="سنتر التوفير" class="logo-img" onerror="this.style.display='none'">
-        <div style="font-size:15px; font-weight:bold; color:#f1f5f9;">سنتر التوفير - النظام الإداري الذكي</div>
+        <div style="font-size:15px; font-weight:bold; color:#444;">سنتر التوفير - النظام الإداري الذكي</div>
         
         <div class="author-box">
             <div class="author-top-content">
@@ -278,10 +274,10 @@ button:hover{ opacity: 0.9; transform: translateY(-1px); }
             <span id="dashUserName">المستخدم: غير محدد</span>
             <div style="display:flex; gap:5px;">
                 <button class="btn-save-exit" onclick="playClickSound(); saveAndExit()">💾 حفظ وخروج</button>
-                <button class="btn-pass" style="background:#dc2626;" onclick="playClickSound(); logout()">خروج</button>
+                <button class="btn-pass" style="background:#c62828;" onclick="playClickSound(); logout()">خروج</button>
             </div>
         </div>
-        <div style="font-size:16px; font-weight:bold; color:#38bdf8; margin-bottom:10px;">اختر النظام المطلوب:</div>
+        <div style="font-size:16px; font-weight:bold; color:#1565c0; margin-bottom:10px;">اختر النظام المطلوب:</div>
         <div class="dash-grid">
             <div class="dash-card" onclick="playClickSound(); openShelvesModule()">
                 📦 نظام الأرفف الذكي
@@ -317,10 +313,10 @@ button:hover{ opacity: 0.9; transform: translateY(-1px); }
 
         <div class="search-box-res" id="searchResBox"></div>
         <div id="reader"></div>
-        <button id="closeCam" style="background:#dc2626; display:none; margin-bottom:10px;" onclick="playClickSound(); stopCamera()">إغلاق الكاميرا</button>
+        <button id="closeCam" style="background:#c62828; display:none; margin-bottom:10px;" onclick="playClickSound(); stopCamera()">إغلاق الكاميرا</button>
 
         <div class="shelves-grid" id="shelvesContainer"></div>
-        <div id="statusNote" style="text-align:center; font-size:12px; color:#94a3b8; margin-top:15px;">🌐 متصل بالسحابة (حفظ تلقائي كل ثانية مفعل)</div>
+        <div id="statusNote" style="text-align:center; font-size:12px; color:#666; margin-top:15px;">🌐 متصل بالسحابة (حفظ تلقائي كل ثانية مفعل)</div>
     </div>
 
     <div id="attendanceSection">
@@ -332,16 +328,16 @@ button:hover{ opacity: 0.9; transform: translateY(-1px); }
             </div>
         </div>
 
-        <div style="background:#1e293b; border:1px solid #334155; padding:12px; border-radius:10px; margin-bottom:15px;">
-            <div style="font-size:15px; font-weight:bold; color:#38bdf8; margin-bottom:8px;">⏱️ تسجيل الحضور والانصراف (بصورة حية مع منتج عشوائي)</div>
+        <div style="background:#e3f2fd; padding:12px; border-radius:10px; margin-bottom:15px;">
+            <div style="font-size:15px; font-weight:bold; color:#0d47a1; margin-bottom:8px;">⏱️ تسجيل الحضور والانصراف (بصورة حية مع منتج عشوائي)</div>
             <div style="display:flex; gap:10px; margin-bottom:8px;">
-                <button style="background:#059669;" onclick="playClickSound(); startLiveAttendance('حضور')">تسجيل حضور</button>
-                <button style="background:#dc2626;" onclick="playClickSound(); startLiveAttendance('انصراف')">تسجيل انصراف</button>
+                <button style="background:#2e7d32;" onclick="playClickSound(); startLiveAttendance('حضور')">تسجيل حضور</button>
+                <button style="background:#c62828;" onclick="playClickSound(); startLiveAttendance('انصراف')">تسجيل انصراف</button>
             </div>
         </div>
 
-        <div style="background:#1e293b; border:1px solid #334155; padding:12px; border-radius:10px; margin-bottom:15px;">
-            <div style="font-size:15px; font-weight:bold; color:#f97316; margin-bottom:8px;">📋 طلب إجازة أو غياب</div>
+        <div style="background:#fff3e0; padding:12px; border-radius:10px; margin-bottom:15px; border:1px solid #ffe0b2;">
+            <div style="font-size:15px; font-weight:bold; color:#e65100; margin-bottom:8px;">📋 طلب إجازة أو غياب</div>
             <select id="leaveType" style="margin-bottom:8px;">
                 <option value="إجازة اعتيادي">إجازة اعتيادي</option>
                 <option value="إجازة مرضي">إجازة مرضي</option>
@@ -349,11 +345,11 @@ button:hover{ opacity: 0.9; transform: translateY(-1px); }
             </select>
             <input type="date" id="leaveDate" style="margin-bottom:8px;">
             <input type="text" id="leaveReason" placeholder="سبب الإجازة أو ملاحظة..." style="margin-bottom:8px;">
-            <button style="background:#d97706;" onclick="playClickSound(); submitLeaveRequest()">إرسال الطلب للمدير محمد حسام</button>
+            <button style="background:#f57c00;" onclick="playClickSound(); submitLeaveRequest()">إرسال الطلب للمدير محمد حسام</button>
         </div>
 
-        <div id="managerAdminBox" style="display:none; background:#1e293b; padding:12px; border-radius:10px; border:1px solid #4f46e5;">
-            <div style="font-size:15px; font-weight:bold; color:#a78bfa; margin-bottom:8px;">👑 لوحة إدارة المدير (محمد حسام): حالة الموظفين والصور</div>
+        <div id="managerAdminBox" style="display:none; background:#ede7f6; padding:12px; border-radius:10px; border:1px solid #d1c4e9;">
+            <div style="font-size:15px; font-weight:bold; color:#512da8; margin-bottom:8px;">👑 لوحة إدارة المدير (محمد حسام): حالة الموظفين والصور</div>
             <button class="btn-export" style="margin-bottom:10px;" onclick="playClickSound(); exportAttendanceExcel()">📥 سحب شيت الحضور والأنصراف (Excel)</button>
             <div id="managerRequestsList" style="font-size:12px; line-height:1.6;"></div>
         </div>
@@ -362,32 +358,32 @@ button:hover{ opacity: 0.9; transform: translateY(-1px); }
 
 <div id="manualSearchModal">
     <div class="manual-box">
-        <h3 style="color:#818cf8; margin-bottom:10px;">🔍 البحث اليدوي الشامل</h3>
+        <h3 style="color:#3f51b5; margin-bottom:10px;">🔍 البحث اليدوي الشامل</h3>
         <input type="text" id="manualSearchInput" placeholder="اكتب اسم المنتج أو الباركود أو رقم الرف..." style="margin-bottom:10px;">
-        <button style="background:#4f46e5; margin-bottom:6px;" onclick="playClickSound(); executeManualSearch()">بحث الآن</button>
-        <button style="background:#dc2626;" onclick="playClickSound(); closeManualSearchModal()">إغلاق</button>
+        <button style="background:#3f51b5; margin-bottom:6px;" onclick="playClickSound(); executeManualSearch()">بحث الآن</button>
+        <button style="background:#c62828;" onclick="playClickSound(); closeManualSearchModal()">إغلاق</button>
         <div id="manualSearchResults" style="max-height:260px; overflow-y:auto; margin-top:10px; text-align:right;"></div>
     </div>
 </div>
 
 <div id="liveCamModal">
     <div class="cam-box">
-        <h3 id="camModalTitle" style="color:#38bdf8; margin-bottom:8px;">📷 التقاط صورة حية</h3>
-        <div id="targetProductBox" style="background:#1e293b; padding:8px; border-radius:6px; font-size:13px; font-weight:bold; color:#fb923c; margin-bottom:10px; border:1px solid #334155;"></div>
+        <h3 id="camModalTitle" style="color:#1565c0; margin-bottom:8px;">📷 التقاط صورة حية</h3>
+        <div id="targetProductBox" style="background:#fff3e0; padding:8px; border-radius:6px; font-size:13px; font-weight:bold; color:#e65100; margin-bottom:10px; border:1px solid #ffb74d;"></div>
         <video id="liveVideo" autoplay playsinline style="width:100%; max-height:220px; border-radius:8px; background:#000; object-fit:cover; margin-bottom:8px;"></video>
         <canvas id="liveCanvas" style="display:none;"></canvas>
-        <button style="background:#059669; margin-bottom:6px;" onclick="playClickSound(); captureLiveSelfie()">📸 التقاط الصورة والحفظ</button>
-        <button style="background:#dc2626;" onclick="playClickSound(); closeLiveCamModal()">إغلاق</button>
+        <button style="background:#2e7d32; margin-bottom:6px;" onclick="playClickSound(); captureLiveSelfie()">📸 التقاط الصورة والحفظ</button>
+        <button style="background:#c62828;" onclick="playClickSound(); closeLiveCamModal()">إغلاق</button>
     </div>
 </div>
 
 <div id="logsModal">
     <div class="logs-content">
         <h3>📊 سجل حركات الموظفين السحابي</h3>
-        <hr style="margin:10px 0; border-color:#374151;">
+        <hr style="margin:10px 0;">
         <div id="logsList" style="font-size:12px; line-height:1.6;"></div>
-        <button style="background:#dc2626; margin-top:15px;" onclick="playClickSound(); closeLogsModal()">إغلاق</button>
-        <button style="background:#d97706;" onclick="playClickSound(); clearLogs()">مسح السجل</button>
+        <button style="background:#d32f2f; margin-top:15px;" onclick="playClickSound(); closeLogsModal()">إغلاق</button>
+        <button style="background:#f57c00;" onclick="playClickSound(); clearLogs()">مسح السجل</button>
     </div>
 </div>
 
@@ -471,7 +467,7 @@ function playAtmAndMoneySound() {
 
 let currentUser = localStorage.getItem("active_system_user") || "";
 let products = [];
-let originalRawRows = [];
+let originalRawRows = []; // حفظ الصفوف الأصلية لملف المحل تماماً
 let shelves = [];
 for(let i = 1; i <= 150; i++){ shelves.push({ id: i, items: [] }); }
 
@@ -857,18 +853,18 @@ function renderManagerRequests(){
     let todayStr = new Date().toLocaleDateString();
     let employees = ["علاء", "شوقي", "محمود", "احمد محمد امين", "محمد ميدو جبر", "محمد حسام"];
     
-    listDiv.innerHTML += `<div style="background:#0f172a; padding:8px; border-radius:6px; margin-bottom:10px; border:1px solid #334155;"><b>🟢 حالات الحضور لليوم (${todayStr}):</b><br>`;
+    listDiv.innerHTML += `<div style="background:#e8f5e9; padding:8px; border-radius:6px; margin-bottom:10px; border:1px solid #c8e6c9;"><b>🟢 حالات الحضور لليوم (${todayStr}):</b><br>`;
     employees.forEach(emp => {
         let lastRec = attendanceRecords.find(r => r.user === emp && r.date === todayStr);
         let statusText = "لم يسجل اليوم";
-        let statusColor = "#94a3b8";
+        let statusColor = "#777";
         if(lastRec){
             if(lastRec.type === 'حضور'){
                 statusText = `🟢 ${emp} حضور (الساعة ${lastRec.time})`;
-                statusColor = "#4ade80";
+                statusColor = "#2e7d32";
             } else {
                 statusText = `🔴 ${emp} انصراف (الساعة ${lastRec.time})`;
-                statusColor = "#f87171";
+                statusColor = "#c62828";
             }
         }
         listDiv.innerHTML += `<div style="color:${statusColor}; font-weight:bold; margin-top:2px;">• ${statusText}</div>`;
@@ -880,31 +876,31 @@ function renderManagerRequests(){
     } else {
         listDiv.innerHTML += `<b>طلبات الإجازات المعلقة:</b><br>`;
         leaveRequests.forEach((req, idx) => {
-            let statusColor = req.status === 'موافق عليها' ? '#4ade80' : (req.status === 'مرفوضة' ? '#f87171' : '#fb923c');
+            let statusColor = req.status === 'موافق عليها' ? 'green' : (req.status === 'مرفوضة' ? 'red' : 'orange');
             listDiv.innerHTML += `
-            <div style="background:#0f172a; padding:8px; margin-bottom:6px; border-radius:6px; border:1px solid #334155;">
+            <div style="background:#fff; padding:8px; margin-bottom:6px; border-radius:6px; border:1px solid #ccc;">
                 <b>الموظف: ${req.user}</b> | النوع: ${req.type} | التاريخ: ${req.date}<br>
                 السبب: ${req.reason || 'بدون سبب'}<br>
                 الحالة: <span style="color:${statusColor}; font-weight:bold;">${req.status}</span>
                 ${req.status === 'قيد الانتظار' ? `
                 <div style="margin-top:5px; display:flex; gap:5px;">
-                    <button style="background:#059669; padding:4px 8px; font-size:11px; width:auto;" onclick="updateLeaveStatus(${req.id}, 'موافق عليها')">موافق</button>
-                    <button style="background:#dc2626; padding:4px 8px; font-size:11px; width:auto;" onclick="updateLeaveStatus(${req.id}, 'مرفوضة')">رفض</button>
+                    <button style="background:#2e7d32; padding:4px 8px; font-size:11px; width:auto;" onclick="updateLeaveStatus(${req.id}, 'موافق عليها')">موافق</button>
+                    <button style="background:#c62828; padding:4px 8px; font-size:11px; width:auto;" onclick="updateLeaveStatus(${req.id}, 'مرفوضة')">رفض</button>
                 </div>` : ''}
             </div>`;
         });
     }
 
-    listDiv.innerHTML += `<hr style="margin:10px 0; border-color:#334155;"><b>سجل الحركات التفصيلي:</b><br>`;
+    listDiv.innerHTML += `<hr style="margin:10px 0;"><b>سجل الحركات التفصيلي:</b><br>`;
     if(attendanceRecords.length === 0){
         listDiv.innerHTML += `<div>لا توجد سجلات حضور بعد.</div>`;
     } else {
         attendanceRecords.slice(0, 10).forEach(rec => {
-            let selfieHtml = rec.selfie ? `<br><img src="${rec.selfie}" style="width:70px; height:50px; border-radius:4px; object-fit:cover; margin-top:4px; border:1px solid #334155;" alt="صورة حية"/>` : '';
-            let prodHtml = rec.product ? `<br>📦 المنتج المطلوب: <span style="color:#fb923c;">${rec.product}</span>` : '';
-            let badgeColor = rec.type === 'حضور' ? '#4ade80' : '#f87171';
+            let selfieHtml = rec.selfie ? `<br><img src="${rec.selfie}" style="width:70px; height:50px; border-radius:4px; object-fit:cover; margin-top:4px; border:1px solid #333;" alt="صورة حية"/>` : '';
+            let prodHtml = rec.product ? `<br>📦 المنتج المطلوب: <span style="color:#e65100;">${rec.product}</span>` : '';
+            let badgeColor = rec.type === 'حضور' ? '#2e7d32' : '#c62828';
             listDiv.innerHTML += `
-            <div style="background:#0f172a; padding:8px; margin-bottom:6px; border-radius:6px; border:1px solid #334155;">
+            <div style="background:#fff; padding:8px; margin-bottom:6px; border-radius:6px; border:1px solid #ddd;">
                 [${rec.date} - ${rec.time}] <b>${rec.user}</b> <span style="color:${badgeColor}; font-weight:bold;">(${rec.type})</span>${prodHtml}${selfieHtml}
             </div>`;
         });
@@ -958,6 +954,7 @@ document.getElementById("excelFile").onchange = function(e){
             let sheetName = workbook.SheetNames[0];
             let sheet = workbook.Sheets[sheetName];
             
+            // قراءة الصفوف بالهيئة الأصلية تماماً لتصديرها لاحقاً
             originalRawRows = XLSX.utils.sheet_to_json(sheet, {header: 1});
             products = XLSX.utils.sheet_to_json(sheet);
 
@@ -995,15 +992,15 @@ function renderShelves(){
     shelves.forEach(shelf => {
         let itemsHtml = "";
         if(!shelf.items || shelf.items.length === 0){
-            itemsHtml = '<div style="color:#64748b; font-size:11px; text-align:center;">فارغ</div>';
+            itemsHtml = '<div style="color:#888; font-size:11px; text-align:center;">فارغ</div>';
         } else {
             shelf.items.forEach((item, idx) => {
                 itemsHtml += `
                 <div class="item-row">
                     <span><b>${item.name}</b> (${item.price}ج)</span>
                     <div>
-                        <button style="padding:2px 6px; font-size:10px; background:#0284c7;" onclick="playClickSound(); moveItem(${shelf.id}, ${idx})">نقل</button>
-                        <button style="padding:2px 6px; font-size:10px; background:#dc2626;" onclick="playClickSound(); delItem(${shelf.id}, ${idx})">حذف</button>
+                        <button style="padding:2px 6px; font-size:10px; background:#0288d1;" onclick="playClickSound(); moveItem(${shelf.id}, ${idx})">نقل</button>
+                        <button style="padding:2px 6px; font-size:10px; background:#d32f2f;" onclick="playClickSound(); delItem(${shelf.id}, ${idx})">حذف</button>
                     </div>
                 </div>`;
             });
@@ -1017,7 +1014,7 @@ function renderShelves(){
                 <span>${count} منتج</span>
             </div>
             <div style="max-height:120px; overflow-y:auto; margin-bottom:6px;">${itemsHtml}</div>
-            <button style="background:#d97706; font-size:12px; padding:6px;" onclick="playClickSound(); openShelfCam(${shelf.id})">📷 مسح بالرف</button>
+            <button style="background:#f57c00; font-size:12px; padding:6px;" onclick="playClickSound(); openShelfCam(${shelf.id})">📷 مسح بالرف</button>
         </div>`;
     });
     updateStatus();
@@ -1058,11 +1055,11 @@ function executeManualSearch(){
 
     if(shelfMatches.length > 0){
         foundAny = true;
-        resDiv.innerHTML += `<div style="background:#0f172a; padding:6px; border-radius:6px; margin-bottom:8px; border:1px solid #334155;"><b>📍 منتجات موجودة بالفعل على الأرفف:</b></div>`;
+        resDiv.innerHTML += `<div style="background:#e8f5e9; padding:6px; border-radius:6px; margin-bottom:8px; border:1px solid #c8e6c9;"><b>📍 منتجات موجودة بالفعل على الأرفف:</b></div>`;
         shelfMatches.forEach(r => {
             resDiv.innerHTML += `
             <div class="clickable-item" onclick="playClickSound(); chooseTargetShelfForProduct('${r.barcode}', \`${r.name}\`, '${r.price}')">
-                📦 <b>الرف رقم (${r.shelfId})</b> ⬅️ ${r.name} (${r.price}ج)<br><span style="font-size:11px; color:#94a3b8;">باركود: ${r.barcode} (اضغط لإعادة توزيعه أو نقله)</span>
+                📦 <b>الرف رقم (${r.shelfId})</b> ⬅️ ${r.name} (${r.price}ج)<br><span style="font-size:11px; color:#555;">باركود: ${r.barcode} (اضغط لإعادة توزيعه أو نقله)</span>
             </div>`;
         });
     }
@@ -1075,7 +1072,7 @@ function executeManualSearch(){
 
     if(storeMatches.length > 0){
         foundAny = true;
-        resDiv.innerHTML += `<div style="background:#0f172a; padding:6px; border-radius:6px; margin:8px 0; border:1px solid #334155;"><b>🏷️ أصناف مطابقة من ملف المحل (اختر لإضافتها لأي رف):</b></div>`;
+        resDiv.innerHTML += `<div style="background:#e3f2fd; padding:6px; border-radius:6px; margin:8px 0; border:1px solid #90caf9;"><b>🏷️ أصناف مطابقة من ملف المحل (اختر لإضافتها لأي رف):</b></div>`;
         storeMatches.slice(0, 20).forEach(m => {
             let name = m["اسم المنتج"] || m["اسم الصنف"] || m["الصنف"] || "بدون اسم";
             let price = m["سعر البيع"] || m["السعر"] || "0";
@@ -1090,7 +1087,7 @@ function executeManualSearch(){
 
             resDiv.innerHTML += `
             <div class="clickable-item" onclick="playClickSound(); chooseTargetShelfForProduct('${bar}', \`${name}\`, '${price}')">
-                ✨ <b>${name}</b> (${price}ج)<br><span style="font-size:11px; color:#38bdf8;">باركود: ${bar} | 📍 ${currentShelfText}</span>
+                ✨ <b>${name}</b> (${price}ج)<br><span style="font-size:11px; color:#0d47a1;">باركود: ${bar} | 📍 ${currentShelfText}</span>
             </div>`;
         });
     }
@@ -1209,9 +1206,9 @@ function processCode(code){
         } else {
             let info = getProductDetails(code);
             if(info){
-                box.innerHTML = `❌ غير مسجل بالأرفف بعد.<br>🏷️ <b>${info.name}</b> (${info.price}ج)<br><button style="background:#059669; margin-top:8px; padding:8px;" onclick="playClickSound(); chooseTargetShelfForProduct('${code}', \`${info.name}\`, '${info.price}')">➕ إضافته لرف الآن</button>`;
+                box.innerHTML = `❌ غير مسجل بالأرفف بعد.<br>🏷️ <b>${info.name}</b> (${info.price}ج)<br><button style="background:#2e7d32; margin-top:8px; padding:8px;" onclick="playClickSound(); chooseTargetShelfForProduct('${code}', \`${info.name}\`, '${info.price}')">➕ إضافته لرف الآن</button>`;
             } else {
-                box.innerHTML = `❌ الباركود غير موجود بملف المحل.<br><button style="background:#059669; margin-top:8px; padding:8px;" onclick="playClickSound(); addUnknownToShelf('${code}')">➕ تسجيل وصنف جديد</button>`;
+                box.innerHTML = `❌ الباركود غير موجود بملف المحل.<br><button style="background:#2e7d32; margin-top:8px; padding:8px;" onclick="playClickSound(); addUnknownToShelf('${code}')">➕ تسجيل وصنف جديد</button>`;
             }
             logAction(`بحث بالكاميرا عن باركود: ${code}`);
         }
@@ -1262,8 +1259,10 @@ function moveItem(shelfId, idx){
 }
 
 function exportShelvesExcel(){
+    // إذا رفع المستخدم ملف أصناف مسبقاً ولديه صفوف أصلية بنفس البنية
     if(originalRawRows && originalRawRows.length > 0){
         let headerRow = originalRawRows[0];
+        // نحاول معرفة أي عمود يشير للباركود لمطابقة الأرفف
         let barcodeColIndex = -1;
         headerRow.forEach((colName, index) => {
             let c = String(colName || "").trim();
@@ -1272,11 +1271,15 @@ function exportShelvesExcel(){
             }
         });
 
+        // إنشاء نسخة مطابقة لصفوف الملف الأصلي تماماً مع إضافة عمود "رقم الرف" في النهاية
         let newExportRows = [];
+        
+        // صف الهيدر مع زيادة عمود "رقم الرف"
         let newHeader = [...headerRow];
         newHeader.push("رقم الرف");
         newExportRows.push(newHeader);
 
+        // خريطة سريعة لمعرفة رقم الرف لكل باركود
         let barcodeToShelfMap = {};
         shelves.forEach(s => {
             if(s.items){
@@ -1286,10 +1289,12 @@ function exportShelvesExcel(){
             }
         });
 
+        // تعبئة البيانات لكل صف أصلي
         for(let r = 1; r < originalRawRows.length; r++){
             let origRow = [...originalRawRows[r]];
             let rowBarcode = barcodeColIndex !== -1 ? String(origRow[barcodeColIndex] || "").trim() : "";
             
+            // نبحث عن الباركود في الأعمدة لو لم يتم العثور عليه بدقة بالاندكس
             if(!rowBarcode){
                 for(let cell of origRow){
                     let cellStr = String(cell || "").trim();
@@ -1314,6 +1319,7 @@ function exportShelvesExcel(){
         return;
     }
 
+    // إذا لم يرفع ملف أصناف من قبل، نصدر التقرير القياسي مع عمود رقم الرف
     let data = [];
     shelves.forEach(s => {
         if(s.items){
@@ -1348,4 +1354,22 @@ function openLogsModal(){
         listDiv.innerHTML = "لا توجد سجلات مسجلة حتى الآن.";
     } else {
         logs.forEach((log, index) => {
-            listDiv.innerHTML += `<div style="border-bottom:1px solid #334155; padding:4px 0;"><b>#${logs.length - index} [${log.user}]</b>: ${log.action} <span style="color:#94a3b8; float:left; font-size:1
+            listDiv.innerHTML += `<div style="border-bottom:1px solid #ddd; padding:4px 0;"><b>#${logs.length - index} [${log.user}]</b>: ${log.action} <span style="color:#888; float:left; font-size:10px;">${log.time}</span></div>`;
+        });
+    }
+    document.getElementById("logsModal").style.display = "flex";
+}
+
+function closeLogsModal(){ document.getElementById("logsModal").style.display = "none"; }
+function clearLogs(){
+    if(confirm("مسح السجلات بالكامل؟")){
+        logs = [];
+        const { doc, setDoc } = window.firebaseModules;
+        setDoc(doc(window.db, "store_data", "logs_doc"), { logs: [] }).catch(() => {});
+        openLogsModal();
+    }
+}
+</script>
+
+</body>
+</html>
