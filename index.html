@@ -7,21 +7,48 @@
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 <script src="https://unpkg.com/html5-qrcode"></script>
 
+<link href="https://fonts.googleapis.com/css2?family=Reem+Kufi:wght@500;700&display=swap" rel="stylesheet">
+
 <style>
 *{ margin:0; padding:0; box-sizing:border-box; font-family:Tahoma,sans-serif; }
 body{ background:#f4f6f8; padding:10px; }
 .card{ max-width:650px; margin:auto; background:#fff; border-radius:15px; padding:15px; box-shadow:0 4px 15px rgba(0,0,0,0.1); }
-.header-box{ text-align:center; margin-bottom:20px; }
-.logo-img{ max-width:240px; height:auto; margin-bottom:5px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.25)); }
-.sub-author{ font-size:16px; color:#333; margin-top:5px; font-weight:bold; }
+.header-box{ text-align:center; margin-bottom:15px; }
+.logo-img{ max-width:200px; height:auto; margin-bottom:5px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.25)); }
+.sub-author{ font-size:14px; color:#333; font-weight:bold; }
 
-.toolbar{ display:flex; flex-direction:column; gap:8px; margin-bottom:15px; }
-input, button{ width:100%; padding:12px; font-size:16px; border-radius:8px; border:1px solid #ccc; font-weight:bold; cursor:pointer; }
+/* تصميم خاص لاسم محمد حسام بتصميم وتنسيق مميز */
+.signature-badge {
+    font-family: 'Reem Kufi', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: #e65100;
+    background: #fff3e0;
+    display: inline-block;
+    padding: 4px 15px;
+    border-radius: 20px;
+    margin-top: 8px;
+    border: 1px dashed #ffa726;
+    letter-spacing: 0.5px;
+}
+
+/* شاشة تسجيل الدخول */
+#loginSection{ background:#fff; padding:15px; border-radius:10px; text-align:center; }
+.login-title{ font-size:17px; font-weight:bold; margin-bottom:12px; color:#1565c0; }
+select, input, button{ width:100%; padding:12px; font-size:16px; border-radius:8px; border:1px solid #ccc; font-weight:bold; cursor:pointer; margin-bottom:10px; }
 button{ color:white; border:none; }
+.btn-login{ background:#2e7d32; }
+
+/* شاشة التطبيق الرئيسية */
+#appSection{ display:none; }
+.user-bar{ display:flex; justify-content:space-between; align-items:center; background:#e3f2fd; padding:10px; border-radius:8px; margin-bottom:15px; font-size:14px; font-weight:bold; color:#0d47a1; }
+.toolbar{ display:flex; flex-direction:column; gap:8px; margin-bottom:15px; }
 .btn-file{ background:#ff9800; }
 .btn-export{ background:#2e7d32; }
 .btn-search{ background:#009688; }
 .btn-clear{ background:#d32f2f; }
+.btn-logs{ background:#673ab7; }
+.btn-pass{ background:#607d8b; font-size:12px; padding:6px; width:auto; margin:0; }
 
 #reader { width:100%; max-width:350px; margin:10px auto; display:none; border-radius:8px; overflow:hidden; }
 
@@ -32,70 +59,159 @@ button{ color:white; border:none; }
 .shelf-title{ font-size:14px; font-weight:bold; color:#333; margin-bottom:6px; display:flex; justify-content:space-between; }
 .item-row{ background:#fff; padding:6px; margin-bottom:4px; border-radius:6px; border:1px solid #eee; font-size:12px; display:flex; justify-content:space-between; align-items:center; }
 .search-box-res{ background:#e3f2fd; padding:10px; border-radius:8px; margin-bottom:10px; display:none; font-size:14px; border:1px solid #90caf9; }
+
+/* نافذة السجلات */
+#logsModal{ display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000; justify-content:center; align-items:center; }
+.logs-content{ background:#fff; width:90%; max-width:600px; max-height:80vh; border-radius:10px; padding:15px; overflow-y:auto; }
 </style>
 </head>
 <body>
 
 <div class="card">
-<div class="header-box">
-    <img src="logo.png" alt="سنتر التوفير" class="logo-img" onerror="this.style.display='none'">
-    <div class="sub-author">mohamed hossam (MHE)</div>
+    <div class="header-box">
+        <img src="logo.png" alt="سنتر التوفير" class="logo-img" onerror="this.style.display='none'">
+        <div class="sub-author">نظام الأرفف الذكي - سنتر التوفير</div>
+        <div class="signature-badge">تصميم: محمد حسام</div>
+    </div>
+
+    <div id="loginSection">
+        <div class="login-title">🔐 تسجيل دخول الموظفين</div>
+        <select id="userSelect">
+            <option value="">-- اختر اسم الموظف --</option>
+            <option value="محمد">محمد (المدير العام)</option>
+            <option value="علاء">علاء</option>
+            <option value="شوقي">شوقي</option>
+            <option value="محمود">محمود</option>
+            <option value="احمد محمد امين">احمد محمد امين</option>
+            <option value="محمد ميدو جبر">محمد ميدو جبر</option>
+        </select>
+        <input type="password" id="passInput" placeholder="أدخل كلمة المرور...">
+        <button class="btn-login" onclick="login()">دخول للنظام</button>
+    </div>
+
+    <div id="appSection">
+        <div class="user-bar">
+            <span id="currentUserName">المستخدم: غير محدد</span>
+            <div style="display:flex; gap:5px;">
+                <button class="btn-pass" onclick="changeMyPassword()">🔑 تغيير باسورد</button>
+                <button class="btn-pass" style="background:#c62828;" onclick="logout()">خروج</button>
+            </div>
+        </div>
+
+        <div class="toolbar">
+            <input type="file" id="excelFile" accept=".xlsx,.xls,.csv" style="display:none">
+            <button class="btn-file" onclick="document.getElementById('excelFile').click()">📂 اختيار ملف أصناف المحل (Excel)</button>
+            <button class="btn-export" onclick="exportShelvesExcel()">📥 تحميل شيت الأرفف (Excel بالأربعة أعمدة)</button>
+            <button class="btn-search" onclick="startGlobalSearch()">📷 بحث بالكاميرا عن منتج أو رف</button>
+            <input type="text" id="textSearch" placeholder="🔍 اكتب اسم المنتج أو الباركود للبحث...">
+            <button class="btn-clear" onclick="clearAllShelves()">🗑️ حذف بيانات كل الأرفف</button>
+            <button id="adminLogsBtn" class="btn-logs" style="display:none;" onclick="openLogsModal()">📊 سجل نشاطات الموظفين</button>
+        </div>
+
+        <div class="search-box-res" id="searchResBox"></div>
+        <div id="reader"></div>
+        <button id="closeCam" style="background:#c62828; display:none; margin-bottom:10px;" onclick="stopCamera()">إغلاق الكاميرا</button>
+
+        <div class="shelves-grid" id="shelvesContainer"></div>
+        <div id="statusNote" style="text-align:center; font-size:12px; color:#666; margin-top:15px;"></div>
+    </div>
 </div>
 
-<div class="toolbar">
-<input type="file" id="excelFile" accept=".xlsx,.xls,.csv" style="display:none">
-<button class="btn-file" onclick="document.getElementById('excelFile').click()">📂 اختيار ملف أصناف المحل (Excel)</button>
-<button class="btn-export" onclick="exportShelvesExcel()">📥 تحميل شيت الأرفف (Excel بالأربعة أعمدة)</button>
-<button class="btn-search" onclick="startGlobalSearch()">📷 بحث بالكاميرا عن منتج أو رف</button>
-<input type="text" id="textSearch" placeholder="🔍 اكتب اسم المنتج أو الباركود للبحث...">
-<button class="btn-clear" onclick="clearAllShelves()">🗑️ حذف بيانات كل الأرفف</button>
-</div>
-
-<div class="search-box-res" id="searchResBox"></div>
-
-<div id="reader"></div>
-<button id="closeCam" style="background:#c62828; display:none; margin-bottom:10px;" onclick="stopCamera()">إغلاق الكاميرا</button>
-
-<div class="shelves-grid" id="shelvesContainer"></div>
-
-<div id="statusNote" style="text-align:center; font-size:12px; color:#666; margin-top:15px;"></div>
+<div id="logsModal">
+    <div class="logs-content">
+        <h3>📊 سجل حركات الموظفين بالتفصيل</h3>
+        <hr style="margin:10px 0;">
+        <div id="logsList" style="font-size:12px; line-height:1.6;"></div>
+        <button style="background:#d32f2f; margin-top:15px;" onclick="closeLogsModal()">إغلاق</button>
+        <button style="background:#f57c00;" onclick="clearLogs()">مسح السجل</button>
+    </div>
 </div>
 
 <script>
+let currentUser = "";
 let products = [];
 let shelves = [];
 let html5QrCode = null;
 let activeShelfId = null;
 let mode = 'shelf'; 
 
-let savedProds = localStorage.getItem("store_products_v3") || localStorage.getItem("store_products_final");
-if(savedProds) {
-    try { products = JSON.parse(savedProds); } catch(e){}
+let passwords = JSON.parse(localStorage.getItem("system_passwords")) || {
+    "محمد": "111992",
+    "علاء": "123",
+    "شوقي": "123",
+    "محمود": "123",
+    "احمد محمد امين": "123",
+    "محمد ميدو جبر": "123"
+};
+
+let logs = JSON.parse(localStorage.getItem("system_logs")) || [];
+
+function logAction(actionText){
+    let timeStr = new Date().toLocaleString();
+    logs.unshift({ user: currentUser, action: actionText, time: timeStr });
+    if(logs.length > 200) logs.pop();
+    localStorage.setItem("system_logs", JSON.stringify(logs));
 }
 
-for(let i = 1; i <= 150; i++){
-    let saved = localStorage.getItem("shelf_data_v3_" + i) || localStorage.getItem("shelf_data_final_" + i);
-    let parsedItems = [];
-    if(saved) {
-        try { parsedItems = JSON.parse(saved); } catch(e){}
+function login(){
+    let u = document.getElementById("userSelect").value;
+    let p = document.getElementById("passInput").value.trim();
+    if(!u){ alert("اختر اسم الموظف أولاً!"); return; }
+    if(passwords[u] === p){
+        currentUser = u;
+        document.getElementById("loginSection").style.display = "none";
+        document.getElementById("appSection").style.display = "block";
+        document.getElementById("currentUserName").innerText = "المستخدم: " + u;
+        
+        if(u === "محمد"){
+            document.getElementById("adminLogsBtn").style.display = "block";
+        } else {
+            document.getElementById("adminLogsBtn").style.display = "none";
+        }
+        logAction("تسجيل دخول للنظام");
+        renderShelves();
+    } else {
+        alert("كلمة المرور غير صحيحة!");
     }
-    shelves.push({
-        id: i,
-        items: parsedItems
-    });
+}
+
+function logout(){
+    logAction("تسجيل خروج من النظام");
+    currentUser = "";
+    document.getElementById("passInput").value = "";
+    document.getElementById("loginSection").style.display = "block";
+    document.getElementById("appSection").style.display = "none";
+}
+
+function changeMyPassword(){
+    let newP = prompt(`تغيير كلمة المرور الخاصة بك (${currentUser}):\nأدخل الباسورد الجديد:`);
+    if(newP && newP.trim() !== ""){
+        passwords[currentUser] = newP.trim();
+        localStorage.setItem("system_passwords", JSON.stringify(passwords));
+        logAction("قام بتغيير كلمة المرور الخاصة به");
+        alert("✅ تم تغيير كلمة المرور بنجاح!");
+    }
+}
+
+let savedProds = localStorage.getItem("store_products_v3");
+if(savedProds) { try { products = JSON.parse(savedProds); } catch(e){} }
+
+for(let i = 1; i <= 150; i++){
+    let saved = localStorage.getItem("shelf_data_v3_" + i);
+    let parsedItems = saved ? JSON.parse(saved) : [];
+    shelves.push({ id: i, items: parsedItems });
 }
 
 function saveShelf(id){
     let shelf = shelves.find(s => s.id === id);
     localStorage.setItem("shelf_data_v3_" + id, JSON.stringify(shelf.items));
-    localStorage.setItem("shelf_data_final_" + id, JSON.stringify(shelf.items));
     updateStatus();
 }
 
 function updateStatus(){
     let total = 0;
     shelves.forEach(s => total += s.items.length);
-    document.getElementById("statusNote").innerText = `الأصناف بملف المحل: ${products.length} | إجمالي المنتجات الموزعة بالرفوف: ${total}`;
+    document.getElementById("statusNote").innerText = `الأصناف بملف المحل: ${products.length} | إجمالي المنتجات الموزعة: ${total}`;
 }
 
 document.getElementById("excelFile").onchange = function(e){
@@ -109,12 +225,10 @@ document.getElementById("excelFile").onchange = function(e){
             let sheet = workbook.Sheets[workbook.SheetNames[0]];
             products = XLSX.utils.sheet_to_json(sheet);
             localStorage.setItem("store_products_v3", JSON.stringify(products));
-            localStorage.setItem("store_products_final", JSON.stringify(products));
+            logAction("رفع واختيار ملف أصناف المحل Excel الجديد");
             updateStatus();
             alert("✅ تم حفظ ملف أصناف المحل بنجاح!");
-        } catch(err) {
-            alert("خطأ في قراءة ملف الإكسل.");
-        }
+        } catch(err) { alert("خطأ في قراءة ملف الإكسل."); }
     };
     reader.readAsBinaryString(file);
 };
@@ -169,16 +283,8 @@ function renderShelves(){
     updateStatus();
 }
 
-function openShelfCam(id){
-    activeShelfId = id;
-    mode = 'shelf';
-    startCamera();
-}
-
-function startGlobalSearch(){
-    mode = 'global';
-    startCamera();
-}
+function openShelfCam(id){ activeShelfId = id; mode = 'shelf'; startCamera(); }
+function startGlobalSearch(){ mode = 'global'; startCamera(); }
 
 function startCamera(){
     let readerDiv = document.getElementById("reader");
@@ -186,23 +292,15 @@ function startCamera(){
     readerDiv.style.display = "block";
     closeBtn.style.display = "block";
 
-    if(html5QrCode){
-        try{ html5QrCode.stop(); }catch(e){}
-    }
+    if(html5QrCode){ try{ html5QrCode.stop(); }catch(e){} }
 
     html5QrCode = new Html5Qrcode("reader");
     html5QrCode.start(
         { facingMode: "environment" },
         { fps: 10, qrbox: { width: 220, height: 120 } },
-        (text) => {
-            stopCamera();
-            processCode(text);
-        },
+        (text) => { stopCamera(); processCode(text); },
         (err) => {}
-    ).catch(e => {
-        alert("تعذر تشغيل الكاميرا، تأكد من إعطاء إذن الكاميرا للمتصفح.");
-        stopCamera();
-    });
+    ).catch(e => { alert("تعذر تشغيل الكاميرا."); stopCamera(); });
 }
 
 function stopCamera(){
@@ -210,13 +308,7 @@ function stopCamera(){
         html5QrCode.stop().then(() => {
             document.getElementById("reader").style.display = "none";
             document.getElementById("closeCam").style.display = "none";
-        }).catch(() => {
-            document.getElementById("reader").style.display = "none";
-            document.getElementById("closeCam").style.display = "none";
-        });
-    } else {
-        document.getElementById("reader").style.display = "none";
-        document.getElementById("closeCam").style.display = "none";
+        }).catch(() => {});
     }
 }
 
@@ -225,33 +317,30 @@ function processCode(code){
 
     if(mode === 'shelf'){
         let foundShelf = null;
-        shelves.forEach(s => {
-            if(s.items.some(i => i.barcode === code)) foundShelf = s.id;
-        });
+        shelves.forEach(s => { if(s.items.some(i => i.barcode === code)) foundShelf = s.id; });
 
         if(foundShelf && foundShelf !== activeShelfId){
-            let ok = confirm(`⚠️ هذا المنتج موجود مسبقاً في الرف (${foundShelf}). هل تريد نقله للرف الحالي (${activeShelfId})؟`);
+            let ok = confirm(`⚠️ المنتج موجود في الرف (${foundShelf}). هل تريد نقله للرف الحالي (${activeShelfId})؟`);
             if(!ok) return;
             let oldS = shelves.find(s => s.id === foundShelf);
             oldS.items = oldS.items.filter(i => i.barcode !== code);
             saveShelf(foundShelf);
+            logAction(`نقل المنتج (${code}) من الرف ${foundShelf} إلى الرف ${activeShelfId}`);
         }
 
         let shelf = shelves.find(s => s.id === activeShelfId);
-        if(shelf.items.some(i => i.barcode === code)){
-            alert("هذا المنتج مسجل بالفعل في هذا الرف!");
-            return;
-        }
+        if(shelf.items.some(i => i.barcode === code)){ alert("المنتج مسجل مسبقاً بهذا الرف!"); return; }
 
         let info = getProductDetails(code);
-        let name = info ? info.name : prompt("المنتج غير موجود بملف الأصناف، أدخل اسمه:", "صنف جديد");
+        let name = info ? info.name : prompt("المنتج غير موجود، أدخل اسمه:", "صنف جديد");
         if(!name) return;
         let price = info ? info.price : prompt("أدخل السعر:", "0");
 
         shelf.items.push({ barcode: code, name: name, price: price });
         saveShelf(activeShelfId);
+        logAction(`إضافة المنتج (${name}) للرف (${activeShelfId})`);
         renderShelves();
-        alert(`✅ تمت الإضافة للرف ${activeShelfId}\nالاسم: ${name}\nالسعر: ${price} ج`);
+        alert(`✅ تمت الإضافة للرف ${activeShelfId}`);
 
     } else if(mode === 'global'){
         let foundShelf = null, foundItem = null;
@@ -263,14 +352,16 @@ function processCode(code){
         let box = document.getElementById("searchResBox");
         box.style.display = "block";
         if(foundItem){
-            box.innerHTML = `📍 موجود في: <b>الرف (${foundShelf})</b><br>🏷️ الاسم: <b>${foundItem.name}</b><br>💰 السعر: <span style="color:red;">${foundItem.price} ج</span><br>🔢 الباركود: ${code}`;
+            box.innerHTML = `📍 موجود في: <b>الرف (${foundShelf})</b><br>🏷️ الاسم: <b>${foundItem.name}</b><br>💰 السعر: ${foundItem.price} ج`;
+            logAction(`بحث بالكاميرا عن منتج موجود: ${foundItem.name}`);
         } else {
             let info = getProductDetails(code);
             if(info){
-                box.innerHTML = `❌ غير مسجل بأي رف.<br>🏷️ اسم الصنف: <b>${info.name}</b><br>💰 السعر: ${info.price} ج<br><button style="background:#2e7d32; margin-top:8px; padding:8px; font-size:13px;" onclick="addToSpecificShelf('${code}', \`${info.name}\`, '${info.price}')">➕ إضافة هذا المنتج لرف معين</button>`;
+                box.innerHTML = `❌ غير مسجل بالأرفف.<br>🏷️ <b>${info.name}</b> (${info.price}ج)<br><button style="background:#2e7d32; margin-top:8px; padding:8px;" onclick="addToSpecificShelf('${code}', \`${info.name}\`, '${info.price}')">➕ إضافته لرف</button>`;
             } else {
-                box.innerHTML = `❌ الباركود (${code}) غير موجود نهائياً.<br><button style="background:#2e7d32; margin-top:8px; padding:8px; font-size:13px;" onclick="addUnknownToShelf('${code}')">➕ تسجيل منتج جديد وإضافته لرف</button>`;
+                box.innerHTML = `❌ الباركود غير موجود نهائياً.<br><button style="background:#2e7d32; margin-top:8px; padding:8px;" onclick="addUnknownToShelf('${code}')">➕ تسجيل منتج جديد</button>`;
             }
+            logAction(`بحث بالكاميرا عن باركود غير مسجل بالأرفف: ${code}`);
         }
     }
 }
@@ -280,32 +371,32 @@ function addToSpecificShelf(barcode, name, price){
     if(!target) return;
     let tId = parseInt(target);
     let tShelf = shelves.find(s => s.id === tId);
-    if(!tShelf){ alert("رقم الرف غير صحيح!"); return; }
+    if(!tShelf){ alert("رقم الرف خطأ!"); return; }
 
-    if(tShelf.items.some(i => i.barcode === barcode)){
-        alert("المنتج موجود بالفعل في هذا الرف!");
-        return;
-    }
+    if(tShelf.items.some(i => i.barcode === barcode)){ alert("موجود مسبقاً بالرف!"); return; }
 
     tShelf.items.push({ barcode: barcode, name: name, price: price });
     saveShelf(tId);
+    logAction(`إضافة المنتج (${name}) إلى الرف (${tId}) عبر البحث`);
     renderShelves();
-    alert(`✅ تم إضافة المنتج بنجاح إلى الرف (${tId})`);
+    alert(`✅ تم الإضافة للرف (${tId})`);
     document.getElementById("searchResBox").style.display = "none";
 }
 
 function addUnknownToShelf(barcode){
     let name = prompt("أدخل اسم الصنف الجديد:", "صنف جديد");
     if(!name) return;
-    let price = prompt("أدخل سعر البيع:", "0");
+    let price = prompt("أدخل السعر:", "0");
     addToSpecificShelf(barcode, name, price);
 }
 
 function delItem(shelfId, idx){
     if(confirm("حذف هذا المنتج من الرف؟")){
         let shelf = shelves.find(s => s.id === shelfId);
+        let removed = shelf.items[idx];
         shelf.items.splice(idx, 1);
         saveShelf(shelfId);
+        logAction(`حذف الصنف (${removed.name}) من الرف (${shelfId})`);
         renderShelves();
     }
 }
@@ -319,15 +410,13 @@ function moveItem(shelfId, idx){
     let tShelf = shelves.find(s => s.id === tId);
     if(!tShelf){ alert("رقم الرف خطأ!"); return; }
 
-    if(tShelf.items.some(i => i.barcode === item.barcode)){
-        alert("المنتج موجود مسبقاً في الرف المستهدف!");
-        return;
-    }
+    if(tShelf.items.some(i => i.barcode === item.barcode)){ alert("موجود مسبقاً في الرف المستهدف!"); return; }
 
     shelf.items.splice(idx, 1);
     saveShelf(shelfId);
     tShelf.items.push(item);
     saveShelf(tId);
+    logAction(`نقل الصنف (${item.name}) يدويًا من الرف ${shelfId} إلى الرف ${tId}`);
     renderShelves();
     alert("✅ تم النقل بنجاح.");
 }
@@ -336,8 +425,8 @@ document.getElementById("textSearch").oninput = function(){
     let q = this.value.trim().toLowerCase();
     let box = document.getElementById("searchResBox");
     if(!q){ box.style.display = "none"; return; }
-
     box.style.display = "block";
+    
     let matches = [];
     shelves.forEach(s => {
         s.items.forEach(i => {
@@ -350,24 +439,11 @@ document.getElementById("textSearch").oninput = function(){
     if(matches.length > 0){
         let html = "<b>نتائج البحث في الأرفف:</b><br>";
         matches.forEach(m => {
-            html += `<div style="margin-top:4px;">📍 الرف (${m.shelfId}) | 🏷️ ${m.name} | <span style="color:red;">${m.price}ج</span> | ${m.barcode}</div>`;
+            html += `<div style="margin-top:4px;">📍 الرف (${m.shelfId}) | 🏷️ ${m.name} | ${m.price}ج | ${m.barcode}</div>`;
         });
         box.innerHTML = html;
     } else {
-        let foundInProds = products.find(row => {
-            let name = String(row["اسم المنتج"] || row["اسم الصنف"] || row["الصنف"] || "").toLowerCase();
-            let bar = String(row["رقم الباركود"] || row["كود الصنف"] || row["الباركود"] || row["Barcode"] || "").toLowerCase();
-            return name.includes(q) || bar.includes(q);
-        });
-
-        if(foundInProds){
-            let pName = foundInProds["اسم المنتج"] || foundInProds["اسم الصنف"] || foundInProds["الصنف"] || "بدون اسم";
-            let pPrice = foundInProds["سعر البيع"] || foundInProds["السعر"] || foundInProds["بيع"] || "0";
-            let pBar = foundInProds["رقم الباركود"] || foundInProds["كود الصنف"] || foundInProds["الباركود"] || foundInProds["Barcode"] || "";
-            box.innerHTML = `❌ غير مسجل بالأرفف، ولكن موجود بملف المحل:<br>🏷️ <b>${pName}</b> (${pPrice}ج)<br><button style="background:#2e7d32; margin-top:6px; padding:6px; font-size:12px;" onclick="addToSpecificShelf('${pBar}', \`${pName}\`, '${pPrice}')">➕ إضافته لرف الآن</button>`;
-        } else {
-            box.innerHTML = "❌ لا توجد نتائج مطابقة نهائياً.";
-        }
+        box.innerHTML = "❌ لا توجد نتائج مطابقة بالأرفف.";
     }
 };
 
@@ -375,40 +451,54 @@ function exportShelvesExcel(){
     let data = [];
     shelves.forEach(s => {
         s.items.forEach(i => {
-            data.push({
-                "اسم الصنف": i.name,
-                "رقم الرف": s.id,
-                "باركود الصنف": i.barcode,
-                "سعر البيع": i.price
-            });
+            data.push({ "اسم الصنف": i.name, "رقم الرف": s.id, "باركود الصنف": i.barcode, "سعر البيع": i.price });
         });
     });
-
-    if(data.length === 0){
-        alert("لا توجد منتجات مسجلة في الأرفف لتصديرها!");
-        return;
-    }
-
+    if(data.length === 0){ alert("لا توجد بيانات لتصديرها!"); return; }
     let ws = XLSX.utils.json_to_sheet(data);
     let wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Shelves_Report");
     XLSX.writeFile(wb, "Center_AlTawfeer_Shelves.xlsx");
+    logAction("تحميل شيت إكسل للأرفف");
 }
 
 function clearAllShelves(){
-    if(confirm("⚠️ هل أنت متأكد من مسح جميع بيانات الأرفف نهائياً؟")){
+    if(confirm("⚠️ تحذير: هل أنت متأكد من مسح جميع الأرفف بالكامل؟")){
         shelves.forEach(s => {
             localStorage.removeItem("shelf_data_v3_" + s.id);
-            localStorage.removeItem("shelf_data_final_" + s.id);
             s.items = [];
         });
         renderShelves();
         document.getElementById("searchResBox").style.display = "none";
-        alert("تم تفريغ جميع الأرفف.");
+        logAction("⚠️ مسح وتفريغ بيانات جميع الأرفف نهائياً");
+        alert("تم تفريغ الأرفف.");
     }
 }
 
-renderShelves();
+function openLogsModal(){
+    let listDiv = document.getElementById("logsList");
+    listDiv.innerHTML = "";
+    if(logs.length === 0){
+        listDiv.innerHTML = "لا توجد سجلات مسجلة حتى الآن.";
+    } else {
+        logs.forEach((log, index) => {
+            listDiv.innerHTML += `<div style="border-bottom:1px solid #ddd; padding:4px 0;"><b>#${logs.length - index} [${log.user}]</b>: ${log.action} <span style="color:#888; float:left; font-size:10px;">${log.time}</span></div>`;
+        });
+    }
+    document.getElementById("logsModal").style.display = "flex";
+}
+
+function closeLogsModal(){
+    document.getElementById("logsModal").style.display = "none";
+}
+
+function clearLogs(){
+    if(confirm("مسح السجلات بالكامل؟")){
+        logs = [];
+        localStorage.removeItem("system_logs");
+        openLogsModal();
+    }
+}
 </script>
 
 </body>
