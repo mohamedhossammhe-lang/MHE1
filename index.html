@@ -219,8 +219,20 @@ button{ color:white; border:none; }
 
 /* تنسيق مودال فاتورة البيع */
 #posModal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:2500; justify-content:center; align-items:center; overflow-y:auto; }
-.pos-container { background:#fff; width:95%; max-width:520px; border-radius:12px; padding:15px; max-height:92vh; overflow-y:auto; text-align:right; }
-.invoice-print-area { background: #fff; padding: 12px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 10px; }
+.pos-container { background:#fff; width:95%; max-width:450px; border-radius:12px; padding:15px; max-height:92vh; overflow-y:auto; text-align:right; }
+
+/* --- تنسيق ريسيب الطباعة الحراري المتكامل والمصغر لضمان ظهور كل التفاصيل وطريقة الدفع --- */
+.invoice-print-area { 
+    background: #fff; 
+    padding: 8px; 
+    border: 1px dashed #999; 
+    border-radius: 6px; 
+    margin-bottom: 10px; 
+    color: #111; 
+    font-size: 11px; 
+    line-height: 1.4;
+    width: 100%;
+}
 
 #logsModal{ display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000; justify-content:center; align-items:center; }
 .logs-content{ background:#fff; width:90%; max-width:600px; max-height:80vh; border-radius:10px; padding:15px; overflow-y:auto; }
@@ -378,35 +390,37 @@ button{ color:white; border:none; }
         <div id="posSearchResults" style="max-height:150px; overflow-y:auto; margin-bottom:10px;"></div>
 
         <div class="invoice-print-area" id="invoicePrintArea">
-            <div style="text-align:center; border-bottom:2px dashed #333; padding-bottom:8px; margin-bottom:8px;">
-                <img src="logo.png" alt="سنتر التوفير" style="max-width:100px; height:auto;" onerror="this.style.display='none'">
-                <div style="font-size:16px; font-weight:bold; color:#111;">سنتر التوفير</div>
-                <div style="font-size:11px; color:#555;" id="invoiceDateTime">التاريخ والوقت: --/--/---- --:--</div>
-                <div style="font-size:11px; color:#0d47a1; font-weight:bold;" id="invoiceCashier">الكاشير / الموظف: --</div>
+            <div style="text-align:center; border-bottom:1px dashed #333; padding-bottom:5px; margin-bottom:5px;">
+                <img src="logo.png" alt="سنتر التوفير" style="max-width:50px; height:auto;" onerror="this.style.display='none'">
+                <div style="font-size:13px; font-weight:bold;">سنتر التوفير - فاتورة بيع</div>
+                <div style="font-size:9px; color:#333;" id="invoiceDateTime">التاريخ: --/--/---- --:--</div>
+                <div style="font-size:9px; color:#0d47a1; font-weight:bold;" id="invoiceCashier">الكاشير: --</div>
             </div>
 
-            <div style="font-size:12px; font-weight:bold; margin-bottom:5px;">تفاصيل المنتجات:</div>
-            <div id="invoiceItemsList" style="min-height:80px; max-height:160px; overflow-y:auto; border-bottom:1px solid #ddd; padding-bottom:5px; margin-bottom:8px; font-size:12px;">
+            <div style="font-size:10px; font-weight:bold; margin-bottom:3px;">تفاصيل الأصناف:</div>
+            <div id="invoiceItemsList" style="min-height:50px; max-height:140px; overflow-y:auto; border-bottom:1px dashed #333; padding-bottom:4px; margin-bottom:5px; font-size:10px;">
                 <div style="color:#777; text-align:center;">لم يتم إضافة منتجات بعد</div>
             </div>
 
-            <div style="font-size:12px; line-height:1.6;">
+            <div style="font-size:10px; line-height:1.5;">
                 <div>📦 إجمالي الأصناف: <span id="invCount" style="font-weight:bold;">0</span></div>
-                <div>💰 إجمالي المبالغ: <span id="invSubTotal" style="font-weight:bold;">0</span> ج</div>
-                <div style="display:flex; align-items:center; gap:5px; margin-top:5px;">
-                    <span>🏷️ الخصم:</span>
-                    <input type="number" id="invDiscount" value="0" min="0" style="padding:4px; font-size:13px; width:90px; margin:0;" oninput="calcInvoiceTotals()">
-                    <span>ج</span>
+                <div>💰 إجمالي المبلغ: <span id="invSubTotal" style="font-weight:bold;">0</span> ج</div>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-top:2px;">
+                    <span>🏷️ الخصم: <span id="invDiscountVal">0</span> ج</span>
+                    <span>طريقة الدفع: <b id="invPaymentMethodDisplay" style="color:#d81b60;">نقدي (كاش)</b></span>
                 </div>
-                <div style="font-size:14px; font-weight:bold; color:#d81b60; margin-top:5px; border-top:1px solid #333; padding-top:4px;">
-                    المطلوب دفعه نهائياً: <span id="invFinalTotal">0</span> ج
+                <div style="font-size:12px; font-weight:bold; color:#d81b60; margin-top:4px; border-top:1px solid #111; padding-top:3px; text-align:center;">
+                    الصافي المطلوب دفعه: <span id="invFinalTotal">0</span> ج
+                </div>
+                <div style="text-align:center; font-size:9px; color:#555; margin-top:5px; border-top:1px dashed #ccc; pt-2;">
+                    شكراً لتسوقكم في سنتر التوفير ❤️
                 </div>
             </div>
         </div>
 
         <div style="margin-bottom:10px;">
             <label style="font-size:13px; font-weight:bold; display:block; margin-bottom:4px;">💳 اختر طريقة الدفع:</label>
-            <select id="paymentMethod" style="margin-bottom:8px;">
+            <select id="paymentMethod" style="margin-bottom:8px;" onchange="updatePaymentMethodDisplay()">
                 <option value="نقدي (كاش)">نقدي (كاش)</option>
                 <option value="انستا باي (InstaPay)">انستا باي (InstaPay)</option>
                 <option value="فودافون كاش">فودافون كاش</option>
@@ -805,8 +819,9 @@ function openPosModal(){
     document.getElementById("posSearchInput").value = "";
     document.getElementById("posSearchResults").innerHTML = "";
     document.getElementById("invDiscount").value = "0";
-    document.getElementById("invoiceCashier").innerText = "الكاشير / الموظف: " + currentUser;
-    document.getElementById("invoiceDateTime").innerText = "التاريخ والوقت: " + new Date().toLocaleString();
+    document.getElementById("invoiceCashier").innerText = "الكاشير: " + currentUser;
+    document.getElementById("invoiceDateTime").innerText = "التاريخ: " + new Date().toLocaleString();
+    updatePaymentMethodDisplay();
     renderInvoiceCart();
     document.getElementById("posModal").style.display = "flex";
 }
@@ -814,6 +829,12 @@ function openPosModal(){
 function closePosModal(){
     stopPosCamera();
     document.getElementById("posModal").style.display = "none";
+}
+
+function updatePaymentMethodDisplay(){
+    let payVal = document.getElementById("paymentMethod").value;
+    let disp = document.getElementById("invPaymentMethodDisplay");
+    if(disp) disp.innerText = payVal;
 }
 
 function startPosCamScan(){
@@ -830,7 +851,6 @@ function startPosCamScan(){
             playScanSound();
             document.getElementById("posSearchInput").value = text;
             searchPosProducts();
-            // إذا وجد المنتج مباشرة بالباركود، أضفه للفاتورة فوراً
             let matchedProd = null;
             products.forEach(row => {
                 let bar = String(row["رقم الباركود"] || row["كود الصنف"] || row["الباركود"] || row["Barcode"] || "").trim();
@@ -879,22 +899,22 @@ function searchPosProducts(){
     });
 
     if(matches.length === 0){
-        resDiv.innerHTML = `<div style="color:red; font-size:12px; padding:4px;">❌ لا توجد منتجات مطابقة للبحث.</div>`;
+        resDiv.innerHTML = `<div style="color:red; font-size:11px; padding:4px;">❌ لا توجد منتجات مطابقة.</div>`;
         return;
     }
 
     matches.slice(0, 10).forEach(item => {
-        let shelfLocationText = "غير محدد على الرفوف";
+        let shelfLocationText = "غير محدد";
         shelves.forEach(s => {
             if(s.items && s.items.some(i => i.barcode === item.barcode)){
-                shelfLocationText = `الرف رقم (${s.id})`;
+                shelfLocationText = `رف (${s.id})`;
             }
         });
 
         resDiv.innerHTML += `
         <div class="clickable-item" onclick="playClickSound(); addProductToInvoice(\`${item.barcode}\`, \`${item.name}\`, ${item.price})">
-            📦 <b>${item.name}</b> (${item.price}ج) | 📍 المكان: <b>${shelfLocationText}</b>
-            <div style="font-size:11px; color:#555;">باركود: ${item.barcode} (اضغط للإضافة للفاتورة)</div>
+            📦 <b>${item.name}</b> (${item.price}ج) | 📍 <b>${shelfLocationText}</b>
+            <div style="font-size:10px; color:#555;">باركود: ${item.barcode}</div>
         </div>`;
     });
 }
@@ -931,7 +951,6 @@ function renderInvoiceCart(){
         totalItems += item.qty;
         subTotal += itemTotal;
 
-        // معرفة الرف الحالي للمنتج لكي تظهر أيقونة الرف واضحة
         let currentShelfNum = "-";
         shelves.forEach(s => {
             if(s.items && s.items.some(i => i.barcode === item.barcode)){
@@ -940,12 +959,12 @@ function renderInvoiceCart(){
         });
 
         listDiv.innerHTML += `
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px; border-bottom:1px dashed #eee; padding-bottom:3px;">
-            <span><b>${item.name}</b> (${item.price}ج × ${item.qty})</span>
-            <div style="display:flex; align-items:center; gap:4px;">
-                <span style="font-weight:bold; margin-left:4px;">${itemTotal} ج</span>
-                <button style="padding:2px 5px; font-size:10px; background:#0288d1; width:auto;" title="إدراج أو تعديل رف المنتج" onclick="playClickSound(); assignShelfFromInvoice(\`${item.barcode}\`, \`${item.name}\`, '${item.price}')">📍 رف (${currentShelfNum})</button>
-                <button style="padding:2px 5px; font-size:10px; background:#d32f2f; width:auto;" onclick="playClickSound(); removeInvoiceItem(${idx})">حذف</button>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:3px; border-bottom:1px dotted #ddd; padding-bottom:2px; font-size:10px;">
+            <span style="max-width:55%; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${item.name}"><b>${item.name}</b> (${item.price}×${item.qty})</span>
+            <div style="display:flex; align-items:center; gap:3px;">
+                <span style="font-weight:bold;">${itemTotal}ج</span>
+                <button style="padding:1px 3px; font-size:9px; background:#0288d1; width:auto;" title="إدراج أو تعديل رف" onclick="playClickSound(); assignShelfFromInvoice(\`${item.barcode}\`, \`${item.name}\`, '${item.price}')">📍(${currentShelfNum})</button>
+                <button style="padding:1px 3px; font-size:9px; background:#d32f2f; width:auto;" onclick="playClickSound(); removeInvoiceItem(${idx})">×</button>
             </div>
         </div>`;
     });
@@ -956,7 +975,7 @@ function renderInvoiceCart(){
 }
 
 function assignShelfFromInvoice(barcode, name, price){
-    let target = prompt(`📦 إدراج رف للمنتج: "${name}"\nأدخل رقم الرف المطلوب (من 1 إلى 150):`);
+    let target = prompt(`📦 إدراج رف للمنتج: "${name}"\nأدخل رقم الرف (من 1 إلى 150):`);
     if(!target) return;
     let tId = parseInt(target);
     let tShelf = shelves.find(s => s.id === tId);
@@ -964,12 +983,11 @@ function assignShelfFromInvoice(barcode, name, price){
 
     if(tShelf.items && tShelf.items.some(i => i.barcode === barcode)){
         playErrorSound();
-        alert(`⚠️ هذا المنتج موجود بالفعل في الرف رقم (${tId})!`);
+        alert(`⚠️ المنتج موجود بالفعل في الرف رقم (${tId})!`);
         return;
     }
 
-    // إزالة المنتج من أي رف قديم إن وجد
-    shelves.items = shelves.forEach(s => {
+    shelves.forEach(s => {
         if(s.items){
             let idx = s.items.findIndex(i => i.barcode === barcode);
             if(idx !== -1) s.items.splice(idx, 1);
@@ -980,7 +998,7 @@ function assignShelfFromInvoice(barcode, name, price){
     tShelf.items.push({ barcode: barcode, name: name, price: price });
     saveToCloudShelves();
     playMoveSound();
-    logAction(`إدراج الصنف (${name}) برقم باركود ${barcode} إلى الرف (${tId}) من فاتورة البيع`);
+    logAction(`إدراج الصنف (${name}) للرف (${tId}) من فاتورة البيع`);
     alert(`✅ تم إدراج المنتج في الرف (${tId}) بنجاح!`);
     renderInvoiceCart();
 }
@@ -993,6 +1011,7 @@ function removeInvoiceItem(idx){
 function calcInvoiceTotals(){
     let subTotal = parseFloat(document.getElementById("invSubTotal").innerText) || 0;
     let discount = parseFloat(document.getElementById("invDiscount").value) || 0;
+    document.getElementById("invDiscountVal").innerText = discount;
     let final = subTotal - discount;
     if(final < 0) final = 0;
     document.getElementById("invFinalTotal").innerText = final;
@@ -1004,20 +1023,21 @@ function completeAndSaveInvoice(){
         return;
     }
 
+    updatePaymentMethodDisplay();
     let payMethod = document.getElementById("paymentMethod").value;
     let finalAmount = document.getElementById("invFinalTotal").innerText;
-
     let printArea = document.getElementById("invoicePrintArea");
     
-    html2canvas(printArea).then(canvas => {
+    // التقاط الصورة بكامل المحتوى بدون أي اقتطاع بفضل اعدادات html2canvas ودقة الريسيب
+    html2canvas(printArea, { scale: 2, useCORS: true }).then(canvas => {
         let link = document.createElement('a');
         link.download = `Invoice_${Date.now()}.png`;
         link.href = canvas.toDataURL("image/png");
         link.click();
 
         playAtmAndMoneySound();
-        logAction(`إتمام فاتورة بيع بمبلغ ${finalAmount}ج (طريقة الدفع: ${payMethod})`);
-        alert(`🎉 تم تأكيد وإتمام عملية البيع بنجاح!\n💳 طريقة الدفع: ${payMethod}\n💾 تم حفظ تفاصيل الفاتورة تلقائياً كصورة على جهازك.`);
+        logAction(`إتمام فاتورة بيع بمبلغ ${finalAmount}ج (الدفع: ${payMethod})`);
+        alert(`🎉 تم تأكيد وإتمام عملية البيع بنجاح!\n💳 طريقة الدفع: ${payMethod}\n💾 تم حفظ الفاتورة كاملة كصورة على جهازك.`);
         closePosModal();
     }).catch(err => {
         alert("حدث خطأ أثناء حفظ الفاتورة كصورة.");
