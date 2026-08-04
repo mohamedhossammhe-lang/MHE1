@@ -189,6 +189,8 @@ button{ color:white; border:none; }
 .btn-file{ background:#ff9800; }
 .btn-export{ background:#2e7d32; }
 .btn-search{ background:#009688; }
+.btn-manual-search{ background:#3f51b5; }
+.btn-cloud-save{ background:#00acc1; }
 .btn-refresh{ background:#0288d1; }
 .btn-clear{ background:#d32f2f; }
 .btn-logs{ background:#673ab7; }
@@ -205,6 +207,9 @@ button{ color:white; border:none; }
 .shelf-title{ font-size:14px; font-weight:bold; color:#333; margin-bottom:6px; display:flex; justify-content:space-between; }
 .item-row{ background:#fff; padding:6px; margin-bottom:4px; border-radius:6px; border:1px solid #eee; font-size:12px; display:flex; justify-content:space-between; align-items:center; }
 .search-box-res{ background:#e3f2fd; padding:10px; border-radius:8px; margin-bottom:10px; display:none; font-size:14px; border:1px solid #90caf9; }
+
+#manualSearchModal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:1500; justify-content:center; align-items:center; }
+.manual-box { background:#fff; width:90%; max-width:450px; border-radius:12px; padding:15px; text-align:center; }
 
 #logsModal{ display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000; justify-content:center; align-items:center; }
 .logs-content{ background:#fff; width:90%; max-width:600px; max-height:80vh; border-radius:10px; padding:15px; overflow-y:auto; }
@@ -288,8 +293,10 @@ button{ color:white; border:none; }
         <div class="toolbar">
             <input type="file" id="excelFile" accept=".xlsx,.xls,.csv" style="display:none">
             <button class="btn-file" onclick="playClickSound(); document.getElementById('excelFile').click()">📂 اختيار ملف أصناف المحل (Excel)</button>
+            <button class="btn-cloud-save" onclick="playClickSound(); manualCloudSave()">☁️ حفظ ورفع البيانات للسحابة الآن</button>
             <button class="btn-export" onclick="playClickSound(); exportShelvesExcel()">📥 تحميل شيت الأرفف (Excel)</button>
             <button class="btn-search" onclick="playClickSound(); startGlobalSearch()">📷 بحث بالكاميرا عن منتج أو رف</button>
+            <button class="btn-manual-search" onclick="playClickSound(); openManualSearchModal()">🔍 بحث يدوي بالاسم أو الباركود</button>
             <button class="btn-refresh" onclick="playClickSound(); location.reload()">🔄 تحديث يدوي (Refresh)</button>
             <button id="clearShelvesBtn" class="btn-clear" style="display:none;" onclick="playClickSound(); clearAllShelves()">🗑️ حذف بيانات كل الأرفف</button>
             <button id="adminLogsBtn" class="btn-logs" style="display:none;" onclick="playClickSound(); openLogsModal()">📊 سجل نشاطات الموظفين</button>
@@ -337,6 +344,16 @@ button{ color:white; border:none; }
     </div>
 </div>
 
+<div id="manualSearchModal">
+    <div class="manual-box">
+        <h3 style="color:#3f51b5; margin-bottom:10px;">🔍 البحث اليدوي عن منتج أو رف</h3>
+        <input type="text" id="manualSearchInput" placeholder="اكتب اسم المنتج أو الباركود أو رقم الرف..." style="margin-bottom:10px;">
+        <button style="background:#3f51b5; margin-bottom:6px;" onclick="playClickSound(); executeManualSearch()">بحث الآن</button>
+        <button style="background:#c62828;" onclick="playClickSound(); closeManualSearchModal()">إغلاق</button>
+        <div id="manualSearchResults" style="max-height:200px; overflow-y:auto; margin-top:10px; text-align:right; font-size:13px;"></div>
+    </div>
+</div>
+
 <div id="liveCamModal">
     <div class="cam-box">
         <h3 id="camModalTitle" style="color:#1565c0; margin-bottom:8px;">📷 التقاط صورة حية</h3>
@@ -344,7 +361,7 @@ button{ color:white; border:none; }
         <video id="liveVideo" autoplay playsinline style="width:100%; max-height:220px; border-radius:8px; background:#000; object-fit:cover; margin-bottom:8px;"></video>
         <canvas id="liveCanvas" style="display:none;"></canvas>
         <button style="background:#2e7d32; margin-bottom:6px;" onclick="playClickSound(); captureLiveSelfie()">📸 التقاط الصورة والحفظ</button>
-        <button style="background:#c62828;" onclick="playClickSound(); closeLiveCamModal()">إلغاء</button>
+        <button style="background:#c62828;" onclick="playClickSound(); closeLiveCamModal()">إغلاق</button>
     </div>
 </div>
 
@@ -510,7 +527,6 @@ window.initCloudSystem = function() {
         }
     });
 
-    // استعادة الجلسة مباشرة لو المستخدم كان مسجلاً الدخول فعلياً
     if(currentUser){
         document.getElementById("loginSection").style.display = "none";
         document.getElementById("dashboardSection").style.display = "block";
@@ -525,7 +541,32 @@ window.initCloudSystem = function() {
             renderManagerRequests();
         }
     }
+
+    // جدولة الحفظ التلقائي كل 15 ثانية في الخلفية
+    setInterval(() => {
+        if(currentUser){
+            autoBackgroundSave();
+        }
+    }, 15000);
 };
+
+function autoBackgroundSave(){
+    const { doc, setDoc } = window.firebaseModules;
+    setDoc(doc(window.db, "store_data", "shelves_doc"), { shelves: shelves })
+    .then(() => {
+        let note = document.getElementById("statusNote");
+        if(note) note.innerHTML = `🌐 تم الحفظ التلقائي للسحابة بنجاح (${new Date().toLocaleTimeString()})`;
+    }).catch(err => {});
+}
+
+function manualCloudSave(){
+    const { doc, setDoc } = window.firebaseModules;
+    setDoc(doc(window.db, "store_data", "shelves_doc"), { shelves: shelves });
+    setDoc(doc(window.db, "store_data", "products_doc"), { products: products });
+    playAtmAndMoneySound();
+    logAction("قام بالضغط على زر حفظ ورفع البيانات للسحابة يدوياً");
+    alert("✅ تم رفع وحفظ جميع الأرفف والمنتجات للسحابة بنجاح تام!");
+}
 
 function saveToCloudShelves(){
     const { doc, setDoc } = window.firebaseModules;
@@ -937,6 +978,80 @@ function renderShelves(){
 
 function openShelfCam(id){ activeShelfId = id; mode = 'shelf'; startCamera(); }
 function startGlobalSearch(){ mode = 'global'; startCamera(); }
+
+function openManualSearchModal(){
+    document.getElementById("manualSearchInput").value = "";
+    document.getElementById("manualSearchResults").innerHTML = "";
+    document.getElementById("manualSearchModal").style.display = "flex";
+}
+
+function closeManualSearchModal(){
+    document.getElementById("manualSearchModal").style.display = "none";
+}
+
+function executeManualSearch(){
+    let query = document.getElementById("manualSearchInput").value.trim().toLowerCase();
+    let resDiv = document.getElementById("manualSearchResults");
+    resDiv.innerHTML = "";
+
+    if(!query){ resDiv.innerHTML = "أدخل كلمة للبحث عنها!"; return; }
+
+    let results = [];
+    
+    // فحص ما إذا كان البحث برقم رف (مثال: رف 5 أو 5)
+    let shelfNum = parseInt(query.replace("رف", "").trim());
+    if(!isNaN(shelfNum) && shelfNum >= 1 && shelfNum <= 150){
+        let targetShelf = shelves.find(s => s.id === shelfNum);
+        if(targetShelf && targetShelf.items && targetShelf.items.length > 0){
+            resDiv.innerHTML += `<b>📦 محتويات الرف رقم (${shelfNum}):</b><br>`;
+            targetShelf.items.forEach(i => {
+                resDiv.innerHTML += `• ${i.name} (${i.price}ج) - باركود: ${i.barcode}<br>`;
+            });
+            logAction(`بحث يدوي عن محتويات الرف رقم ${shelfNum}`);
+            return;
+        } else {
+            resDiv.innerHTML += `الرف رقم (${shelfNum}) فارغ أو غير موجود.<br>`;
+        }
+    }
+
+    // البحث بالمنتجات داخل الأرفف
+    shelves.forEach(s => {
+        if(s.items){
+            s.items.forEach(i => {
+                if(i.name.toLowerCase().includes(query) || i.barcode.toLowerCase().includes(query)){
+                    results.push({ shelfId: s.id, name: i.name, price: i.price, barcode: i.barcode });
+                }
+            });
+        }
+    });
+
+    if(results.length > 0){
+        resDiv.innerHTML += `<b>🔍 نتائج البحث بالأرفف (${results.length}):</b><br>`;
+        results.forEach(r => {
+            resDiv.innerHTML += `📍 الرف (${r.shelfId}) ➡️ <b>${r.name}</b> (${r.price}ج) [كود: ${r.barcode}]<br>`;
+        });
+    } else {
+        // البحث في ملف المحل العام
+        let storeMatch = products.filter(row => {
+            let pName = String(row["اسم المنتج"] || row["اسم الصنف"] || row["الصنف"] || "").toLowerCase();
+            let pBar = String(row["رقم الباركود"] || row["كود الصنف"] || row["الباركود"] || row["Barcode"] || "").toLowerCase();
+            return pName.includes(query) || pBar.includes(query);
+        });
+
+        if(storeMatch.length > 0){
+            resDiv.innerHTML += `<b>🏷️ نتائج البحث في أصناف المحل (غير موزعة للأرفف):</b><br>`;
+            storeMatch.slice(0, 10).forEach(m => {
+                let name = m["اسم المنتج"] || m["اسم الصنف"] || m["الصنف"] || "بدون اسم";
+                let price = m["سعر البيع"] || m["السعر"] || "0";
+                let bar = m["رقم الباركود"] || m["كود الصنف"] || m["الباركود"] || "---";
+                resDiv.innerHTML += `• ${name} (${price}ج) - باركود: ${bar}<br>`;
+            });
+        } else {
+            resDiv.innerHTML += `❌ لم يتم العثور على أي نتائج مطابقة لـ "${query}".`;
+        }
+    }
+    logAction(`إجراء بحث يدوي عن: ${query}`);
+}
 
 function startCamera(){
     let readerDiv = document.getElementById("reader");
