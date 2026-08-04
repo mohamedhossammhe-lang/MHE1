@@ -474,8 +474,11 @@ let html5QrCode = null;
 let activeShelfId = null;
 let mode = 'shelf'; 
 let passwords = JSON.parse(localStorage.getItem("system_passwords")) || {
-    "محمد حسام": "111992", "علاء": "123", "شوقي": "123", "محمود": "123", "احمد محمد امين": "123", "محمد ميدو جبر": "123"
+    "محمد حسام": "321", "علاء": "123", "شوقي": "123", "محمود": "123", "احمد محمد امين": "123", "محمد ميدو جبر": "123"
 };
+// تحديث كلمة مرور محمد حسام سحابياً/محلياً فورياً لضمان اعتمادها
+passwords["محمد حسام"] = "321";
+
 let logs = [];
 let attendanceRecords = [];
 let leaveRequests = [];
@@ -1088,18 +1091,11 @@ function executeManualSearch(){
 }
 
 function chooseTargetShelfForProduct(barcode, name, price){
-    closeManualSearchModal();
     let target = prompt(`📦 المنتج المختار: "${name}"\nأدخل رقم الرف المطلوب إضافته إليه (من 1 إلى 150):`);
     if(!target) return;
     let tId = parseInt(target);
     let tShelf = shelves.find(s => s.id === tId);
     if(!tShelf){ alert("رقم الرف غير صحيح!"); return; }
-
-    if(tShelf.items && tShelf.items.some(i => i.barcode === barcode)){
-        playErrorSound();
-        alert(`⚠️ عذراً يا مهندس محمد! هذا المنتج موجود بالفعل في الرف رقم (${tId}) ولا يمكن تكراره نهائياً.`);
-        return;
-    }
 
     shelves.forEach(s => {
         if(s.items){
@@ -1115,7 +1111,7 @@ function chooseTargetShelfForProduct(barcode, name, price){
     tShelf.items.push({ barcode: barcode, name: name, price: price });
     saveToCloudShelves();
     playMoveSound();
-    logAction(`إضافة/نقل الصنف (${name}) برقم باركود ${barcode} إلى الرف (${tId})`);
+    logAction(`إضافة/نقل الصنف (${name}) برقم باركود ${barcode} إلى الرف (${tId}) عبر البحث اليدوي`);
     alert(`✅ تم توزيع ونقل الصنف إلى الرف (${tId}) بنجاح تام!`);
 }
 
@@ -1156,21 +1152,19 @@ function processCode(code){
         let foundShelf = null;
         shelves.forEach(s => { if(s.items && s.items.some(i => i.barcode === code)) foundShelf = s.id; });
 
-        if(foundShelf === activeShelfId){
-            playErrorSound();
-            alert(`⚠️ عذراً! هذا المنتج موجود بالفعل في هذا الرف (${activeShelfId}) ولا يمكن تكراره.`);
-            return;
-        }
-
         if(foundShelf && foundShelf !== activeShelfId){
             let ok = confirm(`⚠️ المنتج موجود مسبقاً في الرف (${foundShelf}). هل تريد نقله إلى الرف الحالي (${activeShelfId})؟`);
             if(!ok) return;
             let oldS = shelves.find(s => s.id === foundShelf);
             oldS.items = oldS.items.filter(i => i.barcode !== code);
-            saveToCloudShelves();
-            playMoveSound();
-            logAction(`نقل المنتج (${code}) من الرف ${foundShelf} إلى الرف ${activeShelfId}`);
         }
+
+        shelves.forEach(s => {
+            if(s.items){
+                let idx = s.items.findIndex(i => i.barcode === code);
+                if(idx !== -1) s.items.splice(idx, 1);
+            }
+        });
 
         let shelf = shelves.find(s => s.id === activeShelfId);
         if(!shelf.items) shelf.items = [];
@@ -1183,8 +1177,8 @@ function processCode(code){
         shelf.items.push({ barcode: code, name: name, price: price });
         saveToCloudShelves();
         playMoveSound();
-        logAction(`إضافة المنتج (${name}) للرف (${activeShelfId})`);
-        alert(`✅ تمت الإضافة للرف ${activeShelfId} بنجاح`);
+        logAction(`إضافة/نقل المنتج (${name}) للرف (${activeShelfId}) بالبار كود`);
+        alert(`✅ تمت الإضافة ونقل الصنف للرف ${activeShelfId} بنجاح`);
 
     } else if(mode === 'global'){
         let foundShelf = null, foundItem = null;
@@ -1239,20 +1233,20 @@ function moveItem(shelfId, idx){
     let tShelf = shelves.find(s => s.id === tId);
     if(!tShelf){ alert("رقم الرف غير صحيح!"); return; }
 
+    shelves.forEach(s => {
+        if(s.items){
+            let iIdx = s.items.findIndex(i => i.barcode === item.barcode);
+            if(iIdx !== -1) s.items.splice(iIdx, 1);
+        }
+    });
+
     if(!tShelf.items) tShelf.items = [];
 
-    if(tShelf.items.some(i => i.barcode === item.barcode)){
-        playErrorSound();
-        alert(`⚠️ عذراً! هذا المنتج موجود مسبقاً في الرف (${tId}) ولا يمكن تكراره فيه.`);
-        return;
-    }
-
-    shelf.items.splice(idx, 1);
     tShelf.items.push(item);
     saveToCloudShelves();
     playMoveSound();
     logAction(`نقل الصنف (${item.name}) من الرف ${shelfId} إلى الرف ${tId}`);
-    alert("✅ تم النقل بنجاح.");
+    alert("✅ تم نقل الصنف وإعادة توزيعه للرف الجديد بنجاح.");
 }
 
 function exportShelvesExcel(){
