@@ -193,7 +193,7 @@ button{ color:white; border:none; }
 .btn-export{ background:#2e7d32; }
 .btn-search{ background:#009688; }
 .btn-manual-search{ background:#3f51b5; }
-.btn-pos{ background:#d81b60; font-size: 16px; font-weight: bold; }
+.btn-pos{ background:#d81b60; font-size: 16px; font-weight: bold; cursor: pointer; }
 .btn-cloud-save{ background:#00acc1; }
 .btn-refresh{ background:#455a64; }
 .btn-clear{ background:#d32f2f; }
@@ -221,7 +221,7 @@ button{ color:white; border:none; }
 #posModal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:2500; justify-content:center; align-items:center; overflow-y:auto; }
 .pos-container { background:#fff; width:95%; max-width:450px; border-radius:12px; padding:15px; max-height:92vh; overflow-y:auto; text-align:right; }
 
-/* --- تنسيق ريسيب الطباعة الحراري المتكامل والمصغر لضمان ظهور كل التفاصيل وطريقة الدفع --- */
+/* تنسيق ريسيب الطباعة الحراري المتكامل والمصغر لضمان ظهور كل التفاصيل وطريقة الدفع */
 .invoice-print-area { 
     background: #fff; 
     padding: 8px; 
@@ -318,7 +318,7 @@ button{ color:white; border:none; }
         </div>
 
         <div class="toolbar">
-            <button class="btn-pos" onclick="playClickSound(); openPosModal()">🛒 تسجيل فاتورة بيع جديدة</button>
+            <button type="button" class="btn-pos" onclick="playClickSound(); openPosModal()">🛒 تسجيل فاتورة بيع جديدة</button>
             <button class="btn-fetch-cloud" onclick="playClickSound(); fetchLatestDataFromCloud()">☁️📥 تحميل أحدث نسخة من السحابة الآن</button>
             <input type="file" id="excelFile" accept=".xlsx,.xls,.csv" style="display:none">
             <button class="btn-file" onclick="playClickSound(); document.getElementById('excelFile').click()">📂 اختيار ملف أصناف المحل (Excel)</button>
@@ -382,8 +382,8 @@ button{ color:white; border:none; }
         
         <div style="display:flex; gap:5px; margin-bottom:8px;">
             <input type="text" id="posSearchInput" placeholder="اكتب اسم المنتج أو الباركود للبحث اليدوي..." style="margin:0;">
-            <button style="background:#009688; width:auto; padding:0 15px; margin:0;" onclick="playClickSound(); searchPosProducts()">بحث</button>
-            <button style="background:#3f51b5; width:auto; padding:0 12px; margin:0; font-size:16px;" title="مسح باركود بالكاميرا" onclick="playClickSound(); startPosCamScan()">📷</button>
+            <button type="button" style="background:#009688; width:auto; padding:0 15px; margin:0;" onclick="playClickSound(); searchPosProducts()">بحث</button>
+            <button type="button" style="background:#3f51b5; width:auto; padding:0 12px; margin:0; font-size:16px;" title="مسح باركود بالكاميرا" onclick="playClickSound(); startPosCamScan()">📷</button>
         </div>
         
         <div id="posReader" style="width:100%; max-width:300px; margin:5px auto; display:none; border-radius:8px; overflow:hidden;"></div>
@@ -406,13 +406,13 @@ button{ color:white; border:none; }
                 <div>📦 إجمالي الأصناف: <span id="invCount" style="font-weight:bold;">0</span></div>
                 <div>💰 إجمالي المبلغ: <span id="invSubTotal" style="font-weight:bold;">0</span> ج</div>
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-top:2px;">
-                    <span>🏷️ الخصم: <span id="invDiscountVal">0</span> ج</span>
+                    <span>🏷️ الخصم: <input type="number" id="invDiscount" value="0" style="width:60px; padding:2px; font-size:10px; display:inline-block; margin:0;" oninput="calcInvoiceTotals()"> ج</span>
                     <span>طريقة الدفع: <b id="invPaymentMethodDisplay" style="color:#d81b60;">نقدي (كاش)</b></span>
                 </div>
                 <div style="font-size:12px; font-weight:bold; color:#d81b60; margin-top:4px; border-top:1px solid #111; padding-top:3px; text-align:center;">
                     الصافي المطلوب دفعه: <span id="invFinalTotal">0</span> ج
                 </div>
-                <div style="text-align:center; font-size:9px; color:#555; margin-top:5px; border-top:1px dashed #ccc; pt-2;">
+                <div style="text-align:center; font-size:9px; color:#555; margin-top:5px; border-top:1px dashed #ccc; padding-top:2px;">
                     شكراً لتسوقكم في سنتر التوفير ❤️
                 </div>
             </div>
@@ -428,8 +428,8 @@ button{ color:white; border:none; }
         </div>
 
         <div style="display:flex; gap:8px;">
-            <button style="background:#2e7d32;" onclick="playClickSound(); completeAndSaveInvoice()">✅ إتمام الدفع وحفظ الفاتورة كصورة</button>
-            <button style="background:#c62828; width:auto;" onclick="playClickSound(); closePosModal()">إغلاق</button>
+            <button type="button" style="background:#2e7d32;" onclick="playClickSound(); completeAndSaveInvoice()">✅ إتمام الدفع وحفظ الفاتورة كصورة</button>
+            <button type="button" style="background:#c62828; width:auto;" onclick="playClickSound(); closePosModal()">إغلاق</button>
         </div>
     </div>
 </div>
@@ -438,8 +438,8 @@ button{ color:white; border:none; }
     <div class="manual-box">
         <h3 style="color:#3f51b5; margin-bottom:10px;">🔍 البحث اليدوي الشامل</h3>
         <input type="text" id="manualSearchInput" placeholder="اكتب اسم المنتج أو الباركود أو رقم الرف..." style="margin-bottom:10px;">
-        <button style="background:#3f51b5; margin-bottom:6px;" onclick="playClickSound(); executeManualSearch()">بحث الآن</button>
-        <button style="background:#c62828;" onclick="playClickSound(); closeManualSearchModal()">إغلاق</button>
+        <button type="button" style="background:#3f51b5; margin-bottom:6px;" onclick="playClickSound(); executeManualSearch()">بحث الآن</button>
+        <button type="button" style="background:#c62828;" onclick="playClickSound(); closeManualSearchModal()">إغلاق</button>
         <div id="manualSearchResults" style="max-height:260px; overflow-y:auto; margin-top:10px; text-align:right;"></div>
     </div>
 </div>
@@ -450,8 +450,8 @@ button{ color:white; border:none; }
         <div id="targetProductBox" style="background:#fff3e0; padding:8px; border-radius:6px; font-size:13px; font-weight:bold; color:#e65100; margin-bottom:10px; border:1px solid #ffb74d;"></div>
         <video id="liveVideo" autoplay playsinline style="width:100%; max-height:220px; border-radius:8px; background:#000; object-fit:cover; margin-bottom:8px;"></video>
         <canvas id="liveCanvas" style="display:none;"></canvas>
-        <button style="background:#2e7d32; margin-bottom:6px;" onclick="playClickSound(); captureLiveSelfie()">📸 التقاط الصورة والحفظ</button>
-        <button style="background:#c62828;" onclick="playClickSound(); closeLiveCamModal()">إغلاق</button>
+        <button type="button" style="background:#2e7d32; margin-bottom:6px;" onclick="playClickSound(); captureLiveSelfie()">📸 التقاط الصورة والحفظ</button>
+        <button type="button" style="background:#c62828;" onclick="playClickSound(); closeLiveCamModal()">إغلاق</button>
     </div>
 </div>
 
@@ -460,8 +460,8 @@ button{ color:white; border:none; }
         <h3>📊 سجل حركات الموظفين السحابي</h3>
         <hr style="margin:10px 0;">
         <div id="logsList" style="font-size:12px; line-height:1.6;"></div>
-        <button style="background:#d32f2f; margin-top:15px;" onclick="playClickSound(); closeLogsModal()">إغلاق</button>
-        <button style="background:#f57c00;" onclick="playClickSound(); clearLogs()">مسح السجل</button>
+        <button type="button" style="background:#d32f2f; margin-top:15px;" onclick="playClickSound(); closeLogsModal()">إغلاق</button>
+        <button type="button" style="background:#f57c00;" onclick="playClickSound(); clearLogs()">مسح السجل</button>
     </div>
 </div>
 
@@ -814,7 +814,7 @@ function changeMyPassword(){
 }
 
 /* دوال فاتورة البيع والبحث الذكي */
-function openPosModal(){
+window.openPosModal = function() {
     invoiceCart = [];
     document.getElementById("posSearchInput").value = "";
     document.getElementById("posSearchResults").innerHTML = "";
@@ -963,8 +963,8 @@ function renderInvoiceCart(){
             <span style="max-width:55%; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${item.name}"><b>${item.name}</b> (${item.price}×${item.qty})</span>
             <div style="display:flex; align-items:center; gap:3px;">
                 <span style="font-weight:bold;">${itemTotal}ج</span>
-                <button style="padding:1px 3px; font-size:9px; background:#0288d1; width:auto;" title="إدراج أو تعديل رف" onclick="playClickSound(); assignShelfFromInvoice(\`${item.barcode}\`, \`${item.name}\`, '${item.price}')">📍(${currentShelfNum})</button>
-                <button style="padding:1px 3px; font-size:9px; background:#d32f2f; width:auto;" onclick="playClickSound(); removeInvoiceItem(${idx})">×</button>
+                <button type="button" style="padding:1px 3px; font-size:9px; background:#0288d1; width:auto;" title="إدراج أو تعديل رف" onclick="playClickSound(); assignShelfFromInvoice(\`${item.barcode}\`, \`${item.name}\`, '${item.price}')">📍(${currentShelfNum})</button>
+                <button type="button" style="padding:1px 3px; font-size:9px; background:#d32f2f; width:auto;" onclick="playClickSound(); removeInvoiceItem(${idx})">×</button>
             </div>
         </div>`;
     });
@@ -1011,7 +1011,6 @@ function removeInvoiceItem(idx){
 function calcInvoiceTotals(){
     let subTotal = parseFloat(document.getElementById("invSubTotal").innerText) || 0;
     let discount = parseFloat(document.getElementById("invDiscount").value) || 0;
-    document.getElementById("invDiscountVal").innerText = discount;
     let final = subTotal - discount;
     if(final < 0) final = 0;
     document.getElementById("invFinalTotal").innerText = final;
@@ -1028,7 +1027,6 @@ function completeAndSaveInvoice(){
     let finalAmount = document.getElementById("invFinalTotal").innerText;
     let printArea = document.getElementById("invoicePrintArea");
     
-    // التقاط الصورة بكامل المحتوى بدون أي اقتطاع بفضل اعدادات html2canvas ودقة الريسيب
     html2canvas(printArea, { scale: 2, useCORS: true }).then(canvas => {
         let link = document.createElement('a');
         link.download = `Invoice_${Date.now()}.png`;
@@ -1189,8 +1187,8 @@ function renderManagerRequests(){
                 الحالة: <span style="color:${statusColor}; font-weight:bold;">${req.status}</span>
                 ${req.status === 'قيد الانتظار' ? `
                 <div style="margin-top:5px; display:flex; gap:5px;">
-                    <button style="background:#2e7d32; padding:4px 8px; font-size:11px; width:auto;" onclick="updateLeaveStatus(${req.id}, 'موافق عليها')">موافق</button>
-                    <button style="background:#c62828; padding:4px 8px; font-size:11px; width:auto;" onclick="updateLeaveStatus(${req.id}, 'مرفوضة')">رفض</button>
+                    <button type="button" style="background:#2e7d32; padding:4px 8px; font-size:11px; width:auto;" onclick="updateLeaveStatus(${req.id}, 'موافق عليها')">موافق</button>
+                    <button type="button" style="background:#c62828; padding:4px 8px; font-size:11px; width:auto;" onclick="updateLeaveStatus(${req.id}, 'مرفوضة')">رفض</button>
                 </div>` : ''}
             </div>`;
         });
@@ -1299,8 +1297,8 @@ function renderShelves(){
                 <div class="item-row">
                     <span><b>${item.name}</b> (${item.price}ج)</span>
                     <div>
-                        <button style="padding:2px 6px; font-size:10px; background:#0288d1;" onclick="playClickSound(); moveItem(${shelf.id}, ${idx})">نقل</button>
-                        <button style="padding:2px 6px; font-size:10px; background:#d32f2f;" onclick="playClickSound(); delItem(${shelf.id}, ${idx})">حذف</button>
+                        <button type="button" style="padding:2px 6px; font-size:10px; background:#0288d1;" onclick="playClickSound(); moveItem(${shelf.id}, ${idx})">نقل</button>
+                        <button type="button" style="padding:2px 6px; font-size:10px; background:#d32f2f;" onclick="playClickSound(); delItem(${shelf.id}, ${idx})">حذف</button>
                     </div>
                 </div>`;
             });
@@ -1314,7 +1312,7 @@ function renderShelves(){
                 <span>${count} منتج</span>
             </div>
             <div style="max-height:120px; overflow-y:auto; margin-bottom:6px;">${itemsHtml}</div>
-            <button style="background:#f57c00; font-size:12px; padding:6px;" onclick="playClickSound(); openShelfCam(${shelf.id})">📷 مسح بالرف</button>
+            <button type="button" style="background:#f57c00; font-size:12px; padding:6px;" onclick="playClickSound(); openShelfCam(${shelf.id})">📷 مسح بالرف</button>
         </div>`;
     });
     updateStatus();
@@ -1517,9 +1515,9 @@ function processCode(code){
         } else {
             let info = getProductDetails(code);
             if(info){
-                box.innerHTML = `❌ غير مسجل بالأرفف بعد.<br>🏷️ <b>${info.name}</b> (${info.price}ج)<br><button style="background:#2e7d32; margin-top:8px; padding:8px;" onclick="playClickSound(); chooseTargetShelfForProduct('${code}', \`${info.name}\`, '${info.price}')">➕ إضافته لرف الآن</button>`;
+                box.innerHTML = `❌ غير مسجل بالأرفف بعد.<br>🏷️ <b>${info.name}</b> (${info.price}ج)<br><button type="button" style="background:#2e7d32; margin-top:8px; padding:8px;" onclick="playClickSound(); chooseTargetShelfForProduct('${code}', \`${info.name}\`, '${info.price}')">➕ إضافته لرف الآن</button>`;
             } else {
-                box.innerHTML = `❌ الباركود غير موجود بملف المحل.<br><button style="background:#2e7d32; margin-top:8px; padding:8px;" onclick="playClickSound(); addUnknownToShelf('${code}')">➕ تسجيل وصنف جديد</button>`;
+                box.innerHTML = `❌ الباركود غير موجود بملف المحل.<br><button type="button" style="background:#2e7d32; margin-top:8px; padding:8px;" onclick="playClickSound(); addUnknownToShelf('${code}')">➕ تسجيل وصنف جديد</button>`;
             }
             logAction(`بحث بالكاميرا عن باركود: ${code}`);
         }
