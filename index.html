@@ -303,7 +303,7 @@ button{ color:white; border:none; }
             <input type="file" id="excelFile" accept=".xlsx,.xls,.csv" style="display:none">
             <button class="btn-file" onclick="playClickSound(); document.getElementById('excelFile').click()">📂 اختيار ملف أصناف المحل (Excel)</button>
             <button class="btn-cloud-save" onclick="playClickSound(); manualCloudSave()">☁️ حفظ ورفع البيانات للسحابة الآن</button>
-            <button class="btn-export" onclick="playClickSound(); exportShelvesExcel()">📥 تحميل شيت الأرفف (Excel)</button>
+            <button class="btn-export" onclick="playClickSound(); exportShelvesExcel()">📥 تحميل شيت الأرفف (نفس تصميم ملف الأصناف + عمود الرف)</button>
             <button class="btn-search" onclick="playClickSound(); startGlobalSearch()">📷 بحث بالكاميرا عن منتج أو رف</button>
             <button class="btn-manual-search" onclick="playClickSound(); openManualSearchModal()">🔍 بحث يدوي شامل (أرفف وأصناف)</button>
             <button class="btn-refresh" onclick="playClickSound(); location.reload()">🔄 تحديث يدوي (Refresh)</button>
@@ -467,6 +467,7 @@ function playAtmAndMoneySound() {
 
 let currentUser = localStorage.getItem("active_system_user") || "";
 let products = [];
+let originalRawRows = []; // حفظ الصفوف الأصلية لملف المحل تماماً
 let shelves = [];
 for(let i = 1; i <= 150; i++){ shelves.push({ id: i, items: [] }); }
 
@@ -516,12 +517,15 @@ window.initCloudSystem = function() {
             let cloudShelves = docSnap.data().shelves;
             if(cloudShelves) { shelves = cloudShelves; renderShelves(); }
         }
-    }, (error) => { console.log("اتصال سحابي مؤقت جاري استئنافه..."); });
+    }, (error) => {});
 
     onSnapshot(doc(db, "store_data", "products_doc"), (docSnap) => {
         if (docSnap.exists()) {
             let cloudProds = docSnap.data().products;
-            if(cloudProds) { products = cloudProds; updateStatus(); }
+            let cloudRaw = docSnap.data().rawRows;
+            if(cloudProds) { products = cloudProds; }
+            if(cloudRaw) { originalRawRows = cloudRaw; }
+            updateStatus();
         }
     }, (error) => {});
 
@@ -572,8 +576,9 @@ function fetchLatestDataFromCloud(){
         if(shelfSnap.exists() && shelfSnap.data().shelves){
             shelves = shelfSnap.data().shelves;
         }
-        if(prodSnap.exists() && prodSnap.data().products){
-            products = prodSnap.data().products;
+        if(prodSnap.exists()){
+            if(prodSnap.data().products) products = prodSnap.data().products;
+            if(prodSnap.data().rawRows) originalRawRows = prodSnap.data().rawRows;
         }
         renderShelves();
         updateStatus();
@@ -590,7 +595,7 @@ function autoBackgroundSave(){
     const { doc, setDoc } = window.firebaseModules;
     if(!window.db) return;
     setDoc(doc(window.db, "store_data", "shelves_doc"), { shelves: shelves }).catch(() => {});
-    setDoc(doc(window.db, "store_data", "products_doc"), { products: products }).catch(() => {});
+    setDoc(doc(window.db, "store_data", "products_doc"), { products: products, rawRows: originalRawRows }).catch(() => {});
     let note = document.getElementById("statusNote");
     if(note) note.innerHTML = `🌐 متصل بالسحابة | حفظ تلقائي نشط (${new Date().toLocaleTimeString()})`;
 }
@@ -598,7 +603,7 @@ function autoBackgroundSave(){
 function manualCloudSave(){
     const { doc, setDoc } = window.firebaseModules;
     setDoc(doc(window.db, "store_data", "shelves_doc"), { shelves: shelves });
-    setDoc(doc(window.db, "store_data", "products_doc"), { products: products });
+    setDoc(doc(window.db, "store_data", "products_doc"), { products: products, rawRows: originalRawRows });
     playAtmAndMoneySound();
     logAction("قام بحفظ ورفع البيانات للسحابة يدوياً");
     alert("✅ تم رفع وحفظ جميع الأرفف والمنتجات للسحابة بنجاح تام!");
@@ -607,7 +612,7 @@ function manualCloudSave(){
 function saveAndExit(){
     const { doc, setDoc } = window.firebaseModules;
     setDoc(doc(window.db, "store_data", "shelves_doc"), { shelves: shelves });
-    setDoc(doc(window.db, "store_data", "products_doc"), { products: products });
+    setDoc(doc(window.db, "store_data", "products_doc"), { products: products, rawRows: originalRawRows });
     setDoc(doc(window.db, "store_data", "attendance_doc"), { records: attendanceRecords });
     setDoc(doc(window.db, "store_data", "leaves_doc"), { requests: leaveRequests });
     
@@ -625,7 +630,7 @@ function saveToCloudShelves(){
 
 function saveToCloudProducts(){
     const { doc, setDoc } = window.firebaseModules;
-    setDoc(doc(window.db, "store_data", "products_doc"), { products: products }).catch(() => {});
+    setDoc(doc(window.db, "store_data", "products_doc"), { products: products, rawRows: originalRawRows }).catch(() => {});
 }
 
 function saveToCloudAttendance(){
@@ -946,13 +951,18 @@ document.getElementById("excelFile").onchange = function(e){
         try {
             let data = evt.target.result;
             let workbook = XLSX.read(data, {type: 'binary'});
-            let sheet = workbook.Sheets[workbook.SheetNames[0]];
+            let sheetName = workbook.SheetNames[0];
+            let sheet = workbook.Sheets[sheetName];
+            
+            // قراءة الصفوف بالهيئة الأصلية تماماً لتصديرها لاحقاً
+            originalRawRows = XLSX.utils.sheet_to_json(sheet, {header: 1});
             products = XLSX.utils.sheet_to_json(sheet);
+
             saveToCloudProducts();
             playMoveSound();
-            logAction("رفع وتحديث ملف أصناف المحل (Excel)");
+            logAction("رفع وتحديث ملف أصناف المحل (Excel) مع حفظ البنية الأصلية");
             updateStatus();
-            alert("✅ تم رفع وحفظ ملف الأصناف سحابياً للجميع!");
+            alert("✅ تم رفع وحفظ ملف الأصناف بكل أعمدته الأصلية بنجاح للجميع!");
         } catch(err) { alert("خطأ في قراءة ملف الإكسل."); }
     };
     reader.readAsBinaryString(file);
@@ -1249,6 +1259,67 @@ function moveItem(shelfId, idx){
 }
 
 function exportShelvesExcel(){
+    // إذا رفع المستخدم ملف أصناف مسبقاً ولديه صفوف أصلية بنفس البنية
+    if(originalRawRows && originalRawRows.length > 0){
+        let headerRow = originalRawRows[0];
+        // نحاول معرفة أي عمود يشير للباركود لمطابقة الأرفف
+        let barcodeColIndex = -1;
+        headerRow.forEach((colName, index) => {
+            let c = String(colName || "").trim();
+            if(c.includes("باركود") || c.includes("كود") || c.toLowerCase().includes("barcode")){
+                barcodeColIndex = index;
+            }
+        });
+
+        // إنشاء نسخة مطابقة لصفوف الملف الأصلي تماماً مع إضافة عمود "رقم الرف" في النهاية
+        let newExportRows = [];
+        
+        // صف الهيدر مع زيادة عمود "رقم الرف"
+        let newHeader = [...headerRow];
+        newHeader.push("رقم الرف");
+        newExportRows.push(newHeader);
+
+        // خريطة سريعة لمعرفة رقم الرف لكل باركود
+        let barcodeToShelfMap = {};
+        shelves.forEach(s => {
+            if(s.items){
+                s.items.forEach(i => {
+                    barcodeToShelfMap[String(i.barcode).trim()] = s.id;
+                });
+            }
+        });
+
+        // تعبئة البيانات لكل صف أصلي
+        for(let r = 1; r < originalRawRows.length; r++){
+            let origRow = [...originalRawRows[r]];
+            let rowBarcode = barcodeColIndex !== -1 ? String(origRow[barcodeColIndex] || "").trim() : "";
+            
+            // نبحث عن الباركود في الأعمدة لو لم يتم العثور عليه بدقة بالاندكس
+            if(!rowBarcode){
+                for(let cell of origRow){
+                    let cellStr = String(cell || "").trim();
+                    if(barcodeToShelfMap[cellStr]){
+                        rowBarcode = cellStr;
+                        break;
+                    }
+                }
+            }
+
+            let shelfNumber = barcodeToShelfMap[rowBarcode] || "غير مضاف";
+            origRow.push(shelfNumber);
+            newExportRows.push(origRow);
+        }
+
+        let ws = XLSX.utils.aoa_to_sheet(newExportRows);
+        let wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Center_AlTawfeer_Shelves");
+        XLSX.writeFile(wb, "Center_AlTawfeer_Shelves_Identical.xlsx");
+        playMoveSound();
+        logAction("تصدير شيت الأرفف بنفس تصميم ملف الأصناف الأصلي تماماً");
+        return;
+    }
+
+    // إذا لم يرفع ملف أصناف من قبل، نصدر التقرير القياسي مع عمود رقم الرف
     let data = [];
     shelves.forEach(s => {
         if(s.items){
