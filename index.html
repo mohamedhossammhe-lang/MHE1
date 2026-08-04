@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>سنتر التوفير - نظام الأرفف الشامل</title>
+<title>سنتر التوفير - نظام الأرفف الذكي</title>
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 <script src="https://unpkg.com/html5-qrcode"></script>
 
@@ -11,7 +11,11 @@
 *{ margin:0; padding:0; box-sizing:border-box; font-family:Tahoma,sans-serif; }
 body{ background:#f4f6f8; padding:10px; }
 .card{ max-width:650px; margin:auto; background:#fff; border-radius:15px; padding:15px; box-shadow:0 4px 15px rgba(0,0,0,0.1); }
-.title{ text-align:center; font-size:26px; color:#ff9800; font-weight:bold; margin-bottom:10px; }
+.header-box{ text-align:center; margin-bottom:15px; }
+.logo-img{ width:90px; height:90px; border-radius:50%; object-fit:cover; border:3px solid #ff9800; margin-bottom:5px; box-shadow:0 2px 8px rgba(0,0,0,0.15); }
+.title{ font-size:24px; color:#ff9800; font-weight:bold; }
+.sub-author{ font-size:13px; color:#555; margin-top:2px; font-weight:bold; }
+
 .toolbar{ display:flex; flex-direction:column; gap:8px; margin-bottom:15px; }
 input, button{ width:100%; padding:12px; font-size:16px; border-radius:8px; border:1px solid #ccc; font-weight:bold; cursor:pointer; }
 button{ color:white; border:none; }
@@ -34,14 +38,18 @@ button{ color:white; border:none; }
 <body>
 
 <div class="card">
-<div class="title">🏪 سنتر التوفير</div>
+<div class="header-box">
+    <img src="https://i.ibb.co/6R559W9/1000755402.jpg" alt="سنتر التوفير" class="logo-img" onerror="this.style.display='none'">
+    <div class="title">سنتر التوفير</div>
+    <div class="sub-author">mohamed hossam (MHE)</div>
+</div>
 
 <div class="toolbar">
 <input type="file" id="excelFile" accept=".xlsx,.xls,.csv" style="display:none">
 <button class="btn-file" onclick="document.getElementById('excelFile').click()">📂 اختيار ملف أصناف المحل (Excel)</button>
-<button class="btn-export" onclick="exportShelvesExcel()">📥 تحميل شيت الأرفف (Excel بالأربعة أعمدة)</button>
+<button class="btn-export" onclick="exportShelvesExcel()">📥 تحميل شيت الأرفف (Excel)</button>
 <button class="btn-search" onclick="startGlobalSearch()">📷 بحث بالكاميرا عن منتج أو رف</button>
-<input type="text" id="textSearch" placeholder="🔍 اكتب اسم المنتج أو الباركود أو رقم الرف للبحث...">
+<input type="text" id="textSearch" placeholder="🔍 اكتب اسم المنتج أو الباركود للبحث...">
 <button class="btn-clear" onclick="clearAllShelves()">🗑️ حذف بيانات كل الأرفف</button>
 </div>
 
@@ -62,13 +70,13 @@ let html5QrCode = null;
 let activeShelfId = null;
 let mode = 'shelf'; 
 
-let savedProds = localStorage.getItem("store_products_final");
+let savedProds = localStorage.getItem("store_products_v3");
 if(savedProds) {
     try { products = JSON.parse(savedProds); } catch(e){}
 }
 
 for(let i = 1; i <= 150; i++){
-    let saved = localStorage.getItem("shelf_data_final_" + i);
+    let saved = localStorage.getItem("shelf_data_v3_" + i);
     shelves.push({
         id: i,
         items: saved ? JSON.parse(saved) : []
@@ -77,7 +85,7 @@ for(let i = 1; i <= 150; i++){
 
 function saveShelf(id){
     let shelf = shelves.find(s => s.id === id);
-    localStorage.setItem("shelf_data_final_" + id, JSON.stringify(shelf.items));
+    localStorage.setItem("shelf_data_v3_" + id, JSON.stringify(shelf.items));
     updateStatus();
 }
 
@@ -97,7 +105,7 @@ document.getElementById("excelFile").onchange = function(e){
             let workbook = XLSX.read(data, {type: 'binary'});
             let sheet = workbook.Sheets[workbook.SheetNames[0]];
             products = XLSX.utils.sheet_to_json(sheet);
-            localStorage.setItem("store_products_final", JSON.stringify(products));
+            localStorage.setItem("store_products_v3", JSON.stringify(products));
             updateStatus();
             alert("✅ تم حفظ ملف أصناف المحل بنجاح!");
         } catch(err) {
@@ -114,6 +122,7 @@ function getProductDetails(code){
         let bar = String(row["رقم الباركود"] || row["كود الصنف"] || row["الباركود"] || row["Barcode"] || "").trim();
         if(bar === code || bar.includes(code)){
             return {
+                barcode: bar,
                 name: row["اسم المنتج"] || row["اسم الصنف"] || row["الصنف"] || "بدون اسم",
                 price: row["سعر البيع"] || row["السعر"] || row["بيع"] || "0"
             };
@@ -254,12 +263,38 @@ function processCode(code){
         } else {
             let info = getProductDetails(code);
             if(info){
-                box.innerHTML = `❌ غير مسجل بأي رف.<br>🏷️ اسم الصنف (من ملف المحل): <b>${info.name}</b><br>💰 السعر: ${info.price} ج<br>🔢 الباركود: ${code}`;
+                box.innerHTML = `❌ غير مسجل بأي رف.<br>🏷️ اسم الصنف: <b>${info.name}</b><br>💰 السعر: ${info.price} ج<br><button style="background:#2e7d32; margin-top:8px; padding:8px; font-size:13px;" onclick="addToSpecificShelf('${code}', \`${info.name}\`, '${info.price}')">➕ إضافة هذا المنتج لرف معين</button>`;
             } else {
-                box.innerHTML = `❌ الباركود (${code}) غير موجود نهائياً لا بالأرفف ولا بملف الأصناف.`;
+                box.innerHTML = `❌ الباركود (${code}) غير موجود نهائياً.<br><button style="background:#2e7d32; margin-top:8px; padding:8px; font-size:13px;" onclick="addUnknownToShelf('${code}')">➕ تسجيل منتج جديد وإضافته لرف</button>`;
             }
         }
     }
+}
+
+function addToSpecificShelf(barcode, name, price){
+    let target = prompt("أدخل رقم الرف المراد الإضافة إليه (1 إلى 150):");
+    if(!target) return;
+    let tId = parseInt(target);
+    let tShelf = shelves.find(s => s.id === tId);
+    if(!tShelf){ alert("رقم الرف غير صحيح!"); return; }
+
+    if(tShelf.items.some(i => i.barcode === barcode)){
+        alert("المنتج موجود بالفعل في هذا الرف!");
+        return;
+    }
+
+    tShelf.items.push({ barcode: barcode, name: name, price: price });
+    saveShelf(tId);
+    renderShelves();
+    alert(`✅ تم إضافة المنتج بنجاح إلى الرف (${tId})`);
+    document.getElementById("searchResBox").style.display = "none";
+}
+
+function addUnknownToShelf(barcode){
+    let name = prompt("أدخل اسم الصنف الجديد:", "صنف جديد");
+    if(!name) return;
+    let price = prompt("أدخل سعر البيع:", "0");
+    addToSpecificShelf(barcode, name, price);
 }
 
 function delItem(shelfId, idx){
@@ -293,6 +328,7 @@ function moveItem(shelfId, idx){
     alert("✅ تم النقل بنجاح.");
 }
 
+// البحث النصي المطور مع إمكانية الإضافة المباشرة إذا لم يكن بالرفوف
 document.getElementById("textSearch").oninput = function(){
     let q = this.value.trim().toLowerCase();
     let box = document.getElementById("searchResBox");
@@ -309,13 +345,27 @@ document.getElementById("textSearch").oninput = function(){
     });
 
     if(matches.length > 0){
-        let html = "";
+        let html = "<b>نتائج البحث في الأرفف:</b><br>";
         matches.forEach(m => {
-            html += `<div>📍 الرف (${m.shelfId}) | 🏷️ ${m.name} | <span style="color:red;">${m.price}ج</span> | ${m.barcode}</div><hr style="margin:4px 0;">`;
+            html += `<div style="margin-top:4px;">📍 الرف (${m.shelfId}) | 🏷️ ${m.name} | <span style="color:red;">${m.price}ج</span> | ${m.barcode}</div>`;
         });
         box.innerHTML = html;
     } else {
-        box.innerHTML = "❌ لا توجد نتائج مطابقة.";
+        // البحث في ملف الأصناف العام للاقتراح المباشر بالإضافة
+        let foundInProds = products.find(row => {
+            let name = String(row["اسم المنتج"] || row["اسم الصنف"] || row["الصنف"] || "").toLowerCase();
+            let bar = String(row["رقم الباركود"] || row["كود الصنف"] || row["الباركود"] || row["Barcode"] || "").toLowerCase();
+            return name.includes(q) || bar.includes(q);
+        });
+
+        if(foundInProds){
+            let pName = foundInProds["اسم المنتج"] || foundInProds["اسم الصنف"] || foundInProds["الصنف"] || "بدون اسم";
+            let pPrice = foundInProds["سعر البيع"] || foundInProds["السعر"] || foundInProds["بيع"] || "0";
+            let pBar = foundInProds["رقم الباركود"] || foundInProds["كود الصنف"] || foundInProds["الباركود"] || foundInProds["Barcode"] || "";
+            box.innerHTML = `❌ غير مسجل بالأرفف، ولكن موجود بملف المحل:<br>🏷️ <b>${pName}</b> (${pPrice}ج)<br><button style="background:#2e7d32; margin-top:6px; padding:6px; font-size:12px;" onclick="addToSpecificShelf('${pBar}', \`${pName}\`, '${pPrice}')">➕ إضافته لرف الآن</button>`;
+        } else {
+            box.innerHTML = "❌ لا توجد نتائج مطابقة نهائياً.";
+        }
     }
 };
 
@@ -346,7 +396,7 @@ function exportShelvesExcel(){
 function clearAllShelves(){
     if(confirm("⚠️ هل أنت متأكد من مسح جميع بيانات الأرفف نهائياً؟")){
         shelves.forEach(s => {
-            localStorage.removeItem("shelf_data_final_" + s.id);
+            localStorage.removeItem("shelf_data_v3_" + s.id);
             s.items = [];
         });
         renderShelves();
