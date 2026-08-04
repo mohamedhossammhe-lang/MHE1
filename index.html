@@ -303,7 +303,7 @@ button{ color:white; border:none; }
             <input type="file" id="excelFile" accept=".xlsx,.xls,.csv" style="display:none">
             <button class="btn-file" onclick="playClickSound(); document.getElementById('excelFile').click()">📂 اختيار ملف أصناف المحل (Excel)</button>
             <button class="btn-cloud-save" onclick="playClickSound(); manualCloudSave()">☁️ حفظ ورفع البيانات للسحابة الآن</button>
-            <button class="btn-export" onclick="playClickSound(); exportShelvesExcel()">📥 تحميل شيت الأرفف (نفس تصميم ملف الأصناف + عمود الرف)</button>
+            <button class="btn-export" onclick="playClickSound(); exportShelvesExcel()">📥 تحميل شيت الأرفف (Excel)</button>
             <button class="btn-search" onclick="playClickSound(); startGlobalSearch()">📷 بحث بالكاميرا عن منتج أو رف</button>
             <button class="btn-manual-search" onclick="playClickSound(); openManualSearchModal()">🔍 بحث يدوي شامل (أرفف وأصناف)</button>
             <button class="btn-refresh" onclick="playClickSound(); location.reload()">🔄 تحديث يدوي (Refresh)</button>
@@ -316,7 +316,7 @@ button{ color:white; border:none; }
         <button id="closeCam" style="background:#c62828; display:none; margin-bottom:10px;" onclick="playClickSound(); stopCamera()">إغلاق الكاميرا</button>
 
         <div class="shelves-grid" id="shelvesContainer"></div>
-        <div id="statusNote" style="text-align:center; font-size:12px; color:#666; margin-top:15px;">🌐 متصل بالسحابة (حفظ تلقائي كل 30 ثانية مفعل)</div>
+        <div id="statusNote" style="text-align:center; font-size:12px; color:#666; margin-top:15px;">🌐 متصل بالسحابة (حفظ تلقائي كل ثانية مفعل)</div>
     </div>
 
     <div id="attendanceSection">
@@ -467,7 +467,6 @@ function playAtmAndMoneySound() {
 
 let currentUser = localStorage.getItem("active_system_user") || "";
 let products = [];
-let originalRawRows = []; 
 let shelves = [];
 for(let i = 1; i <= 150; i++){ shelves.push({ id: i, items: [] }); }
 
@@ -475,10 +474,8 @@ let html5QrCode = null;
 let activeShelfId = null;
 let mode = 'shelf'; 
 let passwords = JSON.parse(localStorage.getItem("system_passwords")) || {
-    "محمد حسام": "321", "علاء": "123", "شوقي": "123", "محمود": "123", "احمد محمد امين": "123", "محمد ميدو جبر": "123"
+    "محمد حسام": "111992", "علاء": "123", "شوقي": "123", "محمود": "123", "احمد محمد امين": "123", "محمد ميدو جبر": "123"
 };
-passwords["محمد حسام"] = "321";
-
 let logs = [];
 let attendanceRecords = [];
 let leaveRequests = [];
@@ -517,25 +514,22 @@ window.initCloudSystem = function() {
             let cloudShelves = docSnap.data().shelves;
             if(cloudShelves) { shelves = cloudShelves; renderShelves(); }
         }
-    }, (error) => {});
+    });
 
     onSnapshot(doc(db, "store_data", "products_doc"), (docSnap) => {
         if (docSnap.exists()) {
             let cloudProds = docSnap.data().products;
-            let cloudRaw = docSnap.data().rawRows;
-            if(cloudProds) { products = cloudProds; }
-            if(cloudRaw) { originalRawRows = cloudRaw; }
-            updateStatus();
+            if(cloudProds) { products = cloudProds; updateStatus(); }
         }
-    }, (error) => {});
+    });
 
     onSnapshot(doc(db, "store_data", "logs_doc"), (docSnap) => {
         if (docSnap.exists()) { logs = docSnap.data().logs || []; }
-    }, (error) => {});
+    });
 
     onSnapshot(doc(db, "store_data", "attendance_doc"), (docSnap) => {
         if (docSnap.exists()) { attendanceRecords = docSnap.data().records || []; }
-    }, (error) => {});
+    });
 
     onSnapshot(doc(db, "store_data", "leaves_doc"), (docSnap) => {
         if (docSnap.exists()) { 
@@ -543,7 +537,7 @@ window.initCloudSystem = function() {
             if(currentUser === "محمد حسام") renderManagerRequests();
             checkMyLeaveStatus();
         }
-    }, (error) => {});
+    });
 
     if(currentUser){
         document.getElementById("loginSection").style.display = "none";
@@ -560,113 +554,85 @@ window.initCloudSystem = function() {
         }
     }
 
-    // تعديل مؤقت الخلفية إلى كل 30 ثانية بدلاً من كل ثانية لتخفيف الضغط
     setInterval(() => {
         if(currentUser){ autoBackgroundSave(); }
-    }, 30000);
+    }, 1000);
 };
 
-async function fetchLatestDataFromCloud(){
+function fetchLatestDataFromCloud(){
     const { doc, getDoc } = window.firebaseModules;
     let db = window.db;
 
-    try {
-        let [shelfSnap, prodSnap] = await Promise.all([
-            getDoc(doc(db, "store_data", "shelves_doc")),
-            getDoc(doc(db, "store_data", "products_doc"))
-        ]);
-
+    Promise.all([
+        getDoc(doc(db, "store_data", "shelves_doc")),
+        getDoc(doc(db, "store_data", "products_doc"))
+    ]).then(([shelfSnap, prodSnap]) => {
         if(shelfSnap.exists() && shelfSnap.data().shelves){
             shelves = shelfSnap.data().shelves;
         }
-        if(prodSnap.exists()){
-            if(prodSnap.data().products) products = prodSnap.data().products;
-            if(prodSnap.data().rawRows) originalRawRows = prodSnap.data().rawRows;
+        if(prodSnap.exists() && prodSnap.data().products){
+            products = prodSnap.data().products;
         }
         renderShelves();
         updateStatus();
         playAtmAndMoneySound();
         logAction("تحميل أحدث نسخة للبيانات من السحابة يدوياً");
         alert("✅ تم تحديث وتحميل أحدث نسخة من الأرفف والمنتجات من السحابة بنجاح!");
-    } catch(err) {
+    }).catch(err => {
         playErrorSound();
-        alert("⚠️ تعذر الاتصال اللحظي بالسحابة، تحقق من الإنترنت ثم أعد المحاولة.");
-    }
+    });
 }
 
-async function autoBackgroundSave(){
+function autoBackgroundSave(){
     const { doc, setDoc } = window.firebaseModules;
     if(!window.db) return;
-    try {
-        await Promise.all([
-            setDoc(doc(window.db, "store_data", "shelves_doc"), { shelves: shelves, lastUpdate: Date.now(), updatedBy: currentUser }),
-            setDoc(doc(window.db, "store_data", "products_doc"), { products: products, rawRows: originalRawRows, lastUpdate: Date.now(), updatedBy: currentUser })
-        ]);
-        let note = document.getElementById("statusNote");
-        if(note) note.innerHTML = `🌐 متصل بالسحابة | حفظ تلقائي نشط (${new Date().toLocaleTimeString()})`;
-    } catch(err) {}
+    setDoc(doc(window.db, "store_data", "shelves_doc"), { shelves: shelves }).catch(() => {});
+    setDoc(doc(window.db, "store_data", "products_doc"), { products: products }).catch(() => {});
+    let note = document.getElementById("statusNote");
+    if(note) note.innerHTML = `🌐 متصل بالسحابة | حفظ تلقائي نشط (${new Date().toLocaleTimeString()})`;
 }
 
-async function manualCloudSave(){
+function manualCloudSave(){
     const { doc, setDoc } = window.firebaseModules;
-    try {
-        await Promise.all([
-            setDoc(doc(window.db, "store_data", "shelves_doc"), { shelves: shelves, lastUpdate: Date.now(), updatedBy: currentUser }),
-            setDoc(doc(window.db, "store_data", "products_doc"), { products: products, rawRows: originalRawRows, lastUpdate: Date.now(), updatedBy: currentUser })
-        ]);
-        playAtmAndMoneySound();
-        logAction("قام بحفظ ورفع البيانات للسحابة يدوياً");
-        alert("✅ تم رفع وحفظ جميع الأرفف والمنتجات للسحابة بنجاح تام!");
-    } catch(err) {
-        alert("فشل رفع البيانات للسحابة");
-    }
+    setDoc(doc(window.db, "store_data", "shelves_doc"), { shelves: shelves });
+    setDoc(doc(window.db, "store_data", "products_doc"), { products: products });
+    playAtmAndMoneySound();
+    logAction("قام بحفظ ورفع البيانات للسحابة يدوياً");
+    alert("✅ تم رفع وحفظ جميع الأرفف والمنتجات للسحابة بنجاح تام!");
 }
 
-async function saveAndExit(){
+function saveAndExit(){
     const { doc, setDoc } = window.firebaseModules;
-    try {
-        await Promise.all([
-            setDoc(doc(window.db, "store_data", "shelves_doc"), { shelves: shelves, lastUpdate: Date.now(), updatedBy: currentUser }),
-            setDoc(doc(window.db, "store_data", "products_doc"), { products: products, rawRows: originalRawRows, lastUpdate: Date.now(), updatedBy: currentUser }),
-            setDoc(doc(window.db, "store_data", "attendance_doc"), { records: attendanceRecords, lastUpdate: Date.now(), updatedBy: currentUser }),
-            setDoc(doc(window.db, "store_data", "leaves_doc"), { requests: leaveRequests, lastUpdate: Date.now(), updatedBy: currentUser })
-        ]);
-        playAtmAndMoneySound();
-        logAction("حفظ الخروج الفوري للسحابة وتوثيق البيانات");
-        alert("💾 تم حفظ كافة البيانات الحالية على السحابة بنجاح تام وجاري الخروج!");
-        logout();
-    } catch(err) {
-        alert("فشل الحفظ عند الخروج");
-    }
+    setDoc(doc(window.db, "store_data", "shelves_doc"), { shelves: shelves });
+    setDoc(doc(window.db, "store_data", "products_doc"), { products: products });
+    setDoc(doc(window.db, "store_data", "attendance_doc"), { records: attendanceRecords });
+    setDoc(doc(window.db, "store_data", "leaves_doc"), { requests: leaveRequests });
+    
+    playAtmAndMoneySound();
+    logAction("حفظ الخروج الفوري للسحابة وتوثيق البيانات");
+    alert("💾 تم حفظ كافة البيانات الحالية على السحابة بنجاح تام وجاري الخروج!");
+    logout();
 }
 
-async function saveToCloudShelves(){
+function saveToCloudShelves(){
     const { doc, setDoc } = window.firebaseModules;
-    try {
-        await setDoc(doc(window.db, "store_data", "shelves_doc"), { shelves: shelves, lastUpdate: Date.now(), updatedBy: currentUser });
-        updateStatus();
-    } catch(err) {}
+    setDoc(doc(window.db, "store_data", "shelves_doc"), { shelves: shelves }).catch(() => {});
+    updateStatus();
 }
 
-async function saveToCloudProducts(){
+function saveToCloudProducts(){
     const { doc, setDoc } = window.firebaseModules;
-    try {
-        await setDoc(doc(window.db, "store_data", "products_doc"), { products: products, rawRows: originalRawRows, lastUpdate: Date.now(), updatedBy: currentUser });
-    } catch(err) {}
+    setDoc(doc(window.db, "store_data", "products_doc"), { products: products }).catch(() => {});
 }
 
-async function saveToCloudAttendance(){
+function saveToCloudAttendance(){
     const { doc, setDoc } = window.firebaseModules;
-    try {
-        await setDoc(doc(window.db, "store_data", "attendance_doc"), { records: attendanceRecords, lastUpdate: Date.now(), updatedBy: currentUser });
-    } catch(err) {}
+    setDoc(doc(window.db, "store_data", "attendance_doc"), { records: attendanceRecords }).catch(() => {});
 }
 
-async function saveToCloudLeaves(){
+function saveToCloudLeaves(){
     const { doc, setDoc } = window.firebaseModules;
-    try {
-        await setDoc(doc(window.db, "store_data", "leaves_doc"), { requests: leaveRequests, lastUpdate: Date.now(), updatedBy: currentUser });
-    } catch(err) {}
+    setDoc(doc(window.db, "store_data", "leaves_doc"), { requests: leaveRequests }).catch(() => {});
 }
 
 function logAction(actionText){
@@ -675,7 +641,7 @@ function logAction(actionText){
     logs.unshift({ user: currentUser, action: actionText, time: timeStr });
     if(logs.length > 200) logs.pop();
     const { doc, setDoc } = window.firebaseModules;
-    setDoc(doc(window.db, "store_data", "logs_doc"), { logs: logs, lastUpdate: Date.now(), updatedBy: currentUser }).catch(() => {});
+    setDoc(doc(window.db, "store_data", "logs_doc"), { logs: logs }).catch(() => {});
 }
 
 function login(){
@@ -806,7 +772,7 @@ function closeLiveCamModal(){
     document.getElementById("liveCamModal").style.display = "none";
 }
 
-async function captureLiveSelfie(){
+function captureLiveSelfie(){
     let video = document.getElementById("liveVideo");
     let canvas = document.getElementById("liveCanvas");
     canvas.width = video.videoWidth || 300;
@@ -838,14 +804,14 @@ async function captureLiveSelfie(){
         });
     }
 
-    await saveToCloudAttendance();
+    saveToCloudAttendance();
     playAtmAndMoneySound();
     logAction(`تسجيل ${pendingAttendanceType} بصورة حية مع المنتج المطلوب`);
     alert(`🎉 تم توثيق وتسجيل (${currentUser} ${pendingAttendanceType}) بنجاح!`);
     if(currentUser === "محمد حسام") renderManagerRequests();
 }
 
-async function submitLeaveRequest(){
+function submitLeaveRequest(){
     let type = document.getElementById("leaveType").value;
     let date = document.getElementById("leaveDate").value;
     let reason = document.getElementById("leaveReason").value.trim();
@@ -854,25 +820,21 @@ async function submitLeaveRequest(){
 
     let reqId = Date.now();
     leaveRequests.unshift({ id: reqId, user: currentUser, type: type, date: date, reason: reason, status: 'قيد الانتظار' });
-    await saveToCloudLeaves();
+    saveToCloudLeaves();
     logAction(`إرسال طلب ${type}`);
     alert("✅ تم إرسال طلب الإجازة للمدير بنجاح!");
 }
 
-async function checkMyLeaveStatus(){
+function checkMyLeaveStatus(){
     if(!currentUser || currentUser === "محمد حسام") return;
     let myReqs = leaveRequests.filter(r => r.user === currentUser);
-    let updated = false;
     myReqs.forEach(r => {
         if(r.status !== 'قيد الانتظار' && !r.notified){
             alert(`📢 تنبيه بخصوص طلبك (${r.type}) بتاريخ ${r.date}:\nالنتيجة: ${r.status}`);
             r.notified = true;
-            updated = true;
+            saveToCloudLeaves();
         }
     });
-    if(updated) {
-        await saveToCloudLeaves();
-    }
 }
 
 function renderManagerRequests(){
@@ -937,12 +899,12 @@ function renderManagerRequests(){
     }
 }
 
-async function updateLeaveStatus(id, newStatus){
+function updateLeaveStatus(id, newStatus){
     let req = leaveRequests.find(r => r.id === id);
     if(req){
         req.status = newStatus;
         req.notified = false;
-        await saveToCloudLeaves();
+        saveToCloudLeaves();
         logAction(`تحديث حالة طلب ${req.type} للموظف ${req.user} إلى: ${newStatus}`);
         renderManagerRequests();
         alert("✅ تم تحديث الحالة بنجاح!");
@@ -977,21 +939,17 @@ document.getElementById("excelFile").onchange = function(e){
     let file = e.target.files[0];
     if(!file) return;
     let reader = new FileReader();
-    reader.onload = async function(evt){
+    reader.onload = function(evt){
         try {
             let data = evt.target.result;
             let workbook = XLSX.read(data, {type: 'binary'});
-            let sheetName = workbook.SheetNames[0];
-            let sheet = workbook.Sheets[sheetName];
-            
-            originalRawRows = XLSX.utils.sheet_to_json(sheet, {header: 1});
+            let sheet = workbook.Sheets[workbook.SheetNames[0]];
             products = XLSX.utils.sheet_to_json(sheet);
-
-            await saveToCloudProducts();
+            saveToCloudProducts();
             playMoveSound();
-            logAction("رفع وتحديث ملف أصناف المحل (Excel) مع حفظ البنية الأصلية");
+            logAction("رفع وتحديث ملف أصناف المحل (Excel)");
             updateStatus();
-            alert("✅ تم رفع وحفظ ملف الأصناف بكل أعمدته الأصلية بنجاح للجميع!");
+            alert("✅ تم رفع وحفظ ملف الأصناف سحابياً للجميع!");
         } catch(err) { alert("خطأ في قراءة ملف الإكسل."); }
     };
     reader.readAsBinaryString(file);
@@ -1128,12 +1086,19 @@ function executeManualSearch(){
     logAction(`إجراء بحث يدوي عن: ${query}`);
 }
 
-async function chooseTargetShelfForProduct(barcode, name, price){
+function chooseTargetShelfForProduct(barcode, name, price){
+    closeManualSearchModal();
     let target = prompt(`📦 المنتج المختار: "${name}"\nأدخل رقم الرف المطلوب إضافته إليه (من 1 إلى 150):`);
     if(!target) return;
     let tId = parseInt(target);
     let tShelf = shelves.find(s => s.id === tId);
     if(!tShelf){ alert("رقم الرف غير صحيح!"); return; }
+
+    if(tShelf.items && tShelf.items.some(i => i.barcode === barcode)){
+        playErrorSound();
+        alert(`⚠️ عذراً يا مهندس محمد! هذا المنتج موجود بالفعل في الرف رقم (${tId}) ولا يمكن تكراره نهائياً.`);
+        return;
+    }
 
     shelves.forEach(s => {
         if(s.items){
@@ -1147,9 +1112,9 @@ async function chooseTargetShelfForProduct(barcode, name, price){
     if(!tShelf.items) tShelf.items = [];
 
     tShelf.items.push({ barcode: barcode, name: name, price: price });
-    await saveToCloudShelves();
+    saveToCloudShelves();
     playMoveSound();
-    logAction(`إضافة/نقل الصنف (${name}) برقم باركود ${barcode} إلى الرف (${tId}) عبر البحث اليدوي`);
+    logAction(`إضافة/نقل الصنف (${name}) برقم باركود ${barcode} إلى الرف (${tId})`);
     alert(`✅ تم توزيع ونقل الصنف إلى الرف (${tId}) بنجاح تام!`);
 }
 
@@ -1183,26 +1148,28 @@ function stopCamera(){
     }
 }
 
-async function processCode(code){
+function processCode(code){
     code = String(code).trim();
 
     if(mode === 'shelf'){
         let foundShelf = null;
         shelves.forEach(s => { if(s.items && s.items.some(i => i.barcode === code)) foundShelf = s.id; });
 
+        if(foundShelf === activeShelfId){
+            playErrorSound();
+            alert(`⚠️ عذراً! هذا المنتج موجود بالفعل في هذا الرف (${activeShelfId}) ولا يمكن تكراره.`);
+            return;
+        }
+
         if(foundShelf && foundShelf !== activeShelfId){
             let ok = confirm(`⚠️ المنتج موجود مسبقاً في الرف (${foundShelf}). هل تريد نقله إلى الرف الحالي (${activeShelfId})؟`);
             if(!ok) return;
             let oldS = shelves.find(s => s.id === foundShelf);
             oldS.items = oldS.items.filter(i => i.barcode !== code);
+            saveToCloudShelves();
+            playMoveSound();
+            logAction(`نقل المنتج (${code}) من الرف ${foundShelf} إلى الرف ${activeShelfId}`);
         }
-
-        shelves.forEach(s => {
-            if(s.items){
-                let idx = s.items.findIndex(i => i.barcode === code);
-                if(idx !== -1) s.items.splice(idx, 1);
-            }
-        });
 
         let shelf = shelves.find(s => s.id === activeShelfId);
         if(!shelf.items) shelf.items = [];
@@ -1213,10 +1180,10 @@ async function processCode(code){
         let price = info ? info.price : prompt("أدخل السعر:", "0");
 
         shelf.items.push({ barcode: code, name: name, price: price });
-        await saveToCloudShelves();
+        saveToCloudShelves();
         playMoveSound();
-        logAction(`إضافة/نقل المنتج (${name}) للرف (${activeShelfId}) بالبار كود`);
-        alert(`✅ تمت الإضافة ونقل الصنف للرف ${activeShelfId} بنجاح`);
+        logAction(`إضافة المنتج (${name}) للرف (${activeShelfId})`);
+        alert(`✅ تمت الإضافة للرف ${activeShelfId} بنجاح`);
 
     } else if(mode === 'global'){
         let foundShelf = null, foundItem = null;
@@ -1251,18 +1218,18 @@ function addUnknownToShelf(barcode){
     chooseTargetShelfForProduct(barcode, name, price);
 }
 
-async function delItem(shelfId, idx){
+function delItem(shelfId, idx){
     if(confirm("هل تريد حذف هذا المنتج من الرف؟")){
         let shelf = shelves.find(s => s.id === shelfId);
         let removed = shelf.items[idx];
         shelf.items.splice(idx, 1);
-        await saveToCloudShelves();
+        saveToCloudShelves();
         playMoveSound();
         logAction(`حذف الصنف (${removed.name}) من الرف (${shelfId})`);
     }
 }
 
-async function moveItem(shelfId, idx){
+function moveItem(shelfId, idx){
     let shelf = shelves.find(s => s.id === shelfId);
     let item = shelf.items[idx];
     let target = prompt("أدخل رقم الرف الجديد (من 1 إلى 150):");
@@ -1271,75 +1238,23 @@ async function moveItem(shelfId, idx){
     let tShelf = shelves.find(s => s.id === tId);
     if(!tShelf){ alert("رقم الرف غير صحيح!"); return; }
 
-    shelves.forEach(s => {
-        if(s.items){
-            let iIdx = s.items.findIndex(i => i.barcode === item.barcode);
-            if(iIdx !== -1) s.items.splice(iIdx, 1);
-        }
-    });
-
     if(!tShelf.items) tShelf.items = [];
 
-    tShelf.items.push(item);
-    await saveToCloudShelves();
-    playMoveSound();
-    logAction(`نقل الصنف (${item.name}) من الرف ${shelfId} إلى الرف ${tId}`);
-    alert("✅ تم نقل الصنف وإعادة توزيعه للرف الجديد بنجاح.");
-}
-
-function exportShelvesExcel(){
-    if(originalRawRows && originalRawRows.length > 0){
-        let headerRow = originalRawRows[0];
-        let barcodeColIndex = -1;
-        headerRow.forEach((colName, index) => {
-            let c = String(colName || "").trim();
-            if(c.includes("باركود") || c.includes("كود") || c.toLowerCase().includes("barcode")){
-                barcodeColIndex = index;
-            }
-        });
-
-        let newExportRows = [];
-        let newHeader = [...headerRow];
-        newHeader.push("رقم الرف");
-        newExportRows.push(newHeader);
-
-        let barcodeToShelfMap = {};
-        shelves.forEach(s => {
-            if(s.items){
-                s.items.forEach(i => {
-                    barcodeToShelfMap[String(i.barcode).trim()] = s.id;
-                });
-            }
-        });
-
-        for(let r = 1; r < originalRawRows.length; r++){
-            let origRow = [...originalRawRows[r]];
-            let rowBarcode = barcodeColIndex !== -1 ? String(origRow[barcodeColIndex] || "").trim() : "";
-            
-            if(!rowBarcode){
-                for(let cell of origRow){
-                    let cellStr = String(cell || "").trim();
-                    if(barcodeToShelfMap[cellStr]){
-                        rowBarcode = cellStr;
-                        break;
-                    }
-                }
-            }
-
-            let shelfNumber = barcodeToShelfMap[rowBarcode] || "غير مضاف";
-            origRow.push(shelfNumber);
-            newExportRows.push(origRow);
-        }
-
-        let ws = XLSX.utils.aoa_to_sheet(newExportRows);
-        let wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "Center_AlTawfeer_Shelves");
-        XLSX.writeFile(wb, "Center_AlTawfeer_Shelves_Identical.xlsx");
-        playMoveSound();
-        logAction("تصدير شيت الأرفف بنفس تصميم ملف الأصناف الأصلي تماماً");
+    if(tShelf.items.some(i => i.barcode === item.barcode)){
+        playErrorSound();
+        alert(`⚠️ عذراً! هذا المنتج موجود مسبقاً في الرف (${tId}) ولا يمكن تكراره فيه.`);
         return;
     }
 
+    shelf.items.splice(idx, 1);
+    tShelf.items.push(item);
+    saveToCloudShelves();
+    playMoveSound();
+    logAction(`نقل الصنف (${item.name}) من الرف ${shelfId} إلى الرف ${tId}`);
+    alert("✅ تم النقل بنجاح.");
+}
+
+function exportShelvesExcel(){
     let data = [];
     shelves.forEach(s => {
         if(s.items){
@@ -1356,10 +1271,10 @@ function exportShelvesExcel(){
     playMoveSound();
 }
 
-async function clearAllShelves(){
+function clearAllShelves(){
     if(confirm("⚠️ تحذير خطير: هل أنت متأكد من مسح جميع الأرفف بالكامل من السحابة؟")){
         shelves.forEach(s => { s.items = []; });
-        await saveToCloudShelves();
+        saveToCloudShelves();
         document.getElementById("searchResBox").style.display = "none";
         playMoveSound();
         logAction("⚠️ مسح وتفريغ بيانات جميع الأرفف بواسطة المدير");
@@ -1381,12 +1296,11 @@ function openLogsModal(){
 }
 
 function closeLogsModal(){ document.getElementById("logsModal").style.display = "none"; }
-
-async function clearLogs(){
+function clearLogs(){
     if(confirm("مسح السجلات بالكامل؟")){
         logs = [];
         const { doc, setDoc } = window.firebaseModules;
-        await setDoc(doc(window.db, "store_data", "logs_doc"), { logs: [], lastUpdate: Date.now(), updatedBy: currentUser }).catch(() => {});
+        setDoc(doc(window.db, "store_data", "logs_doc"), { logs: [] }).catch(() => {});
         openLogsModal();
     }
 }
