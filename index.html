@@ -210,8 +210,8 @@ button{ color:white; border:none; }
 .search-box-res{ background:#e3f2fd; padding:10px; border-radius:8px; margin-bottom:10px; display:none; font-size:14px; border:1px solid #90caf9; }
 
 #manualSearchModal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:1500; justify-content:center; align-items:center; }
-.manual-box { background:#fff; width:90%; max-width:450px; border-radius:12px; padding:15px; text-align:center; }
-.clickable-item { background:#f1f8e9; padding:8px; margin-bottom:6px; border-radius:6px; border:1px solid #c8e6c9; cursor:pointer; text-align:right; transition:0.2s; }
+.manual-box { background:#fff; width:92%; max-width:480px; border-radius:12px; padding:15px; text-align:center; }
+.clickable-item { background:#f1f8e9; padding:9px; margin-bottom:6px; border-radius:6px; border:1px solid #c8e6c9; cursor:pointer; text-align:right; transition:0.2s; font-size:13px; }
 .clickable-item:hover { background:#ded; transform:scale(1.01); }
 
 #logsModal{ display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000; justify-content:center; align-items:center; }
@@ -300,7 +300,7 @@ button{ color:white; border:none; }
             <button class="btn-cloud-save" onclick="playClickSound(); manualCloudSave()">☁️ حفظ ورفع البيانات للسحابة الآن</button>
             <button class="btn-export" onclick="playClickSound(); exportShelvesExcel()">📥 تحميل شيت الأرفف (Excel)</button>
             <button class="btn-search" onclick="playClickSound(); startGlobalSearch()">📷 بحث بالكاميرا عن منتج أو رف</button>
-            <button class="btn-manual-search" onclick="playClickSound(); openManualSearchModal()">🔍 بحث يدوي بالاسم أو الباركود</button>
+            <button class="btn-manual-search" onclick="playClickSound(); openManualSearchModal()">🔍 بحث يدوي شامل (أرفف وأصناف)</button>
             <button class="btn-refresh" onclick="playClickSound(); location.reload()">🔄 تحديث يدوي (Refresh)</button>
             <button id="clearShelvesBtn" class="btn-clear" style="display:none;" onclick="playClickSound(); clearAllShelves()">🗑️ حذف بيانات كل الأرفف</button>
             <button id="adminLogsBtn" class="btn-logs" style="display:none;" onclick="playClickSound(); openLogsModal()">📊 سجل نشاطات الموظفين</button>
@@ -350,11 +350,11 @@ button{ color:white; border:none; }
 
 <div id="manualSearchModal">
     <div class="manual-box">
-        <h3 style="color:#3f51b5; margin-bottom:10px;">🔍 البحث اليدوي عن منتج أو رف</h3>
+        <h3 style="color:#3f51b5; margin-bottom:10px;">🔍 البحث اليدوي الشامل</h3>
         <input type="text" id="manualSearchInput" placeholder="اكتب اسم المنتج أو الباركود أو رقم الرف..." style="margin-bottom:10px;">
         <button style="background:#3f51b5; margin-bottom:6px;" onclick="playClickSound(); executeManualSearch()">بحث الآن</button>
         <button style="background:#c62828;" onclick="playClickSound(); closeManualSearchModal()">إغلاق</button>
-        <div id="manualSearchResults" style="max-height:220px; overflow-y:auto; margin-top:10px; text-align:right; font-size:13px;"></div>
+        <div id="manualSearchResults" style="max-height:260px; overflow-y:auto; margin-top:10px; text-align:right;"></div>
     </div>
 </div>
 
@@ -546,15 +546,11 @@ window.initCloudSystem = function() {
         }
     }
 
-    // الحفظ التلقائي كل 15 ثانية في الخلفية
     setInterval(() => {
-        if(currentUser){
-            autoBackgroundSave();
-        }
+        if(currentUser){ autoBackgroundSave(); }
     }, 15000);
 };
 
-// دالة تحميل أحدث نسخة من السحابة يدوياً
 function fetchLatestDataFromCloud(){
     const { doc, getDoc } = window.firebaseModules;
     let db = window.db;
@@ -563,14 +559,11 @@ function fetchLatestDataFromCloud(){
         getDoc(doc(db, "store_data", "shelves_doc")),
         getDoc(doc(db, "store_data", "products_doc"))
     ]).then(([shelfSnap, prodSnap]) => {
-        let updated = false;
         if(shelfSnap.exists() && shelfSnap.data().shelves){
             shelves = shelfSnap.data().shelves;
-            updated = true;
         }
         if(prodSnap.exists() && prodSnap.data().products){
             products = prodSnap.data().products;
-            updated = true;
         }
         renderShelves();
         updateStatus();
@@ -669,7 +662,7 @@ function login(){
         avatarImg.classList.remove("celebrating");
         avatarImg.classList.add("shaking");
         playErrorSound();
-        alert("كلمة المرور غير صحيحة! يجدر المحاولة مرة أخرى.");
+        alert("كلمة المرور غير صحيحة!");
         setTimeout(() => { avatarImg.classList.remove("shaking"); }, 500);
     }
 }
@@ -755,9 +748,7 @@ function startLiveAttendance(type){
 }
 
 function closeLiveCamModal(){
-    if(mediaStream){
-        mediaStream.getTracks().forEach(track => track.stop());
-    }
+    if(mediaStream){ mediaStream.getTracks().forEach(track => track.stop()); }
     document.getElementById("liveCamModal").style.display = "none";
 }
 
@@ -783,32 +774,20 @@ function captureLiveSelfie(){
             return;
         }
         attendanceRecords.unshift({
-            user: currentUser,
-            type: 'حضور',
-            date: dateStr,
-            time: timeStr,
-            hours: '-',
-            product: activeAssignedProduct,
-            selfie: dataUrl
+            user: currentUser, type: 'حضور', date: dateStr, time: timeStr, hours: '-', product: activeAssignedProduct, selfie: dataUrl
         });
     } else {
         let lastAtt = attendanceRecords.find(r => r.user === currentUser && r.type === 'حضور' && r.date === dateStr);
         let hoursWorked = lastAtt ? "مكتمل" : "انصراف طارئ";
         attendanceRecords.unshift({
-            user: currentUser,
-            type: 'انصراف',
-            date: dateStr,
-            time: timeStr,
-            hours: hoursWorked,
-            product: activeAssignedProduct,
-            selfie: dataUrl
+            user: currentUser, type: 'انصراف', date: dateStr, time: timeStr, hours: hoursWorked, product: activeAssignedProduct, selfie: dataUrl
         });
     }
 
     saveToCloudAttendance();
     playAtmAndMoneySound();
     logAction(`تسجيل ${pendingAttendanceType} بصورة حية مع المنتج المطلوب`);
-    alert(`🎉 تم توثيق وتسجيل (${currentUser} ${pendingAttendanceType}) بنجاح وإرسال الصورة الحية للمدير!`);
+    alert(`🎉 تم توثيق وتسجيل (${currentUser} ${pendingAttendanceType}) بنجاح!`);
     if(currentUser === "محمد حسام") renderManagerRequests();
 }
 
@@ -822,8 +801,8 @@ function submitLeaveRequest(){
     let reqId = Date.now();
     leaveRequests.unshift({ id: reqId, user: currentUser, type: type, date: date, reason: reason, status: 'قيد الانتظار' });
     saveToCloudLeaves();
-    logAction(`إرسال طلب ${type} للمدير محمد حسام`);
-    alert("✅ تم إرسال طلب الإجازة للمدير محمد حسام بنجاح، سيتم إعلامك بالنتيجة قريباً!");
+    logAction(`إرسال طلب ${type}`);
+    alert("✅ تم إرسال طلب الإجازة للمدير بنجاح!");
 }
 
 function checkMyLeaveStatus(){
@@ -831,7 +810,7 @@ function checkMyLeaveStatus(){
     let myReqs = leaveRequests.filter(r => r.user === currentUser);
     myReqs.forEach(r => {
         if(r.status !== 'قيد الانتظار' && !r.notified){
-            alert(`📢 تنبيه بخصوص طلبك (${r.type}) بتاريخ ${r.date}:\nالنتيجة من المدير محمد حسام: ${r.status}`);
+            alert(`📢 تنبيه بخصوص طلبك (${r.type}) بتاريخ ${r.date}:\nالنتيجة: ${r.status}`);
             r.notified = true;
             saveToCloudLeaves();
         }
@@ -846,7 +825,7 @@ function renderManagerRequests(){
     let todayStr = new Date().toLocaleDateString();
     let employees = ["علاء", "شوقي", "محمود", "احمد محمد امين", "محمد ميدو جبر", "محمد حسام"];
     
-    listDiv.innerHTML += `<div style="background:#e8f5e9; padding:8px; border-radius:6px; margin-bottom:10px; border:1px solid #c8e6c9;"><b>🟢 حالات الحضور والانصراف الحالية لليوم (${todayStr}):</b><br>`;
+    listDiv.innerHTML += `<div style="background:#e8f5e9; padding:8px; border-radius:6px; margin-bottom:10px; border:1px solid #c8e6c9;"><b>🟢 حالات الحضور لليوم (${todayStr}):</b><br>`;
     employees.forEach(emp => {
         let lastRec = attendanceRecords.find(r => r.user === emp && r.date === todayStr);
         let statusText = "لم يسجل اليوم";
@@ -865,7 +844,7 @@ function renderManagerRequests(){
     listDiv.innerHTML += `</div>`;
 
     if(leaveRequests.length === 0){
-        listDiv.innerHTML += "لا توجد طلبات إجازات أو غياب معلقة.<br>";
+        listDiv.innerHTML += "لا توجد طلبات إجازات معلقة.<br>";
     } else {
         listDiv.innerHTML += `<b>طلبات الإجازات المعلقة:</b><br>`;
         leaveRequests.forEach((req, idx) => {
@@ -884,7 +863,7 @@ function renderManagerRequests(){
         });
     }
 
-    listDiv.innerHTML += `<hr style="margin:10px 0;"><b>سجل الحركات التفصيلي والصور الحية:</b><br>`;
+    listDiv.innerHTML += `<hr style="margin:10px 0;"><b>سجل الحركات التفصيلي:</b><br>`;
     if(attendanceRecords.length === 0){
         listDiv.innerHTML += `<div>لا توجد سجلات حضور بعد.</div>`;
     } else {
@@ -894,7 +873,7 @@ function renderManagerRequests(){
             let badgeColor = rec.type === 'حضور' ? '#2e7d32' : '#c62828';
             listDiv.innerHTML += `
             <div style="background:#fff; padding:8px; margin-bottom:6px; border-radius:6px; border:1px solid #ddd;">
-                [${rec.date} - ${rec.time}] <b>${rec.user}</b> <span style="color:${badgeColor}; font-weight:bold;">(${rec.user} ${rec.type})</span>${prodHtml}${selfieHtml}
+                [${rec.date} - ${rec.time}] <b>${rec.user}</b> <span style="color:${badgeColor}; font-weight:bold;">(${rec.type})</span>${prodHtml}${selfieHtml}
             </div>`;
         });
     }
@@ -906,29 +885,27 @@ function updateLeaveStatus(id, newStatus){
         req.status = newStatus;
         req.notified = false;
         saveToCloudLeaves();
-        logAction(`قام المدير محمد حسام بتحديث حالة طلب ${req.type} للموظف ${req.user} إلى: ${newStatus}`);
+        logAction(`تحديث حالة طلب ${req.type} للموظف ${req.user} إلى: ${newStatus}`);
         renderManagerRequests();
-        alert("✅ تم تحديث الحالة وإرسال الرد للموظف!");
+        alert("✅ تم تحديث الحالة بنجاح!");
     }
 }
 
 function exportAttendanceExcel(){
-    if(attendanceRecords.length === 0){ alert("لا توجد سجلات حضور وانصراف لتصديرها!"); return; }
+    if(attendanceRecords.length === 0){ alert("لا توجد سجلات لتصديرها!"); return; }
     let data = attendanceRecords.map(r => ({
         "اسم الموظف": r.user,
-        "الحركة": `${r.user} ${r.type}`,
         "نوع الحركة": r.type,
         "التاريخ": r.date,
         "الوقت": r.time,
         "المنتج المطلوب": r.product || '-',
-        "الحالة / الساعات": r.hours
+        "الحالة": r.hours
     }));
     let ws = XLSX.utils.json_to_sheet(data);
     let wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Attendance_Report");
     XLSX.writeFile(wb, "Center_AlTawfeer_Attendance.xlsx");
     playMoveSound();
-    logAction("تحميل شيت إكسل للحضور والانصراف");
 }
 
 function updateStatus(){
@@ -949,7 +926,7 @@ document.getElementById("excelFile").onchange = function(e){
             products = XLSX.utils.sheet_to_json(sheet);
             saveToCloudProducts();
             playMoveSound();
-            logAction("رفع وتحديث ملف أصناف المحل (Excel) سحابياً");
+            logAction("رفع وتحديث ملف أصناف المحل (Excel)");
             updateStatus();
             alert("✅ تم رفع وحفظ ملف الأصناف سحابياً للجميع!");
         } catch(err) { alert("خطأ في قراءة ملف الإكسل."); }
@@ -1022,99 +999,109 @@ function closeManualSearchModal(){
     document.getElementById("manualSearchModal").style.display = "none";
 }
 
+// دالة البحث اليدوي الشامل المحدثة بالكامل حسب الطلب
 function executeManualSearch(){
     let query = document.getElementById("manualSearchInput").value.trim().toLowerCase();
     let resDiv = document.getElementById("manualSearchResults");
     resDiv.innerHTML = "";
 
-    if(!query){ resDiv.innerHTML = "أدخل كلمة للبحث عنها!"; return; }
+    if(!query){ resDiv.innerHTML = "أدخل كلمة أو اسم صنف للبحث عنه!"; return; }
 
-    let results = [];
-    
-    // البحث برقم رف (مثال: رف 5 أو 5)
-    let shelfNum = parseInt(query.replace("رف", "").trim());
-    if(!isNaN(shelfNum) && shelfNum >= 1 && shelfNum <= 150){
-        let targetShelf = shelves.find(s => s.id === shelfNum);
-        if(targetShelf && targetShelf.items && targetShelf.items.length > 0){
-            resDiv.innerHTML += `<b>📦 محتويات الرف رقم (${shelfNum}): (اضغط على أي منتج لإدارته)</b><br>`;
-            targetShelf.items.forEach(i => {
-                resDiv.innerHTML += `
-                <div class="clickable-item" onclick="playClickSound(); selectProductFromManualSearchResult('${i.barcode}', \`${i.name}\`, '${i.price}')">
-                    📍 <b>${i.name}</b> (${i.price}ج)<br><span style="font-size:11px; color:#555;">باركود: ${i.barcode} | موجود حالياً بالرف (${shelfNum})</span>
-                </div>`;
-            });
-            logAction(`بحث يدوي عن محتويات الرف رقم ${shelfNum}`);
-            return;
-        } else {
-            resDiv.innerHTML += `الرف رقم (${shelfNum}) فارغ أو غير موجود.<br>`;
-        }
-    }
+    let foundAny = false;
 
-    // البحث بالمنتجات داخل الأرفف
+    // 1. البحث في الأرفف الحالية أولاً لإظهار المنتجات الموجودة أصلاً برقم الرف
+    let shelfMatches = [];
     shelves.forEach(s => {
         if(s.items){
             s.items.forEach(i => {
                 if(i.name.toLowerCase().includes(query) || i.barcode.toLowerCase().includes(query)){
-                    results.push({ shelfId: s.id, name: i.name, price: i.price, barcode: i.barcode });
+                    shelfMatches.push({ shelfId: s.id, name: i.name, price: i.price, barcode: i.barcode });
                 }
             });
         }
     });
 
-    if(results.length > 0){
-        resDiv.innerHTML += `<b>🔍 نتائج الأرفف (${results.length}): (اضغط على المنتج لإضافته أو نقله)</b><br>`;
-        results.forEach(r => {
+    if(shelfMatches.length > 0){
+        foundAny = true;
+        resDiv.innerHTML += `<div style="background:#e8f5e9; padding:6px; border-radius:6px; margin-bottom:8px; border:1px solid #c8e6c9;"><b>📍 منتجات موجودة بالفعل على الأرفف:</b></div>`;
+        shelfMatches.forEach(r => {
             resDiv.innerHTML += `
-            <div class="clickable-item" onclick="playClickSound(); selectProductFromManualSearchResult('${r.barcode}', \`${r.name}\`, '${r.price}')">
-                📍 الرف (${r.shelfId}) ➡️ <b>${r.name}</b> (${r.price}ج)<br><span style="font-size:11px; color:#555;">كود: ${r.barcode}</span>
+            <div class="clickable-item" onclick="playClickSound(); chooseTargetShelfForProduct('${r.barcode}', \`${r.name}\`, '${r.price}')">
+                📦 <b>الرف رقم (${r.shelfId})</b> ⬅️ ${r.name} (${r.price}ج)<br><span style="font-size:11px; color:#555;">باركود: ${r.barcode} (اضغط لإعادة توزيعه أو نقله)</span>
             </div>`;
         });
-    } else {
-        // البحث في ملف المحل العام
-        let storeMatch = products.filter(row => {
-            let pName = String(row["اسم المنتج"] || row["اسم الصنف"] || row["الصنف"] || "").toLowerCase();
-            let pBar = String(row["رقم الباركود"] || row["كود الصنف"] || row["الباركود"] || row["Barcode"] || "").toLowerCase();
-            return pName.includes(query) || pBar.includes(query);
-        });
-
-        if(storeMatch.length > 0){
-            resDiv.innerHTML += `<b>🏷️ نتائج أصناف المحل (اضغط لإضافتها للرف):</b><br>`;
-            storeMatch.slice(0, 15).forEach(m => {
-                let name = m["اسم المنتج"] || m["اسم الصنف"] || m["الصنف"] || "بدون اسم";
-                let price = m["سعر البيع"] || m["السعر"] || "0";
-                let bar = m["رقم الباركود"] || m["كود الصنف"] || m["الباركود"] || "---";
-                resDiv.innerHTML += `
-                <div class="clickable-item" onclick="playClickSound(); selectProductFromManualSearchResult('${bar}', \`${name}\`, '${price}')">
-                    🏷️ <b>${name}</b> (${price}ج)<br><span style="font-size:11px; color:#555;">باركود: ${bar}</span>
-                </div>`;
-            });
-        } else {
-            resDiv.innerHTML += `❌ لم يتم العثور على أي نتائج مطابقة لـ "${query}".`;
-        }
     }
+
+    // 2. البحث في أصناف المحل العامة (كل الأصناف التي لها نفس الاسم أو جزء منه لتختار منها)
+    let storeMatches = products.filter(row => {
+        let pName = String(row["اسم المنتج"] || row["اسم الصنف"] || row["الصنف"] || "").toLowerCase();
+        let pBar = String(row["رقم الباركود"] || row["كود الصنف"] || row["الباركود"] || row["Barcode"] || "").toLowerCase();
+        return pName.includes(query) || pBar.includes(query);
+    });
+
+    if(storeMatches.length > 0){
+        foundAny = true;
+        resDiv.innerHTML += `<div style="background:#e3f2fd; padding:6px; border-radius:6px; margin:8px 0; border:1px solid #90caf9;"><b>🏷️ أصناف مطابقة من ملف المحل (اختر لإضافتها لأي رف):</b></div>`;
+        storeMatches.slice(0, 20).forEach(m => {
+            let name = m["اسم المنتج"] || m["اسم الصنف"] || m["الصنف"] || "بدون اسم";
+            let price = m["سعر البيع"] || m["السعر"] || "0";
+            let bar = m["رقم الباركود"] || m["كود الصنف"] || m["الباركود"] || "---";
+            
+            // تحقق إذا كان الصنف موجوداً في أي رف حالياً لعرضه
+            let currentShelfText = "غير مسجل بالأرفف حالياً";
+            shelves.forEach(s => {
+                if(s.items && s.items.some(i => i.barcode === bar)){
+                    currentShelfText = `موجود حالياً في الرف (${s.id})`;
+                }
+            });
+
+            resDiv.innerHTML += `
+            <div class="clickable-item" onclick="playClickSound(); chooseTargetShelfForProduct('${bar}', \`${name}\`, '${price}')">
+                ✨ <b>${name}</b> (${price}ج)<br><span style="font-size:11px; color:#0d47a1;">باركود: ${bar} | 📍 ${currentShelfText}</span>
+            </div>`;
+        });
+    }
+
+    if(!foundAny){
+        resDiv.innerHTML += `❌ لم يتم العثور على أي منتج مطابق لـ "${query}" في الأرفف أو ملف المحل.`;
+    }
+
     logAction(`إجراء بحث يدوي عن: ${query}`);
 }
 
-// دالة اختيار منتج من نتائج البحث اليدوي
-function selectProductFromManualSearchResult(barcode, name, price){
+// دالة اختيار رف لأي منتج تم النقر عليه من نتائج البحث اليدوي
+function chooseTargetShelfForProduct(barcode, name, price){
     closeManualSearchModal();
-    playScanSound();
-    
-    let foundShelf = null, foundItem = null;
+    let target = prompt(`📦 المنتج المختار: "${name}"\nأدخل رقم الرف المطلوب إضافته إليه (من 1 إلى 150):`);
+    if(!target) return;
+    let tId = parseInt(target);
+    let tShelf = shelves.find(s => s.id === tId);
+    if(!tShelf){ alert("رقم الرف غير صحيح!"); return; }
+
+    // التحقق التام والصارم من عدم تكرار المنتج في نفس الرف بناءً على الباركود
+    if(tShelf.items && tShelf.items.some(i => i.barcode === barcode)){
+        playErrorSound();
+        alert(`⚠️ عذراً يا مهندس محمد! هذا المنتج موجود بالفعل في الرف رقم (${tId}) ولا يمكن تكراره نهائياً.`);
+        return;
+    }
+
+    // إزالة المنتج من رفمه القديم إن كان موجوداً في رف آخر (عملية نقل ذكية)
     shelves.forEach(s => {
         if(s.items){
-            let itm = s.items.find(i => i.barcode === barcode);
-            if(itm){ foundShelf = s.id; foundItem = itm; }
+            let idx = s.items.findIndex(i => i.barcode === barcode);
+            if(idx !== -1){
+                s.items.splice(idx, 1);
+            }
         }
     });
 
-    let box = document.getElementById("searchResBox");
-    box.style.display = "block";
-    if(foundItem){
-        box.innerHTML = `📍 المنتج موجود حالياً في: <b>الرف (${foundShelf})</b><br>🏷️ الاسم: <b>${foundItem.name}</b><br>💰 السعر: ${foundItem.price} ج<br><button style="background:#2e7d32; margin-top:8px; padding:8px;" onclick="playClickSound(); addToSpecificShelf('${barcode}', \`${foundItem.name}\`, '${foundItem.price}')">🔄 نقله لرف آخر</button>`;
-    } else {
-        box.innerHTML = `🏷️ المنتج المحدد: <b>${name}</b> (${price}ج)<br>باركود: ${barcode}<br><button style="background:#2e7d32; margin-top:8px; padding:8px;" onclick="playClickSound(); addToSpecificShelf('${barcode}', \`${name}\`, '${price}')">➕ إضافته لرف ذكي الآن</button>`;
-    }
+    if(!tShelf.items) tShelf.items = [];
+
+    tShelf.items.push({ barcode: barcode, name: name, price: price });
+    saveToCloudShelves();
+    playMoveSound();
+    logAction(`إضافة/نقل الصنف (${name}) برقم باركود ${barcode} إلى الرف (${tId})`);
+    alert(`✅ تم توزيع ونقل الصنف إلى الرف (${tId}) بنجاح تام!`);
 }
 
 function startCamera(){
@@ -1154,8 +1141,15 @@ function processCode(code){
         let foundShelf = null;
         shelves.forEach(s => { if(s.items && s.items.some(i => i.barcode === code)) foundShelf = s.id; });
 
+        // التحقق من تكرار المنتج في نفس الرف مباشرة عند مسحه بالكاميرا
+        if(foundShelf === activeShelfId){
+            playErrorSound();
+            alert(`⚠️ عذراً! هذا المنتج موجود بالفعل في هذا الرف (${activeShelfId}) ولا يمكن تكراره.`);
+            return;
+        }
+
         if(foundShelf && foundShelf !== activeShelfId){
-            let ok = confirm(`⚠️ المنتج موجود في الرف (${foundShelf}). هل تريد نقله للرف الحالي (${activeShelfId})؟`);
+            let ok = confirm(`⚠️ المنتج موجود مسبقاً في الرف (${foundShelf}). هل تريد نقله إلى الرف الحالي (${activeShelfId})؟`);
             if(!ok) return;
             let oldS = shelves.find(s => s.id === foundShelf);
             oldS.items = oldS.items.filter(i => i.barcode !== code);
@@ -1166,16 +1160,9 @@ function processCode(code){
 
         let shelf = shelves.find(s => s.id === activeShelfId);
         if(!shelf.items) shelf.items = [];
-        
-        // التحقق من عدم تكرار المنتج في نفس الرف
-        if(shelf.items.some(i => i.barcode === code)){
-            playErrorSound();
-            alert(`⚠️ عذراً! هذا المنتج موجود بالفعل في الرف (${activeShelfId}) ولا يمكن تكراره.`);
-            return;
-        }
 
         let info = getProductDetails(code);
-        let name = info ? info.name : prompt("المنتج غير موجود، أدخل اسمه:", "صنف جديد");
+        let name = info ? info.name : prompt("المنتج غير موجود بملف المحل، أدخل اسمه:", "صنف جديد");
         if(!name) return;
         let price = info ? info.price : prompt("أدخل السعر:", "0");
 
@@ -1183,7 +1170,7 @@ function processCode(code){
         saveToCloudShelves();
         playMoveSound();
         logAction(`إضافة المنتج (${name}) للرف (${activeShelfId})`);
-        alert(`✅ تمت الإضافة للرف ${activeShelfId}`);
+        alert(`✅ تمت الإضافة للرف ${activeShelfId} بنجاح`);
 
     } else if(mode === 'global'){
         let foundShelf = null, foundItem = null;
@@ -1197,63 +1184,29 @@ function processCode(code){
         let box = document.getElementById("searchResBox");
         box.style.display = "block";
         if(foundItem){
-            box.innerHTML = `📍 موجود في: <b>الرف (${foundShelf})</b><br>🏷️ الاسم: <b>${foundItem.name}</b><br>💰 السعر: ${foundItem.price} ج`;
+            box.innerHTML = `📍 المنتج موجود في: <b>الرف (${foundShelf})</b><br>🏷️ الاسم: <b>${foundItem.name}</b><br>💰 السعر: ${foundItem.price} ج`;
             logAction(`بحث بالكاميرا عن منتج موجود: ${foundItem.name}`);
         } else {
             let info = getProductDetails(code);
             if(info){
-                box.innerHTML = `❌ غير مسجل بالأرفف.<br>🏷️ <b>${info.name}</b> (${info.price}ج)<br><button style="background:#2e7d32; margin-top:8px; padding:8px;" onclick="playClickSound(); addToSpecificShelf('${code}', \`${info.name}\`, '${info.price}')">➕ إضافته لرف</button>`;
+                box.innerHTML = `❌ غير مسجل بالأرفف بعد.<br>🏷️ <b>${info.name}</b> (${info.price}ج)<br><button style="background:#2e7d32; margin-top:8px; padding:8px;" onclick="playClickSound(); chooseTargetShelfForProduct('${code}', \`${info.name}\`, '${info.price}')">➕ إضافته لرف الآن</button>`;
             } else {
-                box.innerHTML = `❌ الباركود غير موجود نهائياً.<br><button style="background:#2e7d32; margin-top:8px; padding:8px;" onclick="playClickSound(); addUnknownToShelf('${code}')">➕ تسجيل منتج جديد</button>`;
+                box.innerHTML = `❌ الباركود غير موجود بملف المحل.<br><button style="background:#2e7d32; margin-top:8px; padding:8px;" onclick="playClickSound(); addUnknownToShelf('${code}')">➕ تسجيل وصنف جديد</button>`;
             }
-            logAction(`بحث بالكاميرا عن باركود غير مسجل: ${code}`);
+            logAction(`بحث بالكاميرا عن باركود: ${code}`);
         }
     }
-}
-
-function addToSpecificShelf(barcode, name, price){
-    let target = prompt("أدخل رقم الرف المراد الإضافة إليه (1 إلى 150):");
-    if(!target) return;
-    let tId = parseInt(target);
-    let tShelf = shelves.find(s => s.id === tId);
-    if(!tShelf){ alert("رقم الرف خطأ!"); return; }
-
-    // التحقق من عدم تكرار المنتج في نفس الرف المستهدف
-    if(tShelf.items && tShelf.items.some(i => i.barcode === barcode)){
-        playErrorSound();
-        alert(`⚠️ عذراً! هذا المنتج موجود مسبقاً في الرف (${tId}) ولا يمكن تكراره فيه.`);
-        return;
-    }
-
-    // إزالته من الرف القديم لو كان منقولاً
-    shelves.forEach(s => {
-        if(s.items){
-            let idx = s.items.findIndex(i => i.barcode === barcode);
-            if(idx !== -1){
-                s.items.splice(idx, 1);
-            }
-        }
-    });
-
-    if(!tShelf.items) tShelf.items = [];
-
-    tShelf.items.push({ barcode: barcode, name: name, price: price });
-    saveToCloudShelves();
-    playMoveSound();
-    logAction(`إضافة/نقل المنتج (${name}) إلى الرف (${tId})`);
-    alert(`✅ تم الإضافة للرف (${tId}) بنجاح`);
-    document.getElementById("searchResBox").style.display = "none";
 }
 
 function addUnknownToShelf(barcode){
     let name = prompt("أدخل اسم الصنف الجديد:", "صنف جديد");
     if(!name) return;
     let price = prompt("أدخل السعر:", "0");
-    addToSpecificShelf(barcode, name, price);
+    chooseTargetShelfForProduct(barcode, name, price);
 }
 
 function delItem(shelfId, idx){
-    if(confirm("حذف هذا المنتج من الرف?")){
+    if(confirm("هل تريد حذف هذا المنتج من الرف؟")){
         let shelf = shelves.find(s => s.id === shelfId);
         let removed = shelf.items[idx];
         shelf.items.splice(idx, 1);
@@ -1266,18 +1219,18 @@ function delItem(shelfId, idx){
 function moveItem(shelfId, idx){
     let shelf = shelves.find(s => s.id === shelfId);
     let item = shelf.items[idx];
-    let target = prompt("أدخل رقم الرف الجديد (1 إلى 150):");
+    let target = prompt("أدخل رقم الرف الجديد (من 1 إلى 150):");
     if(!target) return;
     let tId = parseInt(target);
     let tShelf = shelves.find(s => s.id === tId);
-    if(!tShelf){ alert("رقم الرف خطأ!"); return; }
+    if(!tShelf){ alert("رقم الرف غير صحيح!"); return; }
 
     if(!tShelf.items) tShelf.items = [];
-    
-    // منع التكرار في الرف الجديد عند النقل
+
+    // منع التكرار عند النقل بين الأرفف
     if(tShelf.items.some(i => i.barcode === item.barcode)){
         playErrorSound();
-        alert(`⚠️ عذراً! هذا المنتج موجود مسبقاً في الرف (${tId}) ولا يمكن تكراره.`);
+        alert(`⚠️ عذراً! هذا المنتج موجود مسبقاً في الرف (${tId}) ولا يمكن تكراره فيه.`);
         return;
     }
 
@@ -1304,16 +1257,15 @@ function exportShelvesExcel(){
     XLSX.utils.book_append_sheet(wb, ws, "Shelves_Report");
     XLSX.writeFile(wb, "Center_AlTawfeer_Shelves.xlsx");
     playMoveSound();
-    logAction("تحميل شيت إكسل للأرفف");
 }
 
 function clearAllShelves(){
-    if(confirm("⚠️ تحذير خطير: هل أنت متأكد تماماً من مسح جميع الأرفف بالكامل من السحابة؟")){
+    if(confirm("⚠️ تحذير خطير: هل أنت متأكد من مسح جميع الأرفف بالكامل من السحابة؟")){
         shelves.forEach(s => { s.items = []; });
         saveToCloudShelves();
         document.getElementById("searchResBox").style.display = "none";
         playMoveSound();
-        logAction("⚠️ مسح وتفريغ بيانات جميع الأرفف نهائياً بواسطة المدير");
+        logAction("⚠️ مسح وتفريغ بيانات جميع الأرفف بواسطة المدير");
         alert("تم تفريغ الأرفف بالكامل.");
     }
 }
