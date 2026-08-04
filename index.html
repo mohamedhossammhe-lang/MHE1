@@ -38,7 +38,6 @@ body{ background:#f4f6f8; padding:10px; }
 .header-box{ text-align:center; margin-bottom:15px; }
 .logo-img{ max-width:180px; height:auto; margin-bottom:5px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.25)); }
 
-/* مربع المؤلف والأم: تم ترتيبه بحيث يكون الدعاء في الأسفل بالكامل في سطر واحد */
 .author-box {
     display: flex;
     flex-direction: column;
@@ -59,7 +58,6 @@ body{ background:#f4f6f8; padding:10px; }
     width: 100%;
 }
 
-/* لوجو 2: دوران عمودي (ببطء ثم تسارع ثم ثبات قليلاً) */
 .author-avatar {
     width: 60px;
     height: 60px;
@@ -93,7 +91,6 @@ body{ background:#f4f6f8; padding:10px; }
 }
 .animated-phone { font-size: 14px; font-weight: bold; color: #2e7d32; }
 
-/* دعاء الأم: مصغر، في سطر واحد، وفي آخر المربع تماماً */
 .mom-dua-small {
     font-family: 'Amiri', serif;
     font-size: 12px;
@@ -109,7 +106,6 @@ body{ background:#f4f6f8; padding:10px; }
     margin-top: 2px;
 }
 
-/* شريط الأذكار: الحركة من اليسار لليمين وبسرعة بطيئة مريحة للقراءة */
 .ticker-wrap {
     width: 100%;
     overflow: hidden;
@@ -143,7 +139,6 @@ select, input, button{ width:100%; padding:12px; font-size:16px; border-radius:8
 button{ color:white; border:none; }
 .btn-login{ background:#2e7d32; }
 
-/* صورة اليوزر عند الاختيار: ثابتة مع بريق وتألق (Glow) */
 .user-login-avatar {
     width: 50px;
     height: 50px;
@@ -159,7 +154,6 @@ button{ color:white; border:none; }
     100% { box-shadow: 0 0 15px #4caf50, 0 0 25px #2196f3; }
 }
 
-/* حالة الاحتفال والدوران عند نجاح الدخول */
 .celebrating {
     animation: yahooCelebrate 1s infinite linear !important;
     border: 3px solid #ffeb3b !important;
@@ -170,7 +164,6 @@ button{ color:white; border:none; }
     100% { transform: rotate(360deg) scale(1.1); }
 }
 
-/* حالة الاهتزاز عند الخطأ */
 .shaking {
     animation: shakeAnim 0.4s ease-in-out !important;
     border: 3px solid #d32f2f !important;
@@ -196,11 +189,14 @@ button{ color:white; border:none; }
 .btn-file{ background:#ff9800; }
 .btn-export{ background:#2e7d32; }
 .btn-search{ background:#009688; }
+.btn-refresh{ background:#0288d1; }
 .btn-clear{ background:#d32f2f; }
 .btn-logs{ background:#673ab7; }
 .btn-pass{ background:#607d8b; font-size:12px; padding:6px; width:auto; margin:0; }
 
 #reader { width:100%; max-width:350px; margin:10px auto; display:none; border-radius:8px; overflow:hidden; }
+#liveCamModal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:2000; justify-content:center; align-items:center; }
+.cam-box { background:#fff; width:95%; max-width:400px; border-radius:12px; padding:15px; text-align:center; }
 
 .shelves-grid{ display:grid; grid-template-columns:1fr; gap:10px; }
 @media(min-width: 500px){ .shelves-grid{ grid-template-columns:repeat(2, 1fr); } }
@@ -239,7 +235,7 @@ button{ color:white; border:none; }
 
         <div class="ticker-wrap">
             <div class="ticker">
-                ✨ رَبِّ إِنِّي لِمَا أَنْزَلْتَ إِلَيَّ مِنْ خَيْرٍ فَقِيرٌ ✨ ✦ سبحان الله وبحمده، سبحان الله العظيم ✦ استغفر الله العظيم واتوب إليه ✦ لا حول ولا قوة إلا بالله العلي العظيم ✦ لا إله إلا أنت سبحانك إني كنت من الظالمين ✦ اللهم صل وسلم على نبينا محمد ✦ رَبِّ اغْفِر لي ولوالدي وللمؤمنين يوم يقوم الحساب ✦ حسبي الله لا إله إلا هو عليه توكلت وهو رب العرش العظيم ✦ أستغفر الله الذي لا إله إلا هو الحي القيوم وأتوب إليه
+                ✨ رَبِّ إِنِّي لِمَا أَنْزَلْتَ إِلَيَّ مِنْ خَيْرٍ فَقِيرٍ ✨ ✦ سبحان الله وبحمده، سبحان الله العظيم ✦ استغفر الله العظيم واتوب إليه ✦ لا حول ولا قوة إلا بالله العلي العظيم ✦ لا إله إلا أنت سبحانك إني كنت من الظالمين ✦ اللهم صل وسلم على نبينا محمد ✦ رَبِّ اغْفِر لي ولوالدي وللمؤمنين يوم يقوم الحساب ✦ حسبي الله لا إله إلا هو عليه توكلت وهو رب العرش العظيم ✦ أستغفر الله الذي لا إله إلا هو الحي القيوم وأتوب إليه
             </div>
         </div>
     </div>
@@ -294,8 +290,8 @@ button{ color:white; border:none; }
             <button class="btn-file" onclick="playClickSound(); document.getElementById('excelFile').click()">📂 اختيار ملف أصناف المحل (Excel)</button>
             <button class="btn-export" onclick="playClickSound(); exportShelvesExcel()">📥 تحميل شيت الأرفف (Excel)</button>
             <button class="btn-search" onclick="playClickSound(); startGlobalSearch()">📷 بحث بالكاميرا عن منتج أو رف</button>
-            <input type="text" id="textSearch" placeholder="🔍 اكتب اسم المنتج أو الباركود للبحث...">
-            <button class="btn-clear" onclick="playClickSound(); clearAllShelves()">🗑️ حذف بيانات كل الأرفف</button>
+            <button class="btn-refresh" onclick="playClickSound(); location.reload()">🔄 تحديث الصفحة (Refresh)</button>
+            <button id="clearShelvesBtn" class="btn-clear" style="display:none;" onclick="playClickSound(); clearAllShelves()">🗑️ حذف بيانات كل الأرفف</button>
             <button id="adminLogsBtn" class="btn-logs" style="display:none;" onclick="playClickSound(); openLogsModal()">📊 سجل نشاطات الموظفين</button>
         </div>
 
@@ -314,15 +310,15 @@ button{ color:white; border:none; }
         </div>
 
         <div style="background:#e3f2fd; padding:12px; border-radius:10px; margin-bottom:15px;">
-            <div style="font-size:15px; font-weight:bold; color:#0d47a1; margin-bottom:8px;">⏱️ تسجيل الحضور والانصراف</div>
+            <div style="font-size:15px; font-weight:bold; color:#0d47a1; margin-bottom:8px;">⏱️ تسجيل الحضور والانصراف (بصورة حية مع منتج عشوائي)</div>
             <div style="display:flex; gap:10px; margin-bottom:8px;">
-                <button style="background:#2e7d32;" onclick="playClickSound(); verifyAndRecord('حضور')">تسجيل حضور</button>
-                <button style="background:#c62828;" onclick="playClickSound(); verifyAndRecord('انصراف')">تسجيل انصراف</button>
+                <button style="background:#2e7d32;" onclick="playClickSound(); startLiveAttendance('حضور')">تسجيل حضور</button>
+                <button style="background:#c62828;" onclick="playClickSound(); startLiveAttendance('انصراف')">تسجيل انصراف</button>
             </div>
         </div>
 
         <div style="background:#fff3e0; padding:12px; border-radius:10px; margin-bottom:15px; border:1px solid #ffe0b2;">
-            <div style="font-size:15px; font-weight:bold; color:#e65100; margin-bottom:8px;">📋 طلب إجازة أو غياب لليوزر (محمد حسام)</div>
+            <div style="font-size:15px; font-weight:bold; color:#e65100; margin-bottom:8px;">📋 طلب إجازة أو غياب</div>
             <select id="leaveType" style="margin-bottom:8px;">
                 <option value="إجازة اعتيادي">إجازة اعتيادي</option>
                 <option value="إجازة مرضي">إجازة مرضي</option>
@@ -334,9 +330,21 @@ button{ color:white; border:none; }
         </div>
 
         <div id="managerAdminBox" style="display:none; background:#ede7f6; padding:12px; border-radius:10px; border:1px solid #d1c4e9;">
-            <div style="font-size:15px; font-weight:bold; color:#512da8; margin-bottom:8px;">👑 لوحة إدارة المدير (محمد حسام): متابعة الحضور والطلبات</div>
+            <div style="font-size:15px; font-weight:bold; color:#512da8; margin-bottom:8px;">👑 لوحة إدارة المدير (محمد حسام): حالة الموظفين والصور</div>
+            <button class="btn-export" style="margin-bottom:10px;" onclick="playClickSound(); exportAttendanceExcel()">📥 سحب شيت الحضور والأنصراف (Excel)</button>
             <div id="managerRequestsList" style="font-size:12px; line-height:1.6;"></div>
         </div>
+    </div>
+</div>
+
+<div id="liveCamModal">
+    <div class="cam-box">
+        <h3 id="camModalTitle" style="color:#1565c0; margin-bottom:8px;">📷 التقاط صورة حية</h3>
+        <div id="targetProductBox" style="background:#fff3e0; padding:8px; border-radius:6px; font-size:13px; font-weight:bold; color:#e65100; margin-bottom:10px; border:1px solid #ffb74d;"></div>
+        <video id="liveVideo" autoplay playsinline style="width:100%; max-height:220px; border-radius:8px; background:#000; object-fit:cover; margin-bottom:8px;"></video>
+        <canvas id="liveCanvas" style="display:none;"></canvas>
+        <button style="background:#2e7d32; margin-bottom:6px;" onclick="playClickSound(); captureLiveSelfie()">📸 التقاط الصورة والحفظ</button>
+        <button style="background:#c62828;" onclick="playClickSound(); closeLiveCamModal()">إلغاء</button>
     </div>
 </div>
 
@@ -442,6 +450,10 @@ let passwords = JSON.parse(localStorage.getItem("system_passwords")) || {
 let logs = [];
 let attendanceRecords = [];
 let leaveRequests = [];
+
+let pendingAttendanceType = "";
+let activeAssignedProduct = "";
+let mediaStream = null;
 
 const userAvatars = {
     "محمد حسام": "logo3.png",
@@ -550,10 +562,12 @@ function login(){
             
             if(u === "محمد حسام"){
                 document.getElementById("adminLogsBtn").style.display = "block";
+                document.getElementById("clearShelvesBtn").style.display = "block";
                 document.getElementById("managerAdminBox").style.display = "block";
                 renderManagerRequests();
             } else {
                 document.getElementById("adminLogsBtn").style.display = "none";
+                document.getElementById("clearShelvesBtn").style.display = "none";
                 document.getElementById("managerAdminBox").style.display = "none";
             }
             logAction("تسجيل دخول للنظام");
@@ -611,34 +625,97 @@ function changeMyPassword(){
     }
 }
 
-function verifyAndRecord(type){
-    let randNum = Math.floor(1000 + Math.random() * 9000);
-    let userInput = prompt(`🔐 نظام التحقق الأمني للحضور والانصراف:\nأكتب هذا الرقم بدقة لتأكيد تسجيلك (${randNum}):`);
-    if(userInput !== String(randNum)){
-        alert("❌ الرقم غير صحيح! تم إلغاء التسجيل.");
+function startLiveAttendance(type){
+    let inputPass = prompt(`🔐 تأكيد كلمة المرور الشخصية لتسجيل (${type}):`);
+    if(inputPass !== passwords[currentUser]){
+        playErrorSound();
+        alert("❌ كلمة المرور غير صحيحة!");
         return;
     }
 
-    let photoConfirmed = confirm("📸 مطلوب التقاط صورة للتحقق من الحضور. اضغط موافق لتفعيل الكاميرا.");
-    if(!photoConfirmed) return;
+    pendingAttendanceType = type;
 
-    alert("✅ تم التحقق برقم الطلب والصورة بنجاح! جاري تسجيل الوقت والتاريخ.");
-    
+    if(products.length === 0){
+        activeAssignedProduct = "منتج عام بالمحل (بركود سنتر التوفير)";
+    } else {
+        let randIdx = Math.floor(Math.random() * products.length);
+        let pRow = products[randIdx];
+        let pName = pRow["اسم المنتج"] || pRow["اسم الصنف"] || pRow["الصنف"] || "منتج عشوائي";
+        let pBar = pRow["رقم الباركود"] || pRow["كود الصنف"] || pRow["الباركود"] || pRow["Barcode"] || "---";
+        activeAssignedProduct = `${pName} (باركود: ${pBar})`;
+    }
+
+    document.getElementById("camModalTitle").innerText = `📷 تصوير حي لتسجيل (${type})`;
+    document.getElementById("targetProductBox").innerText = `🎯 يجب الإمساك بهذا المنتج في الصورة:\n✨ ${activeAssignedProduct}`;
+    document.getElementById("liveCamModal").style.display = "flex";
+
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: false })
+    .then(stream => {
+        mediaStream = stream;
+        let video = document.getElementById("liveVideo");
+        video.srcObject = stream;
+    })
+    .catch(err => {
+        alert("تعذر فتح كاميرا الموبايل الحية.");
+        document.getElementById("liveCamModal").style.display = "none";
+    });
+}
+
+function closeLiveCamModal(){
+    if(mediaStream){
+        mediaStream.getTracks().forEach(track => track.stop());
+    }
+    document.getElementById("liveCamModal").style.display = "none";
+}
+
+function captureLiveSelfie(){
+    let video = document.getElementById("liveVideo");
+    let canvas = document.getElementById("liveCanvas");
+    canvas.width = video.videoWidth || 300;
+    canvas.height = video.videoHeight || 200;
+    let ctx = canvas.getContext("2d");
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    let dataUrl = canvas.toDataURL("image/jpeg", 0.7);
+
+    closeLiveCamModal();
+
     let now = new Date();
     let timeStr = now.toLocaleTimeString();
     let dateStr = now.toLocaleDateString();
 
-    if(type === 'حضور'){
-        attendanceRecords.unshift({ user: currentUser, type: 'حضور', date: dateStr, time: timeStr, hours: '-' });
+    if(pendingAttendanceType === 'حضور'){
+        let alreadyAttended = attendanceRecords.some(r => r.user === currentUser && r.type === 'حضور' && r.date === dateStr);
+        if(alreadyAttended){
+            alert("⚠️ تنبيه: لقد قمت بتسجيل الحضور مسبقاً لهذا اليوم!");
+            return;
+        }
+        attendanceRecords.unshift({
+            user: currentUser,
+            type: 'حضور',
+            date: dateStr,
+            time: timeStr,
+            hours: '-',
+            product: activeAssignedProduct,
+            selfie: dataUrl
+        });
     } else {
         let lastAtt = attendanceRecords.find(r => r.user === currentUser && r.type === 'حضور' && r.date === dateStr);
-        let hoursWorked = lastAtt ? "مكتمل" : "غير محدد";
-        attendanceRecords.unshift({ user: currentUser, type: 'انصراف', date: dateStr, time: timeStr, hours: hoursWorked });
+        let hoursWorked = lastAtt ? "مكتمل" : "انصراف طارئ";
+        attendanceRecords.unshift({
+            user: currentUser,
+            type: 'انصراف',
+            date: dateStr,
+            time: timeStr,
+            hours: hoursWorked,
+            product: activeAssignedProduct,
+            selfie: dataUrl
+        });
     }
-    
+
     saveToCloudAttendance();
-    logAction(`تسجيل ${type} بنجاح الساعة ${timeStr}`);
-    alert(`🎉 تم تسجيل ${type} في التاريخ ${dateStr} الساعة ${timeStr} بنجاح!`);
+    playAtmAndMoneySound();
+    logAction(`تسجيل ${pendingAttendanceType} بصورة حية مع المنتج المطلوب`);
+    alert(`🎉 تم توثيق وتسجيل (${currentUser} ${pendingAttendanceType}) بنجاح وإرسال الصورة الحية للمدير!`);
     if(currentUser === "محمد حسام") renderManagerRequests();
 }
 
@@ -673,9 +750,32 @@ function renderManagerRequests(){
     if(!listDiv) return;
     listDiv.innerHTML = "";
 
+    // ملخص حالة اليوم لكل موظف (علاء حضور / علاء انصراف)
+    let todayStr = new Date().toLocaleDateString();
+    let employees = ["علاء", "شوقي", "محمود", "احمد محمد امين", "محمد ميدو جبر", "محمد حسام"];
+    
+    listDiv.innerHTML += `<div style="background:#e8f5e9; padding:8px; border-radius:6px; margin-bottom:10px; border:1px solid #c8e6c9;"><b>🟢 حالات الحضور والانصراف الحالية لليوم (${todayStr}):</b><br>`;
+    employees.forEach(emp => {
+        let lastRec = attendanceRecords.find(r => r.user === emp && r.date === todayStr);
+        let statusText = "لم يسجل اليوم";
+        let statusColor = "#777";
+        if(lastRec){
+            if(lastRec.type === 'حضور'){
+                statusText = `🟢 ${emp} حضور (الساعة ${lastRec.time})`;
+                statusColor = "#2e7d32";
+            } else {
+                statusText = `🔴 ${emp} انصراف (الساعة ${lastRec.time})`;
+                statusColor = "#c62828";
+            }
+        }
+        listDiv.innerHTML += `<div style="color:${statusColor}; font-weight:bold; margin-top:2px;">• ${statusText}</div>`;
+    });
+    listDiv.innerHTML += `</div>`;
+
     if(leaveRequests.length === 0){
-        listDiv.innerHTML = "لا توجد طلبات إجازات أو غياب معلقة.";
+        listDiv.innerHTML += "لا توجد طلبات إجازات أو غياب معلقة.<br>";
     } else {
+        listDiv.innerHTML += `<b>طلبات الإجازات المعلقة:</b><br>`;
         leaveRequests.forEach((req, idx) => {
             let statusColor = req.status === 'موافق عليها' ? 'green' : (req.status === 'مرفوضة' ? 'red' : 'orange');
             listDiv.innerHTML += `
@@ -692,12 +792,18 @@ function renderManagerRequests(){
         });
     }
 
-    listDiv.innerHTML += `<hr style="margin:10px 0;"><b>سجلات الحضور والانصراف للموظفين:</b><br>`;
+    listDiv.innerHTML += `<hr style="margin:10px 0;"><b>سجل الحركات التفصيلي والصور الحية:</b><br>`;
     if(attendanceRecords.length === 0){
         listDiv.innerHTML += `<div>لا توجد سجلات حضور بعد.</div>`;
     } else {
         attendanceRecords.slice(0, 10).forEach(rec => {
-            listDiv.innerHTML += `<div>[${rec.date} - ${rec.time}] ${rec.user} (${rec.type})</div>`;
+            let selfieHtml = rec.selfie ? `<br><img src="${rec.selfie}" style="width:70px; height:50px; border-radius:4px; object-fit:cover; margin-top:4px; border:1px solid #333;" alt="صورة حية"/>` : '';
+            let prodHtml = rec.product ? `<br>📦 المنتج المطلوب: <span style="color:#e65100;">${rec.product}</span>` : '';
+            let badgeColor = rec.type === 'حضور' ? '#2e7d32' : '#c62828';
+            listDiv.innerHTML += `
+            <div style="background:#fff; padding:8px; margin-bottom:6px; border-radius:6px; border:1px solid #ddd;">
+                [${rec.date} - ${rec.time}] <b>${rec.user}</b> <span style="color:${badgeColor}; font-weight:bold;">(${rec.user} ${rec.type})</span>${prodHtml}${selfieHtml}
+            </div>`;
         });
     }
 }
@@ -712,6 +818,25 @@ function updateLeaveStatus(id, newStatus){
         renderManagerRequests();
         alert("✅ تم تحديث الحالة وإرسال الرد للموظف!");
     }
+}
+
+function exportAttendanceExcel(){
+    if(attendanceRecords.length === 0){ alert("لا توجد سجلات حضور وانصراف لتصديرها!"); return; }
+    let data = attendanceRecords.map(r => ({
+        "اسم الموظف": r.user,
+        "الحركة": `${r.user} ${r.type}`,
+        "نوع الحركة": r.type,
+        "التاريخ": r.date,
+        "الوقت": r.time,
+        "المنتج المطلوب": r.product || '-',
+        "الحالة / الساعات": r.hours
+    }));
+    let ws = XLSX.utils.json_to_sheet(data);
+    let wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Attendance_Report");
+    XLSX.writeFile(wb, "Center_AlTawfeer_Attendance.xlsx");
+    playMoveSound();
+    logAction("تحميل شيت إكسل للحضور والانصراف");
 }
 
 function updateStatus(){
@@ -909,7 +1034,7 @@ function addUnknownToShelf(barcode){
 }
 
 function delItem(shelfId, idx){
-    if(confirm("حذف هذا المنتج من الرف؟")){
+    if(confirm("حذف هذا المنتج من الرف?")){
         let shelf = shelves.find(s => s.id === shelfId);
         let removed = shelf.items[idx];
         shelf.items.splice(idx, 1);
@@ -939,34 +1064,6 @@ function moveItem(shelfId, idx){
     alert("✅ تم النقل بنجاح.");
 }
 
-document.getElementById("textSearch").oninput = function(){
-    let q = this.value.trim().toLowerCase();
-    let box = document.getElementById("searchResBox");
-    if(!q){ box.style.display = "none"; return; }
-    box.style.display = "block";
-    
-    let matches = [];
-    shelves.forEach(s => {
-        if(s.items){
-            s.items.forEach(i => {
-                if(i.name.toLowerCase().includes(q) || i.barcode.includes(q) || String(s.id) === q){
-                    matches.push({ shelfId: s.id, ...i });
-                }
-            });
-        }
-    });
-
-    if(matches.length > 0){
-        let html = "<b>نتائج البحث في الأرفف:</b><br>";
-        matches.forEach(m => {
-            html += `<div style="margin-top:4px;">📍 الرف (${m.shelfId}) | 🏷️ ${m.name} | ${m.price}ج | ${m.barcode}</div>`;
-        });
-        box.innerHTML = html;
-    } else {
-        box.innerHTML = "❌ لا توجد نتائج مطابقة بالأرفف.";
-    }
-};
-
 function exportShelvesExcel(){
     let data = [];
     shelves.forEach(s => {
@@ -986,12 +1083,12 @@ function exportShelvesExcel(){
 }
 
 function clearAllShelves(){
-    if(confirm("⚠️ تحذير: هل أنت متأكد من مسح جميع الأرفف بالكامل من السحابة؟")){
+    if(confirm("⚠️ تحذير خطير: هل أنت متأكد تماماً من مسح جميع الأرفف بالكامل من السحابة؟")){
         shelves.forEach(s => { s.items = []; });
         saveToCloudShelves();
         document.getElementById("searchResBox").style.display = "none";
         playMoveSound();
-        logAction("⚠️ مسح وتفريغ بيانات جميع الأرفف نهائياً");
+        logAction("⚠️ مسح وتفريغ بيانات جميع الأرفف نهائياً بواسطة المدير");
         alert("تم تفريغ الأرفف بالكامل.");
     }
 }
