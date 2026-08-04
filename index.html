@@ -11,10 +11,10 @@
 *{ margin:0; padding:0; box-sizing:border-box; font-family:Tahoma,sans-serif; }
 body{ background:#f4f6f8; padding:10px; }
 .card{ max-width:650px; margin:auto; background:#fff; border-radius:15px; padding:15px; box-shadow:0 4px 15px rgba(0,0,0,0.1); }
-.header-box{ text-align:center; margin-bottom:15px; }
-.logo-img{ width:90px; height:90px; border-radius:50%; object-fit:cover; border:3px solid #ff9800; margin-bottom:5px; box-shadow:0 2px 8px rgba(0,0,0,0.15); }
-.title{ font-size:24px; color:#ff9800; font-weight:bold; }
-.sub-author{ font-size:13px; color:#555; margin-top:2px; font-weight:bold; }
+.header-box{ text-align:center; margin-bottom:20px; }
+.logo-icon{ font-size:75px; background:#fff3e0; width:130px; height:130px; line-height:130px; border-radius:50%; margin:0 auto 12px auto; border:4px solid #ff9800; box-shadow:0 4px 12px rgba(0,0,0,0.15); }
+.title{ font-size:32px; color:#ff9800; font-weight:bold; }
+.sub-author{ font-size:15px; color:#555; margin-top:4px; font-weight:bold; }
 
 .toolbar{ display:flex; flex-direction:column; gap:8px; margin-bottom:15px; }
 input, button{ width:100%; padding:12px; font-size:16px; border-radius:8px; border:1px solid #ccc; font-weight:bold; cursor:pointer; }
@@ -39,7 +39,7 @@ button{ color:white; border:none; }
 
 <div class="card">
 <div class="header-box">
-    <img src="https://i.ibb.co/6R559W9/1000755402.jpg" alt="سنتر التوفير" class="logo-img" onerror="this.style.display='none'">
+    <div class="logo-icon">🛒</div>
     <div class="title">سنتر التوفير</div>
     <div class="sub-author">mohamed hossam (MHE)</div>
 </div>
@@ -70,22 +70,30 @@ let html5QrCode = null;
 let activeShelfId = null;
 let mode = 'shelf'; 
 
-let savedProds = localStorage.getItem("store_products_v3");
+// استرجاع الأصناف مع دمج النسخ القديمة والجديدة لضمان عدم الضياع
+let savedProds = localStorage.getItem("store_products_v3") || localStorage.getItem("store_products_final");
 if(savedProds) {
     try { products = JSON.parse(savedProds); } catch(e){}
 }
 
 for(let i = 1; i <= 150; i++){
-    let saved = localStorage.getItem("shelf_data_v3_" + i);
+    // جلب البيانات من المفتاح الجديد أو المفاتيح القديمة تلقائياً
+    let saved = localStorage.getItem("shelf_data_v3_" + i) || localStorage.getItem("shelf_data_final_" + i);
+    let parsedItems = [];
+    if(saved) {
+        try { parsedItems = JSON.parse(saved); } catch(e){}
+    }
     shelves.push({
         id: i,
-        items: saved ? JSON.parse(saved) : []
+        items: parsedItems
     });
 }
 
 function saveShelf(id){
     let shelf = shelves.find(s => s.id === id);
     localStorage.setItem("shelf_data_v3_" + id, JSON.stringify(shelf.items));
+    // حفظ احتياطي للنسخة القديمة أيضاً لضمان الأمان
+    localStorage.setItem("shelf_data_final_" + id, JSON.stringify(shelf.items));
     updateStatus();
 }
 
@@ -106,6 +114,7 @@ document.getElementById("excelFile").onchange = function(e){
             let sheet = workbook.Sheets[workbook.SheetNames[0]];
             products = XLSX.utils.sheet_to_json(sheet);
             localStorage.setItem("store_products_v3", JSON.stringify(products));
+            localStorage.setItem("store_products_final", JSON.stringify(products));
             updateStatus();
             alert("✅ تم حفظ ملف أصناف المحل بنجاح!");
         } catch(err) {
@@ -328,7 +337,6 @@ function moveItem(shelfId, idx){
     alert("✅ تم النقل بنجاح.");
 }
 
-// البحث النصي المطور مع إمكانية الإضافة المباشرة إذا لم يكن بالرفوف
 document.getElementById("textSearch").oninput = function(){
     let q = this.value.trim().toLowerCase();
     let box = document.getElementById("searchResBox");
@@ -351,7 +359,6 @@ document.getElementById("textSearch").oninput = function(){
         });
         box.innerHTML = html;
     } else {
-        // البحث في ملف الأصناف العام للاقتراح المباشر بالإضافة
         let foundInProds = products.find(row => {
             let name = String(row["اسم المنتج"] || row["اسم الصنف"] || row["الصنف"] || "").toLowerCase();
             let bar = String(row["رقم الباركود"] || row["كود الصنف"] || row["الباركود"] || row["Barcode"] || "").toLowerCase();
@@ -397,6 +404,7 @@ function clearAllShelves(){
     if(confirm("⚠️ هل أنت متأكد من مسح جميع بيانات الأرفف نهائياً؟")){
         shelves.forEach(s => {
             localStorage.removeItem("shelf_data_v3_" + s.id);
+            localStorage.removeItem("shelf_data_final_" + s.id);
             s.items = [];
         });
         renderShelves();
