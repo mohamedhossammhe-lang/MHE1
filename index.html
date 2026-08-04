@@ -12,19 +12,8 @@
 body{ background:#f4f6f8; padding:10px; }
 .card{ max-width:650px; margin:auto; background:#fff; border-radius:15px; padding:15px; box-shadow:0 4px 15px rgba(0,0,0,0.1); }
 .header-box{ text-align:center; margin-bottom:20px; }
-
-/* تصميم بديل احترافي للشعار يضمن عدم ضياعه أبدأ */
-.logo-container {
-    background: linear-gradient(135deg, #ff9800, #f57c00);
-    color: white;
-    padding: 20px;
-    border-radius: 15px;
-    margin-bottom: 10px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-}
-.logo-title { font-size: 32px; font-weight: bold; margin-bottom: 5px; text-shadow: 2px 2px 4px rgba(0,0,0,0.2); }
-.logo-subtitle { font-size: 16px; font-weight: bold; opacity: 0.95; }
-.sub-author{ font-size: 16px; color: #333; margin-top: 10px; font-weight: bold; }
+.logo-img{ max-width:240px; height:auto; margin-bottom:5px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.25)); }
+.sub-author{ font-size:16px; color:#333; margin-top:5px; font-weight:bold; }
 
 .toolbar{ display:flex; flex-direction:column; gap:8px; margin-bottom:15px; }
 input, button{ width:100%; padding:12px; font-size:16px; border-radius:8px; border:1px solid #ccc; font-weight:bold; cursor:pointer; }
@@ -49,10 +38,7 @@ button{ color:white; border:none; }
 
 <div class="card">
 <div class="header-box">
-    <div class="logo-container">
-        <div class="logo-title">🛒 سنتر التوفير</div>
-        <div class="logo-subtitle">نظام الأرفف الذكي وإدارة المنتجات</div>
-    </div>
+    <img src="logo.png" alt="سنتر التوفير" class="logo-img" onerror="this.style.display='none'">
     <div class="sub-author">mohamed hossam (MHE)</div>
 </div>
 
@@ -417,7 +403,7 @@ function clearAllShelves(){
             s.items = [];
         });
         renderShelves();
-        document.getElementById("searchResBox").style.display, "none";
+        document.getElementById("searchResBox").style.display = "none";
         alert("تم تفريغ جميع الأرفف.");
     }
 }
