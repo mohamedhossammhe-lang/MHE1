@@ -3,215 +3,99 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>سنتر التوفير - نظام إدارة الأرفف الشامل</title>
+<title>سنتر التوفير - نظام الأرفف الذكي</title>
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
-<script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+<script src="https://unpkg.com/html5-qrcode"></script>
 
 <style>
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:Tahoma,sans-serif;
-}
-body{
-background:#eceff1;
-padding:15px;
-}
-.card{
-max-width:700px;
-margin:auto;
-background:#ffffff;
-border-radius:20px;
-padding:20px;
-box-shadow:0 5px 25px rgba(0,0,0,.20);
-}
-.title{
-text-align:center;
-margin-top:5px;
-font-size:30px;
-color:#ff9800;
-font-weight:bold;
-}
-.toolbar{
-display:flex;
-flex-direction:column;
-gap:10px;
-margin-top:15px;
-}
-input, button{
-width:100%;
-padding:14px;
-font-size:16px;
-border-radius:12px;
-border:2px solid #ddd;
-outline:none;
-font-weight:bold;
-cursor:pointer;
-}
-input:focus{
-border-color:#009688;
-}
-button{
-border:none;
-color:white;
-transition:.3s;
-}
-.btn-excel{ background:#ff9800; }
+*{ margin:0; padding:0; box-sizing:border-box; font-family:Tahoma,sans-serif; }
+body{ background:#f4f6f8; padding:10px; }
+.card{ max-width:650px; margin:auto; background:#fff; border-radius:15px; padding:15px; box-shadow:0 4px 15px rgba(0,0,0,0.1); }
+.header-box{ text-align:center; margin-bottom:15px; }
+.logo-img{ width:90px; height:90px; border-radius:50%; object-fit:cover; border:3px solid #ff9800; margin-bottom:5px; box-shadow:0 2px 8px rgba(0,0,0,0.15); }
+.title{ font-size:24px; color:#ff9800; font-weight:bold; }
+.sub-author{ font-size:13px; color:#555; margin-top:2px; font-weight:bold; }
+
+.toolbar{ display:flex; flex-direction:column; gap:8px; margin-bottom:15px; }
+input, button{ width:100%; padding:12px; font-size:16px; border-radius:8px; border:1px solid #ccc; font-weight:bold; cursor:pointer; }
+button{ color:white; border:none; }
+.btn-file{ background:#ff9800; }
 .btn-export{ background:#2e7d32; }
 .btn-search{ background:#009688; }
 .btn-clear{ background:#d32f2f; }
 
-#reader {
-margin-top: 15px;
-border-radius: 12px;
-overflow: hidden;
-display: none;
-}
+#reader { width:100%; max-width:350px; margin:10px auto; display:none; border-radius:8px; overflow:hidden; }
 
-.shelves-grid{
-display:grid;
-grid-template-columns:1fr;
-gap:12px;
-margin-top:20px;
-}
-@media(min-width: 600px){
-.shelves-grid{
-grid-template-columns:repeat(2, 1fr);
-}
-}
-.shelf-card{
-background:#fafafa;
-border-radius:12px;
-padding:12px;
-border:2px solid #ddd;
-border-right:6px solid #1565c0;
-}
-.shelf-title{
-font-size:15px;
-font-weight:bold;
-color:#333;
-margin-bottom:8px;
-display:flex;
-justify-content:space-between;
-align-items:center;
-}
-.item-row{
-background:#fff;
-padding:8px;
-margin-bottom:6px;
-border-radius:8px;
-border:1px solid #eee;
-font-size:13px;
-display:flex;
-flex-direction:column;
-gap:4px;
-}
-.item-details{
-display:flex;
-justify-content:space-between;
-font-weight:bold;
-color:#333;
-}
-.item-price{
-color:red;
-}
-.item-actions{
-display:flex;
-gap:5px;
-margin-top:4px;
-}
-.item-actions button{
-padding:6px;
-font-size:11px;
-border-radius:6px;
-}
-.search-result-box{
-margin-top:15px;
-background:#e3f2fd;
-border-radius:12px;
-padding:15px;
-border:2px dashed #90caf9;
-display:none;
-}
-.note{
-margin-top:15px;
-font-size:13px;
-color:#666;
-text-align:center;
-}
+.shelves-grid{ display:grid; grid-template-columns:1fr; gap:10px; }
+@media(min-width: 500px){ .shelves-grid{ grid-template-columns:repeat(2, 1fr); } }
+
+.shelf-card{ background:#fafafa; border-radius:8px; padding:10px; border:1px solid #ddd; border-right:5px solid #1565c0; }
+.shelf-title{ font-size:14px; font-weight:bold; color:#333; margin-bottom:6px; display:flex; justify-content:space-between; }
+.item-row{ background:#fff; padding:6px; margin-bottom:4px; border-radius:6px; border:1px solid #eee; font-size:12px; display:flex; justify-content:space-between; align-items:center; }
+.search-box-res{ background:#e3f2fd; padding:10px; border-radius:8px; margin-bottom:10px; display:none; font-size:14px; border:1px solid #90caf9; }
 </style>
 </head>
 <body>
 
 <div class="card">
-<div class="title">🏪 سنتر التوفير</div>
+<div class="header-box">
+    <img src="https://i.ibb.co/6R559W9/1000755402.jpg" alt="سنتر التوفير" class="logo-img" onerror="this.style.display='none'">
+    <div class="title">سنتر التوفير</div>
+    <div class="sub-author">mohamed hossam (MHE)</div>
+</div>
 
 <div class="toolbar">
 <input type="file" id="excelFile" accept=".xlsx,.xls,.csv" style="display:none">
-<button class="btn-excel" id="fileBtn">📂 اختيار ملف أصناف المحل (Excel)</button>
-<button class="btn-export" id="exportExcelBtn">📥 تحميل شيت الأرفف (Excel بالأربعة أعمدة)</button>
-<button class="btn-search" id="searchScanBtn">📷 مسح باركود لمعرفة الرف أو إضافته</button>
-<input type="text" id="searchBox" placeholder="🔍 ابحث باسم المنتج أو الباركود أو رقم الرف...">
-<button class="btn-clear" id="clearBtn">🗑️ حذف جميع بيانات الأرفف</button>
+<button class="btn-file" onclick="document.getElementById('excelFile').click()">📂 اختيار ملف أصناف المحل (Excel)</button>
+<button class="btn-export" onclick="exportShelvesExcel()">📥 تحميل شيت الأرفف (Excel)</button>
+<button class="btn-search" onclick="startGlobalSearch()">📷 بحث بالكاميرا عن منتج أو رف</button>
+<input type="text" id="textSearch" placeholder="🔍 اكتب اسم المنتج أو الباركود للبحث...">
+<button class="btn-clear" onclick="clearAllShelves()">🗑️ حذف بيانات كل الأرفف</button>
 </div>
 
-<div class="search-result-box" id="searchResultBox">
-<h3 style="color:#0d47a1; margin-bottom:8px; font-size:15px;">نتيجة البحث:</h3>
-<div id="searchResultContent" style="font-size:14px; color:#333;"></div>
-</div>
+<div class="search-box-res" id="searchResBox"></div>
 
 <div id="reader"></div>
+<button id="closeCam" style="background:#c62828; display:none; margin-bottom:10px;" onclick="stopCamera()">إغلاق الكاميرا</button>
 
 <div class="shelves-grid" id="shelvesContainer"></div>
 
-<div class="note" id="status">
-جاري التحقق من البيانات...
-</div>
+<div id="statusNote" style="text-align:center; font-size:12px; color:#666; margin-top:15px;"></div>
 </div>
 
 <script>
-let products = []; 
-let shelves = [];  
+let products = [];
+let shelves = [];
 let html5QrCode = null;
 let activeShelfId = null;
-let cameraMode = 'shelf';
+let mode = 'shelf'; 
 
-let savedProducts = localStorage.getItem("saved_store_products_v4");
-if(savedProducts){
-    try { products = JSON.parse(savedProducts); } catch(e){}
+let savedProds = localStorage.getItem("store_products_v3");
+if(savedProds) {
+    try { products = JSON.parse(savedProds); } catch(e){}
 }
 
 for(let i = 1; i <= 150; i++){
-    let saved = localStorage.getItem("shelf_item_v4_" + i);
+    let saved = localStorage.getItem("shelf_data_v3_" + i);
     shelves.push({
         id: i,
         items: saved ? JSON.parse(saved) : []
     });
 }
 
-function saveShelfData(shelfId){
-    let shelf = shelves.find(s => s.id === shelfId);
-    localStorage.setItem("shelf_item_v4_" + shelfId, JSON.stringify(shelf.items));
+function saveShelf(id){
+    let shelf = shelves.find(s => s.id === id);
+    localStorage.setItem("shelf_data_v3_" + id, JSON.stringify(shelf.items));
+    updateStatus();
 }
 
-function updateStatusMessage(){
-    let totalItemsCount = 0;
-    shelves.forEach(s => totalItemsCount += s.items.length);
-    let msg = "✅ يعمل بدون إنترنت | ";
-    if(products.length > 0){
-        msg += "الأصناف محملة (" + products.length + ") | ";
-    } else {
-        msg += "⚠️ اختر ملف الأصناف أولاً | ";
-    }
-    msg += "المنتجات بالأرفف: " + totalItemsCount;
-    document.getElementById("status").innerHTML = msg;
+function updateStatus(){
+    let total = 0;
+    shelves.forEach(s => total += s.items.length);
+    document.getElementById("statusNote").innerText = `الأصناف بملف المحل: ${products.length} | إجمالي المنتجات الموزعة بالرفوف: ${total}`;
 }
 
-const excelFile = document.getElementById("excelFile");
-document.getElementById("fileBtn").onclick = () => excelFile.click();
-
-excelFile.onchange = function(e){
+document.getElementById("excelFile").onchange = function(e){
     let file = e.target.files[0];
     if(!file) return;
     let reader = new FileReader();
@@ -221,9 +105,9 @@ excelFile.onchange = function(e){
             let workbook = XLSX.read(data, {type: 'binary'});
             let sheet = workbook.Sheets[workbook.SheetNames[0]];
             products = XLSX.utils.sheet_to_json(sheet);
-            localStorage.setItem("saved_store_products_v4", JSON.stringify(products));
-            updateStatusMessage();
-            alert("✅ تم تحميل وحفظ ملف أصناف المحل بنجاح دائم!");
+            localStorage.setItem("store_products_v3", JSON.stringify(products));
+            updateStatus();
+            alert("✅ تم حفظ ملف أصناف المحل بنجاح!");
         } catch(err) {
             alert("خطأ في قراءة ملف الإكسل.");
         }
@@ -231,41 +115,16 @@ excelFile.onchange = function(e){
     reader.readAsBinaryString(file);
 };
 
-// تصدير الأرفف والإضافات بـ 4 أعمدة دقيقة
-document.getElementById("exportExcelBtn").onclick = function(){
-    let exportData = [];
-    shelves.forEach(shelf => {
-        shelf.items.forEach(item => {
-            exportData.push({
-                "اسم الصنف": item.name,
-                "رقم الرف": shelf.id,
-                "الباركود": item.barcode,
-                "السعر": item.price
-            });
-        });
-    });
-
-    if(exportData.length === 0){
-        alert("لا توجد منتجات مسجلة في الأرفف لتصديرها حالياً!");
-        return;
-    }
-
-    let sheet = XLSX.utils.json_to_sheet(exportData);
-    let book = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(book, sheet, "Shelves_Products");
-    XLSX.writeFile(book, "Center_Shelves_Report.xlsx");
-};
-
-function findProductDetails(code) {
-    let cleanCode = String(code).trim();
+function getProductDetails(code){
+    code = String(code).trim();
     for(let i = 0; i < products.length; i++){
         let row = products[i];
-        let barValue = row["رقم الباركود"] || row["كود الصنف"] || row["الباركود"] || row["Barcode"] || "";
-        let cellStr = String(barValue).trim();
-        if(cellStr === cleanCode || cellStr.includes(cleanCode) || cellStr.split('|').map(b=>b.trim()).includes(cleanCode)) {
+        let bar = String(row["رقم الباركود"] || row["كود الصنف"] || row["الباركود"] || row["Barcode"] || "").trim();
+        if(bar === code || bar.includes(code)){
             return {
-                name: row["اسم المنتج"] || row["اسم الصنف"] || row["الصنف"] || "اسم غير متوفر",
-                price: row["سعر البيع"] || row["السعر"] || row["بيع"] || "0.00"
+                barcode: bar,
+                name: row["اسم المنتج"] || row["اسم الصنف"] || row["الصنف"] || "بدون اسم",
+                price: row["سعر البيع"] || row["السعر"] || row["بيع"] || "0"
             };
         }
     }
@@ -273,25 +132,21 @@ function findProductDetails(code) {
 }
 
 function renderShelves(){
-    const container = document.getElementById("shelvesContainer");
+    let container = document.getElementById("shelvesContainer");
     container.innerHTML = "";
-    
+
     shelves.forEach(shelf => {
         let itemsHtml = "";
         if(shelf.items.length === 0){
-            itemsHtml = '<div style="color:#999; font-size:12px; text-align:center; padding:4px;">فارغ</div>';
+            itemsHtml = '<div style="color:#888; font-size:11px; text-align:center;">فارغ</div>';
         } else {
             shelf.items.forEach((item, idx) => {
                 itemsHtml += `
                 <div class="item-row">
-                    <div class="item-details">
-                        <span>📦 ${item.name}</span>
-                        <span class="item-price">${item.price} ج</span>
-                    </div>
-                    <div style="font-size:11px; color:#666;">باركود: ${item.barcode}</div>
-                    <div class="item-actions">
-                        <button style="background:#0288d1;" onclick="moveItem(${shelf.id}, ${idx})">🔄 نقل</button>
-                        <button style="background:#d32f2f;" onclick="deleteItem(${shelf.id}, ${idx})">🗑️ حذف</button>
+                    <span><b>${item.name}</b> (${item.price}ج)</span>
+                    <div>
+                        <button style="padding:2px 6px; font-size:10px; background:#0288d1;" onclick="moveItem(${shelf.id}, ${idx})">نقل</button>
+                        <button style="padding:2px 6px; font-size:10px; background:#d32f2f;" onclick="delItem(${shelf.id}, ${idx})">حذف</button>
                     </div>
                 </div>`;
             });
@@ -300,47 +155,48 @@ function renderShelves(){
         container.innerHTML += `
         <div class="shelf-card">
             <div class="shelf-title">
-                <span>رف رقم (${shelf.id})</span>
-                <span style="font-size:11px; background:#e3f2fd; color:#1565c0; padding:2px 6px; border-radius:4px;">${shelf.items.length} منتج</span>
+                <span>الرف (${shelf.id})</span>
+                <span>${shelf.items.length} منتج</span>
             </div>
-            <div style="max-height:150px; overflow-y:auto; margin-bottom:8px;">${itemsHtml}</div>
-            <button style="background:#f57c00; font-size:13px; padding:8px;" onclick="startShelfCamera(${shelf.id})">📷 مسح باركود للرف</button>
-        </div>
-        `;
+            <div style="max-height:120px; overflow-y:auto; margin-bottom:6px;">${itemsHtml}</div>
+            <button style="background:#f57c00; font-size:12px; padding:6px;" onclick="openShelfCam(${shelf.id})">📷 مسح بالرف</button>
+        </div>`;
     });
-    updateStatusMessage();
+    updateStatus();
 }
 
-function startShelfCamera(shelfId){
-    activeShelfId = shelfId;
-    cameraMode = 'shelf';
-    startCameraEngine("وجّه الكاميرا نحو باركود الرف " + shelfId);
+function openShelfCam(id){
+    activeShelfId = id;
+    mode = 'shelf';
+    startCamera();
 }
 
-document.getElementById("searchScanBtn").onclick = function(){
-    cameraMode = 'globalSearch';
-    startCameraEngine("وجّه الكاميرا للبحث عن الصنف");
-};
+function startGlobalSearch(){
+    mode = 'global';
+    startCamera();
+}
 
-function startCameraEngine(titleText){
-    const readerDiv = document.getElementById("reader");
+function startCamera(){
+    let readerDiv = document.getElementById("reader");
+    let closeBtn = document.getElementById("closeCam");
     readerDiv.style.display = "block";
-    
-    if(html5QrCode) {
-        try { html5QrCode.stop(); } catch(e){}
+    closeBtn.style.display = "block";
+
+    if(html5QrCode){
+        try{ html5QrCode.stop(); }catch(e){}
     }
 
     html5QrCode = new Html5Qrcode("reader");
     html5QrCode.start(
         { facingMode: "environment" },
-        { fps: 10, qrbox: { width: 250, height: 150 } },
-        (decodedText) => {
-            handleScannedCode(decodedText);
+        { fps: 10, qrbox: { width: 220, height: 120 } },
+        (text) => {
             stopCamera();
+            processCode(text);
         },
-        (error) => {}
-    ).catch(err => {
-        alert("تعذر تشغيل الكاميرا، تأكد من إعطاء الصلاحيات لمتصفحك.");
+        (err) => {}
+    ).catch(e => {
+        alert("تعذر تشغيل الكاميرا، تأكد من إعطاء إذن الكاميرا للمتصفح.");
         stopCamera();
     });
 }
@@ -349,176 +205,208 @@ function stopCamera(){
     if(html5QrCode){
         html5QrCode.stop().then(() => {
             document.getElementById("reader").style.display = "none";
+            document.getElementById("closeCam").style.display = "none";
         }).catch(() => {
             document.getElementById("reader").style.display = "none";
+            document.getElementById("closeCam").style.display = "none";
         });
     } else {
         document.getElementById("reader").style.display = "none";
+        document.getElementById("closeCam").style.display = "none";
     }
 }
 
-function handleScannedCode(code){
+function processCode(code){
     code = String(code).trim();
 
-    if(cameraMode === 'shelf'){
-        let existingShelfId = null;
+    if(mode === 'shelf'){
+        let foundShelf = null;
         shelves.forEach(s => {
-            if(s.items.some(i => i.barcode === code)) {
-                existingShelfId = s.id;
-            }
+            if(s.items.some(i => i.barcode === code)) foundShelf = s.id;
         });
 
-        if(existingShelfId && existingShelfId !== activeShelfId){
-            let confirmMove = confirm("⚠️ هذا المنتج مسجل مسبقاً في الرف (" + existingShelfId + "). هل تريد نقله للرف الحالي (" + activeShelfId + ")؟");
-            if(!confirmMove) return;
-            let oldShelf = shelves.find(s => s.id === existingShelfId);
-            oldShelf.items = oldShelf.items.filter(i => i.barcode !== code);
-            saveShelfData(existingShelfId);
+        if(foundShelf && foundShelf !== activeShelfId){
+            let ok = confirm(`⚠️ هذا المنتج موجود مسبقاً في الرف (${foundShelf}). هل تريد نقله للرف الحالي (${activeShelfId})؟`);
+            if(!ok) return;
+            let oldS = shelves.find(s => s.id === foundShelf);
+            oldS.items = oldS.items.filter(i => i.barcode !== code);
+            saveShelf(foundShelf);
         }
 
         let shelf = shelves.find(s => s.id === activeShelfId);
         if(shelf.items.some(i => i.barcode === code)){
-            alert("هذا المنتج موجود بالفعل في هذا الرف!");
+            alert("هذا المنتج مسجل بالفعل في هذا الرف!");
             return;
         }
 
-        let details = findProductDetails(code);
-        let name = details ? details.name : prompt("المنتج غير موجود بملف الأصناف. أدخل اسم المنتج:", "منتج جديد");
+        let info = getProductDetails(code);
+        let name = info ? info.name : prompt("المنتج غير موجود بملف الأصناف، أدخل اسمه:", "صنف جديد");
         if(!name) return;
-        let price = details ? details.price : prompt("أدخل السعر:", "0.00");
+        let price = info ? info.price : prompt("أدخل السعر:", "0");
 
         shelf.items.push({ barcode: code, name: name, price: price });
-        saveShelfData(activeShelfId);
+        saveShelf(activeShelfId);
         renderShelves();
-        alert("✅ تمت الإضافة بنجاح للرف " + activeShelfId);
+        alert(`✅ تمت الإضافة للرف ${activeShelfId}\nالاسم: ${name}\nالسعر: ${price} ج`);
 
-    } else if(cameraMode === 'globalSearch'){
-        let foundShelf = null;
-        let foundItem = null;
-
+    } else if(mode === 'global'){
+        let foundShelf = null, foundItem = null;
         shelves.forEach(s => {
-            let item = s.items.find(i => i.barcode === code);
-            if(item){
-                foundShelf = s.id;
-                foundItem = item;
-            }
+            let itm = s.items.find(i => i.barcode === code);
+            if(itm){ foundShelf = s.id; foundItem = itm; }
         });
 
-        let resultBox = document.getElementById("searchResultBox");
-        let resultContent = document.getElementById("searchResultContent");
-        resultBox.style.display = "block";
-
+        let box = document.getElementById("searchResBox");
+        box.style.display = "block";
         if(foundItem){
-            resultContent.innerHTML = `
-                📍 مكان الصنف: <b>الرف رقم (${foundShelf})</b><br>
-                🏷️ اسم الصنف: <b>${foundItem.name}</b><br>
-                💰 السعر: <span style="color:red; font-weight:bold;">${foundItem.price} ج</span><br>
-                🔢 الباركود: ${foundItem.barcode}
-            `;
+            box.innerHTML = `📍 موجود في: <b>الرف (${foundShelf})</b><br>🏷️ الاسم: <b>${foundItem.name}</b><br>💰 السعر: <span style="color:red;">${foundItem.price} ج</span><br>🔢 الباركود: ${code}`;
         } else {
-            let details = findProductDetails(code);
-            if(details){
-                resultContent.innerHTML = `
-                    ❌ غير مسجل في أي رف حتى الآن.<br>
-                    🏷️ الاسم (من ملف المحل): <b>${details.name}</b><br>
-                    💰 السعر: <span style="color:red;">${details.price} ج</span><br>
-                    🔢 الباركود: ${code}
-                `;
+            let info = getProductDetails(code);
+            if(info){
+                box.innerHTML = `❌ غير مسجل بأي رف.<br>🏷️ اسم الصنف: <b>${info.name}</b><br>💰 السعر: ${info.price} ج<br><button style="background:#2e7d32; margin-top:8px; padding:8px; font-size:13px;" onclick="addToSpecificShelf('${code}', \`${info.name}\`, '${info.price}')">➕ إضافة هذا المنتج لرف معين</button>`;
             } else {
-                resultContent.innerHTML = `❌ الباركود (${code}) غير موجود نهائياً.`;
+                box.innerHTML = `❌ الباركود (${code}) غير موجود نهائياً.<br><button style="background:#2e7d32; margin-top:8px; padding:8px; font-size:13px;" onclick="addUnknownToShelf('${code}')">➕ تسجيل منتج جديد وإضافته لرف</button>`;
             }
         }
     }
 }
 
-function deleteItem(shelfId, itemIndex){
-    if(confirm("هل تريد حذف هذا المنتج من الرف؟")){
+function addToSpecificShelf(barcode, name, price){
+    let target = prompt("أدخل رقم الرف المراد الإضافة إليه (1 إلى 150):");
+    if(!target) return;
+    let tId = parseInt(target);
+    let tShelf = shelves.find(s => s.id === tId);
+    if(!tShelf){ alert("رقم الرف غير صحيح!"); return; }
+
+    if(tShelf.items.some(i => i.barcode === barcode)){
+        alert("المنتج موجود بالفعل في هذا الرف!");
+        return;
+    }
+
+    tShelf.items.push({ barcode: barcode, name: name, price: price });
+    saveShelf(tId);
+    renderShelves();
+    alert(`✅ تم إضافة المنتج بنجاح إلى الرف (${tId})`);
+    document.getElementById("searchResBox").style.display = "none";
+}
+
+function addUnknownToShelf(barcode){
+    let name = prompt("أدخل اسم الصنف الجديد:", "صنف جديد");
+    if(!name) return;
+    let price = prompt("أدخل سعر البيع:", "0");
+    addToSpecificShelf(barcode, name, price);
+}
+
+function delItem(shelfId, idx){
+    if(confirm("حذف هذا المنتج من الرف؟")){
         let shelf = shelves.find(s => s.id === shelfId);
-        shelf.items.splice(itemIndex, 1);
-        saveShelfData(shelfId);
+        shelf.items.splice(idx, 1);
+        saveShelf(shelfId);
         renderShelves();
     }
 }
 
-function moveItem(shelfId, itemIndex){
+function moveItem(shelfId, idx){
     let shelf = shelves.find(s => s.id === shelfId);
-    let item = shelf.items[itemIndex];
-    let targetShelfNum = prompt("أدخل رقم الرف الجديد (من 1 إلى 150):");
-    if(!targetShelfNum) return;
-    
-    let targetId = parseInt(targetShelfNum);
-    let targetShelf = shelves.find(s => s.id === targetId);
-    
-    if(!targetShelf){
-        alert("رقم الرف غير صحيح!");
-        return;
-    }
+    let item = shelf.items[idx];
+    let target = prompt("أدخل رقم الرف الجديد (1 إلى 150):");
+    if(!target) return;
+    let tId = parseInt(target);
+    let tShelf = shelves.find(s => s.id === tId);
+    if(!tShelf){ alert("رقم الرف خطأ!"); return; }
 
-    if(targetShelf.items.some(i => i.barcode === item.barcode)){
+    if(tShelf.items.some(i => i.barcode === item.barcode)){
         alert("المنتج موجود مسبقاً في الرف المستهدف!");
         return;
     }
 
-    shelf.items.splice(itemIndex, 1);
-    saveShelfData(shelfId);
-
-    targetShelf.items.push(item);
-    saveShelfData(targetId);
-    
+    shelf.items.splice(idx, 1);
+    saveShelf(shelfId);
+    tShelf.items.push(item);
+    saveShelf(tId);
     renderShelves();
-    alert("✅ تم النقل بنجاح إلى الرف " + targetId);
+    alert("✅ تم النقل بنجاح.");
 }
 
-const searchBox = document.getElementById("searchBox");
-searchBox.oninput = function(){
-    let query = this.value.trim().toLowerCase();
-    let resultBox = document.getElementById("searchResultBox");
-    let resultContent = document.getElementById("searchResultContent");
+// البحث النصي المطور مع إمكانية الإضافة المباشرة إذا لم يكن بالرفوف
+document.getElementById("textSearch").oninput = function(){
+    let q = this.value.trim().toLowerCase();
+    let box = document.getElementById("searchResBox");
+    if(!q){ box.style.display = "none"; return; }
 
-    if(query === ""){
-        resultBox.style.display = "none";
-        return;
-    }
-
-    resultBox.style.display = "block";
+    box.style.display = "block";
     let matches = [];
-
     shelves.forEach(s => {
         s.items.forEach(i => {
-            if(i.name.toLowerCase().includes(query) || i.barcode.toLowerCase().includes(query) || String(s.id) === query){
+            if(i.name.toLowerCase().includes(q) || i.barcode.includes(q) || String(s.id) === q){
                 matches.push({ shelfId: s.id, ...i });
             }
         });
     });
 
     if(matches.length > 0){
-        let html = "";
+        let html = "<b>نتائج البحث في الأرفف:</b><br>";
         matches.forEach(m => {
-            html += `<div style="border-bottom:1px solid #ccc; padding:5px 0;">
-                📍 <b>الرف ${m.shelfId}</b> | 🏷️ ${m.name} | 💰 <span style="color:red;">${m.price}ج</span> | 🔢 ${m.barcode}
-            </div>`;
+            html += `<div style="margin-top:4px;">📍 الرف (${m.shelfId}) | 🏷️ ${m.name} | <span style="color:red;">${m.price}ج</span> | ${m.barcode}</div>`;
         });
-        resultContent.innerHTML = html;
+        box.innerHTML = html;
     } else {
-        resultContent.innerHTML = "❌ لا توجد نتائج مطابقة.";
+        // البحث في ملف الأصناف العام للاقتراح المباشر بالإضافة
+        let foundInProds = products.find(row => {
+            let name = String(row["اسم المنتج"] || row["اسم الصنف"] || row["الصنف"] || "").toLowerCase();
+            let bar = String(row["رقم الباركود"] || row["كود الصنف"] || row["الباركود"] || row["Barcode"] || "").toLowerCase();
+            return name.includes(q) || bar.includes(q);
+        });
+
+        if(foundInProds){
+            let pName = foundInProds["اسم المنتج"] || foundInProds["اسم الصنف"] || foundInProds["الصنف"] || "بدون اسم";
+            let pPrice = foundInProds["سعر البيع"] || foundInProds["السعر"] || foundInProds["بيع"] || "0";
+            let pBar = foundInProds["رقم الباركود"] || foundInProds["كود الصنف"] || foundInProds["الباركود"] || foundInProds["Barcode"] || "";
+            box.innerHTML = `❌ غير مسجل بالأرفف، ولكن موجود بملف المحل:<br>🏷️ <b>${pName}</b> (${pPrice}ج)<br><button style="background:#2e7d32; margin-top:6px; padding:6px; font-size:12px;" onclick="addToSpecificShelf('${pBar}', \`${pName}\`, '${pPrice}')">➕ إضافته لرف الآن</button>`;
+        } else {
+            box.innerHTML = "❌ لا توجد نتائج مطابقة نهائياً.";
+        }
     }
 };
 
-document.getElementById("clearBtn").onclick = function(){
-    if(confirm("⚠️ هل أنت متأكد من مسح جميع بيانات الأرفف؟")){
+function exportShelvesExcel(){
+    let data = [];
+    shelves.forEach(s => {
+        s.items.forEach(i => {
+            data.push({
+                "اسم الصنف": i.name,
+                "رقم الرف": s.id,
+                "باركود الصنف": i.barcode,
+                "سعر البيع": i.price
+            });
+        });
+    });
+
+    if(data.length === 0){
+        alert("لا توجد منتجات مسجلة في الأرفف لتصديرها!");
+        return;
+    }
+
+    let ws = XLSX.utils.json_to_sheet(data);
+    let wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Shelves_Report");
+    XLSX.writeFile(wb, "Center_AlTawfeer_Shelves.xlsx");
+}
+
+function clearAllShelves(){
+    if(confirm("⚠️ هل أنت متأكد من مسح جميع بيانات الأرفف نهائياً؟")){
         shelves.forEach(s => {
-            localStorage.removeItem("shelf_item_v4_" + s.id);
+            localStorage.removeItem("shelf_data_v3_" + s.id);
             s.items = [];
         });
         renderShelves();
-        document.getElementById("searchResultBox").style.display = "none";
-        alert("تم مسح بيانات الأرفف بنجاح.");
+        document.getElementById("searchResBox").style.display = "none";
+        alert("تم تفريغ جميع الأرفف.");
     }
-};
+}
 
 renderShelves();
 </script>
 
 </body>
-    </html>
-    
+</html>
