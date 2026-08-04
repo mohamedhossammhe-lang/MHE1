@@ -42,25 +42,29 @@ body{ background:#f4f6f8; padding:10px; }
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 12px;
+    gap: 15px;
     background: #fff3e0;
-    padding: 10px;
+    padding: 12px;
     border-radius: 12px;
     margin-top: 10px;
     border: 1px dashed #ffa726;
 }
+
 .author-avatar {
-    width: 55px;
-    height: 55px;
+    width: 60px;
+    height: 60px;
     border-radius: 50%;
     object-fit: cover;
     border: 2px solid #e65100;
-    animation: pulseAvatar 2s infinite;
+    animation: spinAndJump 4s ease-in-out infinite;
 }
-@keyframes pulseAvatar {
-    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(230, 81, 0, 0.4); }
-    70% { transform: scale(1.05); box-shadow: 0 0 0 8px rgba(230, 81, 0, 0); }
-    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(230, 81, 0, 0); }
+@keyframes spinAndJump {
+    0% { transform: translateY(0) rotate(0deg); }
+    20% { transform: translateY(-10px) rotate(72deg); }
+    40% { transform: translateY(0) rotate(144deg); }
+    60% { transform: translateY(-10px) rotate(216deg); }
+    80% { transform: translateY(0) rotate(288deg); }
+    100% { transform: translateY(0) rotate(360deg); }
 }
 
 .author-info { text-align: right; }
@@ -69,63 +73,40 @@ body{ background:#f4f6f8; padding:10px; }
     font-size: 17px;
     font-weight: 700;
     color: #e65100;
+    margin-bottom: 2px;
 }
 
-/* السطر الواحد لرقم الهاتف وصورة الأم المتحركة */
 .phone-mom-row {
     display: flex;
     align-items: center;
-    justify-content: flex-end;
-    gap: 8px;
-    margin-top: 4px;
+    justify-content: flex-start;
+    gap: 10px;
 }
-.animated-phone { font-size: 13px; font-weight: bold; color: #2e7d32; }
+.animated-phone { font-size: 14px; font-weight: bold; color: #2e7d32; }
 
-/* صورة الأم: تلف وتنط (Spin & Jump) */
-.mom-avatar-small {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 2px solid #c2185b;
-    animation: spinAndJump 3s ease-in-out infinite;
-}
-@keyframes spinAndJump {
-    0% { transform: translateY(0) rotate(0deg); }
-    25% { transform: translateY(-8px) rotate(90deg); }
-    50% { transform: translateY(0) rotate(180deg); }
-    75% { transform: translateY(-8px) rotate(270deg); }
-    100% { transform: translateY(0) rotate(360deg); }
-}
-
-/* قسم الأم المصغر تحت السطر */
 .mom-dua-small {
     font-family: 'Amiri', serif;
     font-size: 13px;
     color: #c2185b;
     font-weight: bold;
-    margin-top: 4px;
-    text-align: right;
+    margin-top: 3px;
 }
 
+/* شريط الأذكار: فاصل 3 ثواني وتكرار لا نهائي ومن اليسار لليمين */
 .ticker-wrap {
     width: 100%;
     overflow: hidden;
     background: #e3f2fd;
     border-radius: 8px;
     margin-top: 10px;
-    padding: 6px 0;
+    padding: 8px 0;
     border: 1px solid #90caf9;
 }
 .ticker {
     display: inline-block;
     white-space: nowrap;
-    animation: marqueeReverse 30s linear infinite;
-    font-size: 13px;
-    font-weight: bold;
-    color: #0d47a1;
+    animation: marqueeReverse 25s linear infinite;
 }
-/* الحركة المعاكسة من اليسار إلى اليمين */
 @keyframes marqueeReverse {
     0% { transform: translateX(-100%); }
     100% { transform: translateX(100%); }
@@ -133,9 +114,35 @@ body{ background:#f4f6f8; padding:10px; }
 
 #loginSection{ background:#fff; padding:15px; border-radius:10px; text-align:center; }
 .login-title{ font-size:17px; font-weight:bold; margin-bottom:12px; color:#1565c0; }
+
+/* تنسيق حقل اختيار الموظف وصورته الدائرية المتحركة */
+.login-select-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
 select, input, button{ width:100%; padding:12px; font-size:16px; border-radius:8px; border:1px solid #ccc; font-weight:bold; cursor:pointer; margin-bottom:10px; }
 button{ color:white; border:none; }
 .btn-login{ background:#2e7d32; }
+
+/* صورة الموظف المتحركة عند الاختيار (دوران وسعادة مثل لوجو الياهو) */
+.user-login-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #1565c0;
+    display: none;
+    animation: yahooSpin 1.5s infinite linear;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+@keyframes yahooSpin {
+    0% { transform: rotate(0deg) scale(1); }
+    50% { transform: rotate(180deg) scale(1.15); }
+    100% { transform: rotate(360deg) scale(1); }
+}
 
 #dashboardSection{ display:none; text-align:center; }
 .dash-grid{ display:grid; grid-template-columns:1fr; gap:15px; margin-top:15px; }
@@ -178,13 +185,13 @@ button{ color:white; border:none; }
         <div style="font-size:15px; font-weight:bold; color:#444;">سنتر التوفير - النظام الإداري الذكي</div>
         
         <div class="author-box">
-            <img src="logo2.png" alt="محمد حسام" class="author-avatar" onerror="this.src='https://via.placeholder.com/55'">
+            <img src="logo2.png" alt="محمد حسام" class="author-avatar" onerror="this.src='https://via.placeholder.com/60'">
+            
             <div class="author-info">
                 <div class="signature-badge">تصميم: محمد حسام</div>
                 
                 <div class="phone-mom-row">
                     <span class="animated-phone">📞 01501437779</span>
-                    <img src="mom.png" alt="أمى" class="mom-avatar-small" onerror="this.src='https://via.placeholder.com/32'">
                 </div>
                 
                 <div class="mom-dua-small">🤲🏻 ربي يحفظك ويراعيك يا أمي الغالية، لولا رضاكي ما كنت هنا ❤️</div>
@@ -193,22 +200,27 @@ button{ color:white; border:none; }
 
         <div class="ticker-wrap">
             <div class="ticker">
-                ✨ رَبِّ إِنِّي لِمَا أَنْزَلْتَ إِلَيَّ مِنْ خَيْرٍ فَقِيرٌ ✨ ✦ سبحان الله وبحمده، سبحان الله العظيم ✦ استغفر الله العظيم واتوب إليه ✦ لا حول ولا قوة إلا بالله العلي العظيم ✦ لا إله إلا أنت سبحانك إني كنت من الظالمين ✦ اللهم صل وسلم على نبينا محمد ✦ رَبِّ اغْفِر لي ولوالدي وللمؤمنين يوم يقوم الحساب ✦ حسبي الله لا إله إلا هو عليه توكلت وهو رب العرش العظيم
+                ✨ رَبِّ إِنِّي لِمَا أَنْزَلْتَ إِلَيَّ مِنْ خَيْرٍ فَقِيرٌ ✨ ✦ سبحان الله وبحمده، سبحان الله العظيم ✦ استغفر الله العظيم واتوب إليه ✦ لا حول ولا قوة إلا بالله العلي العظيم ✦ لا إله إلا أنت سبحانك إني كنت من الظالمين ✦ اللهم صل وسلم على نبينا محمد ✦ رَبِّ اغْفِر لي ولوالدي وللمؤمنين يوم يقوم الحساب ✦ حسبي الله لا إله إلا هو عليه توكلت وهو رب العرش العظيم ✦ أستغفر الله الذي لا إله إلا هو الحي القيوم وأتوب إليه
             </div>
         </div>
     </div>
 
     <div id="loginSection">
         <div class="login-title">🔐 تسجيل دخول الموظفين (سحابي)</div>
-        <select id="userSelect">
-            <option value="">-- اختر اسم الموظف --</option>
-            <option value="محمد">محمد (المدير العام)</option>
-            <option value="علاء">علاء</option>
-            <option value="شوقي">شوقي</option>
-            <option value="محمود">محمود</option>
-            <option value="احمد محمد امين">احمد محمد امين</option>
-            <option value="محمد ميدو جبر">محمد ميدو جبر</option>
-        </select>
+        
+        <div class="login-select-container">
+            <select id="userSelect" onchange="previewUserAvatar()">
+                <option value="">-- اختر اسم الموظف --</option>
+                <option value="محمد حسام">محمد حسام (المدير العام)</option>
+                <option value="علاء">علاء</option>
+                <option value="شوقي">شوقي</option>
+                <option value="محمود">محمود</option>
+                <option value="احمد محمد امين">احمد محمد امين</option>
+                <option value="محمد ميدو جبر">محمد ميدو جبر</option>
+            </select>
+            <img id="loginUserAvatar" class="user-login-avatar" alt="صورة الموظف" onerror="this.src='https://via.placeholder.com/50'">
+        </div>
+
         <input type="password" id="passInput" placeholder="أدخل كلمة المرور...">
         <button class="btn-login" onclick="playClickSound(); login();">دخول للنظام</button>
     </div>
@@ -271,7 +283,7 @@ button{ color:white; border:none; }
         </div>
 
         <div style="background:#fff3e0; padding:12px; border-radius:10px; margin-bottom:15px; border:1px solid #ffe0b2;">
-            <div style="font-size:15px; font-weight:bold; color:#e65100; margin-bottom:8px;">📋 طلب إجازة أو غياب لليوزر (محمد)</div>
+            <div style="font-size:15px; font-weight:bold; color:#e65100; margin-bottom:8px;">📋 طلب إجازة أو غياب لليوزر (محمد حسام)</div>
             <select id="leaveType" style="margin-bottom:8px;">
                 <option value="إجازة اعتيادي">إجازة اعتيادي</option>
                 <option value="إجازة مرضي">إجازة مرضي</option>
@@ -279,11 +291,11 @@ button{ color:white; border:none; }
             </select>
             <input type="date" id="leaveDate" style="margin-bottom:8px;">
             <input type="text" id="leaveReason" placeholder="سبب الإجازة أو ملاحظة..." style="margin-bottom:8px;">
-            <button style="background:#f57c00;" onclick="playClickSound(); submitLeaveRequest()">إرسال الطلب للمدير محمد</button>
+            <button style="background:#f57c00;" onclick="playClickSound(); submitLeaveRequest()">إرسال الطلب للمدير محمد حسام</button>
         </div>
 
         <div id="managerAdminBox" style="display:none; background:#ede7f6; padding:12px; border-radius:10px; border:1px solid #d1c4e9;">
-            <div style="font-size:15px; font-weight:bold; color:#512da8; margin-bottom:8px;">👑 لوحة إدارة المدير (محمد): متابعة الحضور والطلبات</div>
+            <div style="font-size:15px; font-weight:bold; color:#512da8; margin-bottom:8px;">👑 لوحة إدارة المدير (محمد حسام): متابعة الحضور والطلبات</div>
             <div id="managerRequestsList" style="font-size:12px; line-height:1.6;"></div>
         </div>
     </div>
@@ -340,11 +352,32 @@ let html5QrCode = null;
 let activeShelfId = null;
 let mode = 'shelf'; 
 let passwords = JSON.parse(localStorage.getItem("system_passwords")) || {
-    "محمد": "111992", "علاء": "123", "شوقي": "123", "محمود": "123", "احمد محمد امين": "123", "محمد ميدو جبر": "123"
+    "محمد حسام": "111992", "علاء": "123", "شوقي": "123", "محمود": "123", "احمد محمد امين": "123", "محمد ميدو جبر": "123"
 };
 let logs = [];
 let attendanceRecords = [];
 let leaveRequests = [];
+
+// ربط أسماء الموظفين بالصور المطلوبة بالظبط
+const userAvatars = {
+    "محمد حسام": "logo3.png",
+    "علاء": "logo4.png",
+    "شوقي": "logo5.png",
+    "محمود": "logo6.png",
+    "احمد محمد امين": "logo7.png",
+    "محمد ميدو جبر": "logo8.png"
+};
+
+function previewUserAvatar() {
+    let u = document.getElementById("userSelect").value;
+    let avatarImg = document.getElementById("loginUserAvatar");
+    if(u && userAvatars[u]) {
+        avatarImg.src = userAvatars[u];
+        avatarImg.style.display = "block";
+    } else {
+        avatarImg.style.display = "none";
+    }
+}
 
 window.initCloudSystem = function() {
     const { doc, onSnapshot, getDoc, setDoc } = window.firebaseModules;
@@ -375,7 +408,7 @@ window.initCloudSystem = function() {
     onSnapshot(doc(db, "store_data", "leaves_doc"), (docSnap) => {
         if (docSnap.exists()) { 
             leaveRequests = docSnap.data().requests || [];
-            if(currentUser === "محمد") renderManagerRequests();
+            if(currentUser === "محمد حسام") renderManagerRequests();
             checkMyLeaveStatus();
         }
     });
@@ -422,7 +455,7 @@ function login(){
         document.getElementById("currentUserName").innerText = "المستخدم: " + u;
         document.getElementById("attUserName").innerText = "المستخدم: " + u;
         
-        if(u === "محمد"){
+        if(u === "محمد حسام"){
             document.getElementById("adminLogsBtn").style.display = "block";
             document.getElementById("managerAdminBox").style.display = "block";
             renderManagerRequests();
@@ -440,6 +473,8 @@ function logout(){
     logAction("تسجيل خروج من النظام");
     currentUser = "";
     document.getElementById("passInput").value = "";
+    document.getElementById("userSelect").value = "";
+    document.getElementById("loginUserAvatar").style.display = "none";
     document.getElementById("loginSection").style.display = "block";
     document.getElementById("dashboardSection").style.display = "none";
     document.getElementById("appSection").style.display = "none";
@@ -462,7 +497,7 @@ function openShelvesModule(){
 function openAttendanceModule(){
     document.getElementById("dashboardSection").style.display = "none";
     document.getElementById("attendanceSection").style.display = "block";
-    if(currentUser === "محمد") renderManagerRequests();
+    if(currentUser === "محمد حسام") renderManagerRequests();
 }
 
 function changeMyPassword(){
@@ -503,7 +538,7 @@ function verifyAndRecord(type){
     saveToCloudAttendance();
     logAction(`تسجيل ${type} بنجاح الساعة ${timeStr}`);
     alert(`🎉 تم تسجيل ${type} في التاريخ ${dateStr} الساعة ${timeStr} بنجاح!`);
-    if(currentUser === "محمد") renderManagerRequests();
+    if(currentUser === "محمد حسام") renderManagerRequests();
 }
 
 function submitLeaveRequest(){
@@ -516,16 +551,16 @@ function submitLeaveRequest(){
     let reqId = Date.now();
     leaveRequests.unshift({ id: reqId, user: currentUser, type: type, date: date, reason: reason, status: 'قيد الانتظار' });
     saveToCloudLeaves();
-    logAction(`إرسال طلب ${type} للمدير محمد`);
-    alert("✅ تم إرسال طلب الإجازة للمدير محمد بنجاح، سيتم إعلامك بالنتيجة قريباً!");
+    logAction(`إرسال طلب ${type} للمدير محمد حسام`);
+    alert("✅ تم إرسال طلب الإجازة للمدير محمد حسام بنجاح، سيتم إعلامك بالنتيجة قريباً!");
 }
 
 function checkMyLeaveStatus(){
-    if(!currentUser || currentUser === "محمد") return;
+    if(!currentUser || currentUser === "محمد حسام") return;
     let myReqs = leaveRequests.filter(r => r.user === currentUser);
     myReqs.forEach(r => {
         if(r.status !== 'قيد الانتظار' && !r.notified){
-            alert(`📢 تنبيه بخصوص طلبك (${r.type}) بتاريخ ${r.date}:\nالنتيجة من المدير محمد: ${r.status}`);
+            alert(`📢 تنبيه بخصوص طلبك (${r.type}) بتاريخ ${r.date}:\nالنتيجة من المدير محمد حسام: ${r.status}`);
             r.notified = true;
             saveToCloudLeaves();
         }
@@ -572,7 +607,7 @@ function updateLeaveStatus(id, newStatus){
         req.status = newStatus;
         req.notified = false;
         saveToCloudLeaves();
-        logAction(`قام المدير محمد بتحديث حالة طلب ${req.type} للموظف ${req.user} إلى: ${newStatus}`);
+        logAction(`قام المدير محمد حسام بتحديث حالة طلب ${req.type} للموظف ${req.user} إلى: ${newStatus}`);
         renderManagerRequests();
         alert("✅ تم تحديث الحالة وإرسال الرد للموظف!");
     }
