@@ -187,11 +187,12 @@ button{ color:white; border:none; }
 .user-bar{ display:flex; justify-content:space-between; align-items:center; background:#e3f2fd; padding:10px; border-radius:8px; margin-bottom:15px; font-size:14px; font-weight:bold; color:#0d47a1; }
 .toolbar{ display:flex; flex-direction:column; gap:8px; margin-bottom:15px; }
 .btn-file{ background:#ff9800; }
+.btn-fetch-cloud{ background:#0288d1; }
 .btn-export{ background:#2e7d32; }
 .btn-search{ background:#009688; }
 .btn-manual-search{ background:#3f51b5; }
 .btn-cloud-save{ background:#00acc1; }
-.btn-refresh{ background:#0288d1; }
+.btn-refresh{ background:#455a64; }
 .btn-clear{ background:#d32f2f; }
 .btn-logs{ background:#673ab7; }
 .btn-pass{ background:#607d8b; font-size:12px; padding:6px; width:auto; margin:0; }
@@ -293,6 +294,7 @@ button{ color:white; border:none; }
         </div>
 
         <div class="toolbar">
+            <button class="btn-fetch-cloud" onclick="playClickSound(); fetchLatestDataFromCloud()">☁️📥 تحميل أحدث نسخة من السحابة الآن</button>
             <input type="file" id="excelFile" accept=".xlsx,.xls,.csv" style="display:none">
             <button class="btn-file" onclick="playClickSound(); document.getElementById('excelFile').click()">📂 اختيار ملف أصناف المحل (Excel)</button>
             <button class="btn-cloud-save" onclick="playClickSound(); manualCloudSave()">☁️ حفظ ورفع البيانات للسحابة الآن</button>
@@ -551,6 +553,35 @@ window.initCloudSystem = function() {
         }
     }, 15000);
 };
+
+// دالة تحميل أحدث نسخة من السحابة يدوياً
+function fetchLatestDataFromCloud(){
+    const { doc, getDoc } = window.firebaseModules;
+    let db = window.db;
+
+    Promise.all([
+        getDoc(doc(db, "store_data", "shelves_doc")),
+        getDoc(doc(db, "store_data", "products_doc"))
+    ]).then(([shelfSnap, prodSnap]) => {
+        let updated = false;
+        if(shelfSnap.exists() && shelfSnap.data().shelves){
+            shelves = shelfSnap.data().shelves;
+            updated = true;
+        }
+        if(prodSnap.exists() && prodSnap.data().products){
+            products = prodSnap.data().products;
+            updated = true;
+        }
+        renderShelves();
+        updateStatus();
+        playAtmAndMoneySound();
+        logAction("تحميل أحدث نسخة للبيانات من السحابة يدوياً");
+        alert("✅ تم تحديث وتحميل أحدث نسخة من الأرفف والمنتجات من السحابة بنجاح!");
+    }).catch(err => {
+        playErrorSound();
+        alert("❌ حدث خطأ أثناء الاتصال بالسحابة لجلب البيانات.");
+    });
+}
 
 function autoBackgroundSave(){
     const { doc, setDoc } = window.firebaseModules;
@@ -1064,12 +1095,11 @@ function executeManualSearch(){
     logAction(`إجراء بحث يدوي عن: ${query}`);
 }
 
-// دالة اختيار منتج من نتائج البحث اليدوي تماماً مثل الكاميرا
+// دالة اختيار منتج من نتائج البحث اليدوي
 function selectProductFromManualSearchResult(barcode, name, price){
     closeManualSearchModal();
     playScanSound();
     
-    // التحقق من وجوده مسبقاً بأي رف وإتاحة خيار نقله أو إضافته
     let foundShelf = null, foundItem = null;
     shelves.forEach(s => {
         if(s.items){
@@ -1136,7 +1166,13 @@ function processCode(code){
 
         let shelf = shelves.find(s => s.id === activeShelfId);
         if(!shelf.items) shelf.items = [];
-        if(shelf.items.some(i => i.barcode === code)){ alert("المنتج مسجل مسبقاً بهذا الرف!"); return; }
+        
+        // التحقق من عدم تكرار المنتج في نفس الرف
+        if(shelf.items.some(i => i.barcode === code)){
+            playErrorSound();
+            alert(`⚠️ عذراً! هذا المنتج موجود بالفعل في الرف (${activeShelfId}) ولا يمكن تكراره.`);
+            return;
+        }
 
         let info = getProductDetails(code);
         let name = info ? info.name : prompt("المنتج غير موجود، أدخل اسمه:", "صنف جديد");
@@ -1182,7 +1218,14 @@ function addToSpecificShelf(barcode, name, price){
     let tShelf = shelves.find(s => s.id === tId);
     if(!tShelf){ alert("رقم الرف خطأ!"); return; }
 
-    // التحقق هل هو موجود براف آخر لنقله
+    // التحقق من عدم تكرار المنتج في نفس الرف المستهدف
+    if(tShelf.items && tShelf.items.some(i => i.barcode === barcode)){
+        playErrorSound();
+        alert(`⚠️ عذراً! هذا المنتج موجود مسبقاً في الرف (${tId}) ولا يمكن تكراره فيه.`);
+        return;
+    }
+
+    // إزالته من الرف القديم لو كان منقولاً
     shelves.forEach(s => {
         if(s.items){
             let idx = s.items.findIndex(i => i.barcode === barcode);
@@ -1193,7 +1236,6 @@ function addToSpecificShelf(barcode, name, price){
     });
 
     if(!tShelf.items) tShelf.items = [];
-    if(tShelf.items.some(i => i.barcode === barcode)){ alert("موجود مسبقاً بالرف!"); return; }
 
     tShelf.items.push({ barcode: barcode, name: name, price: price });
     saveToCloudShelves();
@@ -1231,7 +1273,13 @@ function moveItem(shelfId, idx){
     if(!tShelf){ alert("رقم الرف خطأ!"); return; }
 
     if(!tShelf.items) tShelf.items = [];
-    if(tShelf.items.some(i => i.barcode === item.barcode)){ alert("موجود مسبقاً في الرف المستهدف!"); return; }
+    
+    // منع التكرار في الرف الجديد عند النقل
+    if(tShelf.items.some(i => i.barcode === item.barcode)){
+        playErrorSound();
+        alert(`⚠️ عذراً! هذا المنتج موجود مسبقاً في الرف (${tId}) ولا يمكن تكراره.`);
+        return;
+    }
 
     shelf.items.splice(idx, 1);
     tShelf.items.push(item);
