@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>سنتر التوفير - النظام الإداري المتكامل</title>
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 <script src="https://unpkg.com/html5-qrcode"></script>
@@ -32,8 +32,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Reem+Kufi:wght@500;700&family=Amiri:wght@700&display=swap" rel="stylesheet">
 
 <style>
-*{ margin:0; padding:0; box-sizing:border-box; font-family:Tahoma,sans-serif; }
-body{ background:#f4f6f8; padding:10px; }
+*{ margin:0; padding:0; box-sizing:border-box; font-family:Tahoma,sans-serif; touch-action: manipulation; }
+body{ background:#f4f6f8; padding:10px; overscroll-behavior-y: none; }
 .card{ max-width:680px; margin:auto; background:#fff; border-radius:15px; padding:15px; box-shadow:0 4px 15px rgba(0,0,0,0.1); }
 .header-box{ text-align:center; margin-bottom:15px; }
 .logo-img{ max-width:180px; height:auto; margin-bottom:5px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.25)); }
@@ -290,7 +290,7 @@ button{ color:white; border:none; }
             <button class="btn-file" onclick="playClickSound(); document.getElementById('excelFile').click()">📂 اختيار ملف أصناف المحل (Excel)</button>
             <button class="btn-export" onclick="playClickSound(); exportShelvesExcel()">📥 تحميل شيت الأرفف (Excel)</button>
             <button class="btn-search" onclick="playClickSound(); startGlobalSearch()">📷 بحث بالكاميرا عن منتج أو رف</button>
-            <button class="btn-refresh" onclick="playClickSound(); location.reload()">🔄 تحديث الصفحة (Refresh)</button>
+            <button class="btn-refresh" onclick="playClickSound(); location.reload()">🔄 تحديث يدوي (Refresh)</button>
             <button id="clearShelvesBtn" class="btn-clear" style="display:none;" onclick="playClickSound(); clearAllShelves()">🗑️ حذف بيانات كل الأرفف</button>
             <button id="adminLogsBtn" class="btn-logs" style="display:none;" onclick="playClickSound(); openLogsModal()">📊 سجل نشاطات الموظفين</button>
         </div>
@@ -436,7 +436,7 @@ function playAtmAndMoneySound() {
     }
 }
 
-let currentUser = "";
+let currentUser = localStorage.getItem("active_system_user") || "";
 let products = [];
 let shelves = [];
 for(let i = 1; i <= 150; i++){ shelves.push({ id: i, items: [] }); }
@@ -509,6 +509,22 @@ window.initCloudSystem = function() {
             checkMyLeaveStatus();
         }
     });
+
+    // استعادة الجلسة مباشرة لو المستخدم كان مسجلاً الدخول فعلياً
+    if(currentUser){
+        document.getElementById("loginSection").style.display = "none";
+        document.getElementById("dashboardSection").style.display = "block";
+        document.getElementById("dashUserName").innerText = "المستخدم: " + currentUser;
+        document.getElementById("currentUserName").innerText = "المستخدم: " + currentUser;
+        document.getElementById("attUserName").innerText = "المستخدم: " + currentUser;
+        
+        if(currentUser === "محمد حسام"){
+            document.getElementById("adminLogsBtn").style.display = "block";
+            document.getElementById("clearShelvesBtn").style.display = "block";
+            document.getElementById("managerAdminBox").style.display = "block";
+            renderManagerRequests();
+        }
+    }
 };
 
 function saveToCloudShelves(){
@@ -533,6 +549,7 @@ function saveToCloudLeaves(){
 }
 
 function logAction(actionText){
+    if(!currentUser) return;
     let timeStr = new Date().toLocaleString();
     logs.unshift({ user: currentUser, action: actionText, time: timeStr });
     if(logs.length > 200) logs.pop();
@@ -554,6 +571,7 @@ function login(){
 
         setTimeout(() => {
             currentUser = u;
+            localStorage.setItem("active_system_user", u);
             document.getElementById("loginSection").style.display = "none";
             document.getElementById("dashboardSection").style.display = "block";
             document.getElementById("dashUserName").innerText = "المستخدم: " + u;
@@ -585,6 +603,7 @@ function login(){
 function logout(){
     logAction("تسجيل خروج من النظام");
     currentUser = "";
+    localStorage.removeItem("active_system_user");
     document.getElementById("passInput").value = "";
     document.getElementById("userSelect").value = "";
     let avatarImg = document.getElementById("loginUserAvatar");
@@ -715,7 +734,7 @@ function captureLiveSelfie(){
     saveToCloudAttendance();
     playAtmAndMoneySound();
     logAction(`تسجيل ${pendingAttendanceType} بصورة حية مع المنتج المطلوب`);
-    alert(`🎉 تم توثيق وتسجيل (${currentUser} ${pendingAttendanceType}) بنجاح وإرسال الصورة الحية للمدير!`);
+    alert(`🎉 تم توثيق وتسجيل (${currentUser}${pendingAttendanceType}) بنجاح وإرسال الصورة الحية للمدير!`);
     if(currentUser === "محمد حسام") renderManagerRequests();
 }
 
@@ -750,7 +769,6 @@ function renderManagerRequests(){
     if(!listDiv) return;
     listDiv.innerHTML = "";
 
-    // ملخص حالة اليوم لكل موظف (علاء حضور / علاء انصراف)
     let todayStr = new Date().toLocaleDateString();
     let employees = ["علاء", "شوقي", "محمود", "احمد محمد امين", "محمد ميدو جبر", "محمد حسام"];
     
@@ -780,10 +798,9 @@ function renderManagerRequests(){
             let statusColor = req.status === 'موافق عليها' ? 'green' : (req.status === 'مرفوضة' ? 'red' : 'orange');
             listDiv.innerHTML += `
             <div style="background:#fff; padding:8px; margin-bottom:6px; border-radius:6px; border:1px solid #ccc;">
-                <b>الموظف: ${req.user}</b> | النوع: ${req.type} | التاريخ: ${req.date}<br>
+                <b>الموظف: ${req.user}</b> | النوع: ${req.type} \vert{} التاريخ: ${req.date}<br>
                 السبب: ${req.reason || 'بدون سبب'}<br>
-                الحالة: <span style="color:${statusColor}; font-weight:bold;">${req.status}</span>
-                ${req.status === 'قيد الانتظار' ? `
+                الحالة: <span style="color:${statusColor}; font-weight:bold;">${req.status}</span>${req.status === 'قيد الانتظار' ? `
                 <div style="margin-top:5px; display:flex; gap:5px;">
                     <button style="background:#2e7d32; padding:4px 8px; font-size:11px; width:auto;" onclick="updateLeaveStatus(${req.id}, 'موافق عليها')">موافق</button>
                     <button style="background:#c62828; padding:4px 8px; font-size:11px; width:auto;" onclick="updateLeaveStatus(${req.id}, 'مرفوضة')">رفض</button>
@@ -802,7 +819,7 @@ function renderManagerRequests(){
             let badgeColor = rec.type === 'حضور' ? '#2e7d32' : '#c62828';
             listDiv.innerHTML += `
             <div style="background:#fff; padding:8px; margin-bottom:6px; border-radius:6px; border:1px solid #ddd;">
-                [${rec.date} - ${rec.time}] <b>${rec.user}</b> <span style="color:${badgeColor}; font-weight:bold;">(${rec.user} ${rec.type})</span>${prodHtml}${selfieHtml}
+                [${rec.date} -${rec.time}] <b>${rec.user}</b> <span style="color:${badgeColor}; font-weight:bold;">(${rec.user}${rec.type})</span>${prodHtml}${selfieHtml}
             </div>`;
         });
     }
@@ -824,7 +841,7 @@ function exportAttendanceExcel(){
     if(attendanceRecords.length === 0){ alert("لا توجد سجلات حضور وانصراف لتصديرها!"); return; }
     let data = attendanceRecords.map(r => ({
         "اسم الموظف": r.user,
-        "الحركة": `${r.user} ${r.type}`,
+        "الحركة": `${r.user}${r.type}`,
         "نوع الحركة": r.type,
         "التاريخ": r.date,
         "الوقت": r.time,
@@ -842,7 +859,7 @@ function exportAttendanceExcel(){
 function updateStatus(){
     let total = 0;
     shelves.forEach(s => total += (s.items ? s.items.length : 0));
-    document.getElementById("statusNote").innerText = `🌐 متصل بالسحابة | الأصناف بملف المحل: ${products.length} | إجمالي المنتجات الموزعة: ${total}`;
+    document.getElementById("statusNote").innerText = `🌐 متصل بالسحابة | الأصناف بملف المحل: ${products.length} \vert{} إجمالي المنتجات الموزعة: ${total}`;
 }
 
 document.getElementById("excelFile").onchange = function(e){
@@ -896,8 +913,8 @@ function renderShelves(){
                 <div class="item-row">
                     <span><b>${item.name}</b> (${item.price}ج)</span>
                     <div>
-                        <button style="padding:2px 6px; font-size:10px; background:#0288d1;" onclick="playClickSound(); moveItem(${shelf.id}, ${idx})">نقل</button>
-                        <button style="padding:2px 6px; font-size:10px; background:#d32f2f;" onclick="playClickSound(); delItem(${shelf.id}, ${idx})">حذف</button>
+                        <button style="padding:2px 6px; font-size:10px; background:#0288d1;" onclick="playClickSound(); moveItem(${shelf.id},${idx})">نقل</button>
+                        <button style="padding:2px 6px; font-size:10px; background:#d32f2f;" onclick="playClickSound(); delItem(${shelf.id},${idx})">حذف</button>
                     </div>
                 </div>`;
             });
@@ -1060,62 +1077,4 @@ function moveItem(shelfId, idx){
     tShelf.items.push(item);
     saveToCloudShelves();
     playMoveSound();
-    logAction(`نقل الصنف (${item.name}) من الرف ${shelfId} إلى الرف ${tId}`);
-    alert("✅ تم النقل بنجاح.");
-}
-
-function exportShelvesExcel(){
-    let data = [];
-    shelves.forEach(s => {
-        if(s.items){
-            s.items.forEach(i => {
-                data.push({ "اسم الصنف": i.name, "رقم الرف": s.id, "باركود الصنف": i.barcode, "سعر البيع": i.price });
-            });
-        }
-    });
-    if(data.length === 0){ alert("لا توجد بيانات لتصديرها!"); return; }
-    let ws = XLSX.utils.json_to_sheet(data);
-    let wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Shelves_Report");
-    XLSX.writeFile(wb, "Center_AlTawfeer_Shelves.xlsx");
-    playMoveSound();
-    logAction("تحميل شيت إكسل للأرفف");
-}
-
-function clearAllShelves(){
-    if(confirm("⚠️ تحذير خطير: هل أنت متأكد تماماً من مسح جميع الأرفف بالكامل من السحابة؟")){
-        shelves.forEach(s => { s.items = []; });
-        saveToCloudShelves();
-        document.getElementById("searchResBox").style.display = "none";
-        playMoveSound();
-        logAction("⚠️ مسح وتفريغ بيانات جميع الأرفف نهائياً بواسطة المدير");
-        alert("تم تفريغ الأرفف بالكامل.");
-    }
-}
-
-function openLogsModal(){
-    let listDiv = document.getElementById("logsList");
-    listDiv.innerHTML = "";
-    if(logs.length === 0){
-        listDiv.innerHTML = "لا توجد سجلات مسجلة حتى الآن.";
-    } else {
-        logs.forEach((log, index) => {
-            listDiv.innerHTML += `<div style="border-bottom:1px solid #ddd; padding:4px 0;"><b>#${logs.length - index} [${log.user}]</b>: ${log.action} <span style="color:#888; float:left; font-size:10px;">${log.time}</span></div>`;
-        });
-    }
-    document.getElementById("logsModal").style.display = "flex";
-}
-
-function closeLogsModal(){ document.getElementById("logsModal").style.display = "none"; }
-function clearLogs(){
-    if(confirm("مسح السجلات بالكامل؟")){
-        logs = [];
-        const { doc, setDoc } = window.firebaseModules;
-        setDoc(doc(window.db, "store_data", "logs_doc"), { logs: [] });
-        openLogsModal();
-    }
-}
-</script>
-
-</body>
-</html>
+    logAction(`نقل الصنف (${item.name}) من الرف ${shelfId} إلى الرف ${t
