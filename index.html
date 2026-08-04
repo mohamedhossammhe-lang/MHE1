@@ -109,7 +109,7 @@ body{ background:#f4f6f8; padding:10px; }
     margin-top: 2px;
 }
 
-/* شريط الأذكار: سرعة بطيئة ومريحة للقراءة */
+/* شريط الأذكار: الحركة من اليسار لليمين وبسرعة بطيئة مريحة للقراءة */
 .ticker-wrap {
     width: 100%;
     overflow: hidden;
@@ -122,11 +122,11 @@ body{ background:#f4f6f8; padding:10px; }
 .ticker {
     display: inline-block;
     white-space: nowrap;
-    animation: marqueeSlow 45s linear infinite;
+    animation: marqueeLeftToRight 45s linear infinite;
 }
-@keyframes marqueeSlow {
-    0% { transform: translateX(100%); }
-    100% { transform: translateX(-100%); }
+@keyframes marqueeLeftToRight {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
 }
 
 #loginSection{ background:#fff; padding:15px; border-radius:10px; text-align:center; }
