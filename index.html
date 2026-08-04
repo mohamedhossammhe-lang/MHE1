@@ -6,6 +6,7 @@
 <title>سنتر التوفير - النظام الإداري المتكامل</title>
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 <script src="https://unpkg.com/html5-qrcode"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
@@ -192,6 +193,7 @@ button{ color:white; border:none; }
 .btn-export{ background:#2e7d32; }
 .btn-search{ background:#009688; }
 .btn-manual-search{ background:#3f51b5; }
+.btn-pos{ background:#d81b60; font-size: 16px; font-weight: bold; }
 .btn-cloud-save{ background:#00acc1; }
 .btn-refresh{ background:#455a64; }
 .btn-clear{ background:#d32f2f; }
@@ -214,6 +216,11 @@ button{ color:white; border:none; }
 .manual-box { background:#fff; width:92%; max-width:480px; border-radius:12px; padding:15px; text-align:center; }
 .clickable-item { background:#f1f8e9; padding:9px; margin-bottom:6px; border-radius:6px; border:1px solid #c8e6c9; cursor:pointer; text-align:right; transition:0.2s; font-size:13px; }
 .clickable-item:hover { background:#ded; transform:scale(1.01); }
+
+/* تنسيق مودال فاتورة البيع */
+#posModal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:2500; justify-content:center; align-items:center; overflow-y:auto; }
+.pos-container { background:#fff; width:95%; max-width:520px; border-radius:12px; padding:15px; max-height:92vh; overflow-y:auto; text-align:right; }
+.invoice-print-area { background: #fff; padding: 12px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 10px; }
 
 #logsModal{ display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000; justify-content:center; align-items:center; }
 .logs-content{ background:#fff; width:90%; max-width:600px; max-height:80vh; border-radius:10px; padding:15px; overflow-y:auto; }
@@ -299,6 +306,7 @@ button{ color:white; border:none; }
         </div>
 
         <div class="toolbar">
+            <button class="btn-pos" onclick="playClickSound(); openPosModal()">🛒 تسجيل فاتورة بيع جديدة</button>
             <button class="btn-fetch-cloud" onclick="playClickSound(); fetchLatestDataFromCloud()">☁️📥 تحميل أحدث نسخة من السحابة الآن</button>
             <input type="file" id="excelFile" accept=".xlsx,.xls,.csv" style="display:none">
             <button class="btn-file" onclick="playClickSound(); document.getElementById('excelFile').click()">📂 اختيار ملف أصناف المحل (Excel)</button>
@@ -352,6 +360,59 @@ button{ color:white; border:none; }
             <div style="font-size:15px; font-weight:bold; color:#512da8; margin-bottom:8px;">👑 لوحة إدارة المدير (محمد حسام): حالة الموظفين والصور</div>
             <button class="btn-export" style="margin-bottom:10px;" onclick="playClickSound(); exportAttendanceExcel()">📥 سحب شيت الحضور والأنصراف (Excel)</button>
             <div id="managerRequestsList" style="font-size:12px; line-height:1.6;"></div>
+        </div>
+    </div>
+</div>
+
+<div id="posModal">
+    <div class="pos-container">
+        <h3 style="color:#d81b60; margin-bottom:10px; text-align:center;">🛒 نظام تسجيل فاتورة بيع - سنتر التوفير</h3>
+        
+        <div style="display:flex; gap:5px; margin-bottom:8px;">
+            <input type="text" id="posSearchInput" placeholder="اكتب اسم المنتج أو الباركود للبحث اليدوي..." style="margin:0;">
+            <button style="background:#009688; width:auto; padding:0 15px; margin:0;" onclick="playClickSound(); searchPosProducts()">بحث</button>
+        </div>
+        <div id="posSearchResults" style="max-height:150px; overflow-y:auto; margin-bottom:10px;"></div>
+
+        <div class="invoice-print-area" id="invoicePrintArea">
+            <div style="text-align:center; border-bottom:2px dashed #333; padding-bottom:8px; margin-bottom:8px;">
+                <img src="logo.png" alt="سنتر التوفير" style="max-width:100px; height:auto;" onerror="this.style.display='none'">
+                <div style="font-size:16px; font-weight:bold; color:#111;">سنتر التوفير</div>
+                <div style="font-size:11px; color:#555;" id="invoiceDateTime">التاريخ والوقت: --/--/---- --:--</div>
+                <div style="font-size:11px; color:#0d47a1; font-weight:bold;" id="invoiceCashier">الكاشير / الموظف: --</div>
+            </div>
+
+            <div style="font-size:12px; font-weight:bold; margin-bottom:5px;">تفاصيل المنتجات:</div>
+            <div id="invoiceItemsList" style="min-height:80px; max-height:160px; overflow-y:auto; border-bottom:1px solid #ddd; padding-bottom:5px; margin-bottom:8px; font-size:12px;">
+                <div style="color:#777; text-align:center;">لم يتم إضافة منتجات بعد</div>
+            </div>
+
+            <div style="font-size:12px; line-height:1.6;">
+                <div>📦 إجمالي الأصناف: <span id="invCount" style="font-weight:bold;">0</span></div>
+                <div>💰 إجمالي المبالغ: <span id="invSubTotal" style="font-weight:bold;">0</span> ج</div>
+                <div style="display:flex; align-items:center; gap:5px; margin-top:5px;">
+                    <span>🏷️ الخصم:</span>
+                    <input type="number" id="invDiscount" value="0" min="0" style="padding:4px; font-size:13px; width:90px; margin:0;" oninput="calcInvoiceTotals()">
+                    <span>ج</span>
+                </div>
+                <div style="font-size:14px; font-weight:bold; color:#d81b60; margin-top:5px; border-top:1px solid #333; padding-top:4px;">
+                    المطلوب دفعه نهائياً: <span id="invFinalTotal">0</span> ج
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-bottom:10px;">
+            <label style="font-size:13px; font-weight:bold; display:block; margin-bottom:4px;">💳 اختر طريقة الدفع:</label>
+            <select id="paymentMethod" style="margin-bottom:8px;">
+                <option value="نقدي (كاش)">نقدي (كاش)</option>
+                <option value="انستا باي (InstaPay)">انستا باي (InstaPay)</option>
+                <option value="فودافون كاش">فودافون كاش</option>
+            </select>
+        </div>
+
+        <div style="display:flex; gap:8px;">
+            <button style="background:#2e7d32;" onclick="playClickSound(); completeAndSaveInvoice()">✅ إتمام الدفع وحفظ الفاتورة كصورة</button>
+            <button style="background:#c62828; width:auto;" onclick="playClickSound(); closePosModal()">إغلاق</button>
         </div>
     </div>
 </div>
@@ -469,6 +530,8 @@ let currentUser = localStorage.getItem("active_system_user") || "";
 let products = [];
 let shelves = [];
 for(let i = 1; i <= 150; i++){ shelves.push({ id: i, items: [] }); }
+
+let invoiceCart = []; // منتجات الفاتورة الحالية
 
 let html5QrCode = null;
 let activeShelfId = null;
@@ -729,6 +792,149 @@ function changeMyPassword(){
         logAction("قام بتغيير كلمة المرور الخاصة به");
         alert("✅ تم تغيير كلمة المرور بنجاح!");
     }
+}
+
+/* دوال فاتورة البيع والبحث الذكي */
+function openPosModal(){
+    invoiceCart = [];
+    document.getElementById("posSearchInput").value = "";
+    document.getElementById("posSearchResults").innerHTML = "";
+    document.getElementById("invDiscount").value = "0";
+    document.getElementById("invoiceCashier").innerText = "الكاشير / الموظف: " + currentUser;
+    document.getElementById("invoiceDateTime").innerText = "التاريخ والوقت: " + new Date().toLocaleString();
+    renderInvoiceCart();
+    document.getElementById("posModal").style.display = "flex";
+}
+
+function closePosModal(){
+    document.getElementById("posModal").style.display = "none";
+}
+
+function searchPosProducts(){
+    let query = document.getElementById("posSearchInput").value.trim().toLowerCase();
+    let resDiv = document.getElementById("posSearchResults");
+    resDiv.innerHTML = "";
+    if(!query) return;
+
+    let matches = [];
+    products.forEach(row => {
+        let name = String(row["اسم المنتج"] || row["اسم الصنف"] || row["الصنف"] || "").toLowerCase();
+        let bar = String(row["رقم الباركود"] || row["كود الصنف"] || row["الباركود"] || row["Barcode"] || "").toLowerCase();
+        if(name.includes(query) || bar.includes(query)){
+            matches.push({
+                name: row["اسم المنتج"] || row["اسم الصنف"] || row["الصنف"] || "بدون اسم",
+                price: parseFloat(row["سعر البيع"] || row["السعر"] || 0),
+                barcode: bar
+            });
+        }
+    });
+
+    if(matches.length === 0){
+        resDiv.innerHTML = `<div style="color:red; font-size:12px; padding:4px;">❌ لا توجد منتجات مطابقة للبحث.</div>`;
+        return;
+    }
+
+    matches.slice(0, 10).forEach(item => {
+        // معرفة مكان المنتج على الأرفف لتقديمه للمستخدم
+        let shelfLocationText = "غير محدد على الرفوف";
+        shelves.forEach(s => {
+            if(s.items && s.items.some(i => i.barcode === item.barcode)){
+                shelfLocationText = `الرف رقم (${s.id})`;
+            }
+        });
+
+        resDiv.innerHTML += `
+        <div class="clickable-item" onclick="playClickSound(); addProductToInvoice(\`${item.barcode}\`, \`${item.name}\`, ${item.price})">
+            📦 <b>${item.name}</b> (${item.price}ج) | 📍 المكان: <b>${shelfLocationText}</b>
+            <div style="font-size:11px; color:#555;">باركود: ${item.barcode} (اضغط للإضافة للفاتورة)</div>
+        </div>`;
+    });
+}
+
+function addProductToInvoice(barcode, name, price){
+    let existing = invoiceCart.find(i => i.barcode === barcode);
+    if(existing){
+        existing.qty += 1;
+    } else {
+        invoiceCart.push({ barcode: barcode, name: name, price: price, qty: 1 });
+    }
+    renderInvoiceCart();
+    document.getElementById("posSearchInput").value = "";
+    document.getElementById("posSearchResults").innerHTML = "";
+    playScanSound();
+}
+
+function renderInvoiceCart(){
+    let listDiv = document.getElementById("invoiceItemsList");
+    if(invoiceCart.length === 0){
+        listDiv.innerHTML = '<div style="color:#777; text-align:center;">لم يتم إضافة منتجات بعد</div>';
+        document.getElementById("invCount").innerText = "0";
+        document.getElementById("invSubTotal").innerText = "0";
+        document.getElementById("invFinalTotal").innerText = "0";
+        return;
+    }
+
+    listDiv.innerHTML = "";
+    let totalItems = 0;
+    let subTotal = 0;
+
+    invoiceCart.forEach((item, idx) => {
+        let itemTotal = item.price * item.qty;
+        totalItems += item.qty;
+        subTotal += itemTotal;
+        listDiv.innerHTML += `
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px; border-bottom:1px dashed #eee; padding-bottom:3px;">
+            <span><b>${item.name}</b> (${item.price}ج × ${item.qty})</span>
+            <div>
+                <span style="font-weight:bold; margin-left:8px;">${itemTotal} ج</span>
+                <button style="padding:1px 5px; font-size:10px; background:#d32f2f; width:auto;" onclick="playClickSound(); removeInvoiceItem(${idx})">حذف</button>
+            </div>
+        </div>`;
+    });
+
+    document.getElementById("invCount").innerText = totalItems;
+    document.getElementById("invSubTotal").innerText = subTotal;
+    calcInvoiceTotals();
+}
+
+function removeInvoiceItem(idx){
+    invoiceCart.splice(idx, 1);
+    renderInvoiceCart();
+}
+
+function calcInvoiceTotals(){
+    let subTotal = parseFloat(document.getElementById("invSubTotal").innerText) || 0;
+    let discount = parseFloat(document.getElementById("invDiscount").value) || 0;
+    let final = subTotal - discount;
+    if(final < 0) final = 0;
+    document.getElementById("invFinalTotal").innerText = final;
+}
+
+function completeAndSaveInvoice(){
+    if(invoiceCart.length === 0){
+        alert("⚠️ الفاتورة فارغة! أضف منتجات أولاً قبل إتمام البيع.");
+        return;
+    }
+
+    let payMethod = document.getElementById("paymentMethod").value;
+    let finalAmount = document.getElementById("invFinalTotal").innerText;
+
+    // استخدام مكتبة html2canvas لحفظ الفاتورة كصورة أوتوماتيكياً
+    let printArea = document.getElementById("invoicePrintArea");
+    
+    html2canvas(printArea).then(canvas => {
+        let link = document.createElement('a');
+        link.download = `Invoice_${Date.now()}.png`;
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+
+        playAtmAndMoneySound();
+        logAction(`إتمام فاتورة بيع بمبلغ ${finalAmount}ج (طريقة الدفع: ${payMethod})`);
+        alert(`🎉 تم تأكيد وإتمام عملية البيع بنجاح!\n💳 طريقة الدفع: ${payMethod}\n💾 تم حفظ تفاصيل الفاتورة تلقائياً كصورة على جهازك.`);
+        closePosModal();
+    }).catch(err => {
+        alert("حدث خطأ أثناء حفظ الفاتورة كصورة.");
+    });
 }
 
 function startLiveAttendance(type){
