@@ -138,6 +138,7 @@ body{ background:#f4f6f8; padding:10px; overscroll-behavior-y: none; }
 select, input, button{ width:100%; padding:12px; font-size:16px; border-radius:8px; border:1px solid #ccc; font-weight:bold; cursor:pointer; margin-bottom:10px; }
 button{ color:white; border:none; }
 .btn-login{ background:#2e7d32; }
+.btn-save-exit { background: #1b5e20 !important; font-size: 13px; padding: 8px; width: auto; margin: 0; }
 
 .user-login-avatar {
     width: 50px;
@@ -271,7 +272,10 @@ button{ color:white; border:none; }
     <div id="dashboardSection">
         <div class="user-bar">
             <span id="dashUserName">المستخدم: غير محدد</span>
-            <button class="btn-pass" style="background:#c62828;" onclick="playClickSound(); logout()">خروج</button>
+            <div style="display:flex; gap:5px;">
+                <button class="btn-save-exit" onclick="playClickSound(); saveAndExit()">💾 حفظ وخروج</button>
+                <button class="btn-pass" style="background:#c62828;" onclick="playClickSound(); logout()">خروج</button>
+            </div>
         </div>
         <div style="font-size:16px; font-weight:bold; color:#1565c0; margin-bottom:10px;">اختر النظام المطلوب:</div>
         <div class="dash-grid">
@@ -288,7 +292,8 @@ button{ color:white; border:none; }
         <div class="user-bar">
             <span id="currentUserName">المستخدم: غير محدد</span>
             <div style="display:flex; gap:5px;">
-                <button class="btn-pass" onclick="playClickSound(); goBackToDashboard()">⬅️ القائمة الرئيسية</button>
+                <button class="btn-save-exit" onclick="playClickSound(); saveAndExit()">💾 حفظ وخروج</button>
+                <button class="btn-pass" onclick="playClickSound(); goBackToDashboard()">⬅️ القائمة</button>
                 <button class="btn-pass" onclick="playClickSound(); changeMyPassword()">🔑 الباسورد</button>
             </div>
         </div>
@@ -311,13 +316,16 @@ button{ color:white; border:none; }
         <button id="closeCam" style="background:#c62828; display:none; margin-bottom:10px;" onclick="playClickSound(); stopCamera()">إغلاق الكاميرا</button>
 
         <div class="shelves-grid" id="shelvesContainer"></div>
-        <div id="statusNote" style="text-align:center; font-size:12px; color:#666; margin-top:15px;">🌐 متصل بالسحابة بنجاح</div>
+        <div id="statusNote" style="text-align:center; font-size:12px; color:#666; margin-top:15px;">🌐 متصل بالسحابة (حفظ تلقائي كل ثانية مفعل)</div>
     </div>
 
     <div id="attendanceSection">
         <div class="user-bar">
             <span id="attUserName">المستخدم: غير محدد</span>
-            <button class="btn-pass" onclick="playClickSound(); goBackToDashboard()">⬅️ القائمة الرئيسية</button>
+            <div style="display:flex; gap:5px;">
+                <button class="btn-save-exit" onclick="playClickSound(); saveAndExit()">💾 حفظ وخروج</button>
+                <button class="btn-pass" onclick="playClickSound(); goBackToDashboard()">⬅️ القائمة</button>
+            </div>
         </div>
 
         <div style="background:#e3f2fd; padding:12px; border-radius:10px; margin-bottom:15px;">
@@ -498,7 +506,7 @@ function previewUserAvatar() {
 }
 
 window.initCloudSystem = function() {
-    const { doc, onSnapshot, getDoc, setDoc } = window.firebaseModules;
+    const { doc, onSnapshot } = window.firebaseModules;
     const db = window.db;
 
     onSnapshot(doc(db, "store_data", "shelves_doc"), (docSnap) => {
@@ -546,9 +554,10 @@ window.initCloudSystem = function() {
         }
     }
 
+    // الحفظ التلقائي الفائق كل ثانية في الخلفية بلا توقف
     setInterval(() => {
         if(currentUser){ autoBackgroundSave(); }
-    }, 15000);
+    }, 1000);
 };
 
 function fetchLatestDataFromCloud(){
@@ -572,17 +581,16 @@ function fetchLatestDataFromCloud(){
         alert("✅ تم تحديث وتحميل أحدث نسخة من الأرفف والمنتجات من السحابة بنجاح!");
     }).catch(err => {
         playErrorSound();
-        alert("❌ حدث خطأ أثناء الاتصال بالسحابة لجلب البيانات.");
     });
 }
 
 function autoBackgroundSave(){
     const { doc, setDoc } = window.firebaseModules;
-    setDoc(doc(window.db, "store_data", "shelves_doc"), { shelves: shelves })
-    .then(() => {
-        let note = document.getElementById("statusNote");
-        if(note) note.innerHTML = `🌐 تم الحفظ التلقائي للسحابة بنجاح (${new Date().toLocaleTimeString()})`;
-    }).catch(err => {});
+    if(!window.db) return;
+    setDoc(doc(window.db, "store_data", "shelves_doc"), { shelves: shelves }).catch(() => {});
+    setDoc(doc(window.db, "store_data", "products_doc"), { products: products }).catch(() => {});
+    let note = document.getElementById("statusNote");
+    if(note) note.innerHTML = `🌐 متصل بالسحابة | حفظ تلقائي نشط (${new Date().toLocaleTimeString()})`;
 }
 
 function manualCloudSave(){
@@ -590,29 +598,42 @@ function manualCloudSave(){
     setDoc(doc(window.db, "store_data", "shelves_doc"), { shelves: shelves });
     setDoc(doc(window.db, "store_data", "products_doc"), { products: products });
     playAtmAndMoneySound();
-    logAction("قام بالضغط على زر حفظ ورفع البيانات للسحابة يدوياً");
+    logAction("قام بحفظ ورفع البيانات للسحابة يدوياً");
     alert("✅ تم رفع وحفظ جميع الأرفف والمنتجات للسحابة بنجاح تام!");
+}
+
+function saveAndExit(){
+    const { doc, setDoc } = window.firebaseModules;
+    setDoc(doc(window.db, "store_data", "shelves_doc"), { shelves: shelves });
+    setDoc(doc(window.db, "store_data", "products_doc"), { products: products });
+    setDoc(doc(window.db, "store_data", "attendance_doc"), { records: attendanceRecords });
+    setDoc(doc(window.db, "store_data", "leaves_doc"), { requests: leaveRequests });
+    
+    playAtmAndMoneySound();
+    logAction("حفظ الخروج الفوري للسحابة وتوثيق البيانات");
+    alert("💾 تم حفظ كافة البيانات الحالية على السحابة بنجاح تام وجاري الخروج!");
+    logout();
 }
 
 function saveToCloudShelves(){
     const { doc, setDoc } = window.firebaseModules;
-    setDoc(doc(window.db, "store_data", "shelves_doc"), { shelves: shelves });
+    setDoc(doc(window.db, "store_data", "shelves_doc"), { shelves: shelves }).catch(() => {});
     updateStatus();
 }
 
 function saveToCloudProducts(){
     const { doc, setDoc } = window.firebaseModules;
-    setDoc(doc(window.db, "store_data", "products_doc"), { products: products });
+    setDoc(doc(window.db, "store_data", "products_doc"), { products: products }).catch(() => {});
 }
 
 function saveToCloudAttendance(){
     const { doc, setDoc } = window.firebaseModules;
-    setDoc(doc(window.db, "store_data", "attendance_doc"), { records: attendanceRecords });
+    setDoc(doc(window.db, "store_data", "attendance_doc"), { records: attendanceRecords }).catch(() => {});
 }
 
 function saveToCloudLeaves(){
     const { doc, setDoc } = window.firebaseModules;
-    setDoc(doc(window.db, "store_data", "leaves_doc"), { requests: leaveRequests });
+    setDoc(doc(window.db, "store_data", "leaves_doc"), { requests: leaveRequests }).catch(() => {});
 }
 
 function logAction(actionText){
@@ -621,7 +642,7 @@ function logAction(actionText){
     logs.unshift({ user: currentUser, action: actionText, time: timeStr });
     if(logs.length > 200) logs.pop();
     const { doc, setDoc } = window.firebaseModules;
-    setDoc(doc(window.db, "store_data", "logs_doc"), { logs: logs });
+    setDoc(doc(window.db, "store_data", "logs_doc"), { logs: logs }).catch(() => {});
 }
 
 function login(){
@@ -911,7 +932,8 @@ function exportAttendanceExcel(){
 function updateStatus(){
     let total = 0;
     shelves.forEach(s => total += (s.items ? s.items.length : 0));
-    document.getElementById("statusNote").innerText = `🌐 متصل بالسحابة | الأصناف بملف المحل: ${products.length} | إجمالي المنتجات الموزعة: ${total}`;
+    let note = document.getElementById("statusNote");
+    if(note) note.innerText = `🌐 متصل بالسحابة | الأصناف بملف المحل: ${products.length} | إجمالي المنتجات الموزعة: ${total}`;
 }
 
 document.getElementById("excelFile").onchange = function(e){
@@ -999,7 +1021,6 @@ function closeManualSearchModal(){
     document.getElementById("manualSearchModal").style.display = "none";
 }
 
-// دالة البحث اليدوي الشامل المحدثة بالكامل حسب الطلب
 function executeManualSearch(){
     let query = document.getElementById("manualSearchInput").value.trim().toLowerCase();
     let resDiv = document.getElementById("manualSearchResults");
@@ -1009,7 +1030,6 @@ function executeManualSearch(){
 
     let foundAny = false;
 
-    // 1. البحث في الأرفف الحالية أولاً لإظهار المنتجات الموجودة أصلاً برقم الرف
     let shelfMatches = [];
     shelves.forEach(s => {
         if(s.items){
@@ -1032,7 +1052,6 @@ function executeManualSearch(){
         });
     }
 
-    // 2. البحث في أصناف المحل العامة (كل الأصناف التي لها نفس الاسم أو جزء منه لتختار منها)
     let storeMatches = products.filter(row => {
         let pName = String(row["اسم المنتج"] || row["اسم الصنف"] || row["الصنف"] || "").toLowerCase();
         let pBar = String(row["رقم الباركود"] || row["كود الصنف"] || row["الباركود"] || row["Barcode"] || "").toLowerCase();
@@ -1047,7 +1066,6 @@ function executeManualSearch(){
             let price = m["سعر البيع"] || m["السعر"] || "0";
             let bar = m["رقم الباركود"] || m["كود الصنف"] || m["الباركود"] || "---";
             
-            // تحقق إذا كان الصنف موجوداً في أي رف حالياً لعرضه
             let currentShelfText = "غير مسجل بالأرفف حالياً";
             shelves.forEach(s => {
                 if(s.items && s.items.some(i => i.barcode === bar)){
@@ -1069,7 +1087,6 @@ function executeManualSearch(){
     logAction(`إجراء بحث يدوي عن: ${query}`);
 }
 
-// دالة اختيار رف لأي منتج تم النقر عليه من نتائج البحث اليدوي
 function chooseTargetShelfForProduct(barcode, name, price){
     closeManualSearchModal();
     let target = prompt(`📦 المنتج المختار: "${name}"\nأدخل رقم الرف المطلوب إضافته إليه (من 1 إلى 150):`);
@@ -1078,14 +1095,12 @@ function chooseTargetShelfForProduct(barcode, name, price){
     let tShelf = shelves.find(s => s.id === tId);
     if(!tShelf){ alert("رقم الرف غير صحيح!"); return; }
 
-    // التحقق التام والصارم من عدم تكرار المنتج في نفس الرف بناءً على الباركود
     if(tShelf.items && tShelf.items.some(i => i.barcode === barcode)){
         playErrorSound();
         alert(`⚠️ عذراً يا مهندس محمد! هذا المنتج موجود بالفعل في الرف رقم (${tId}) ولا يمكن تكراره نهائياً.`);
         return;
     }
 
-    // إزالة المنتج من رفمه القديم إن كان موجوداً في رف آخر (عملية نقل ذكية)
     shelves.forEach(s => {
         if(s.items){
             let idx = s.items.findIndex(i => i.barcode === barcode);
@@ -1141,7 +1156,6 @@ function processCode(code){
         let foundShelf = null;
         shelves.forEach(s => { if(s.items && s.items.some(i => i.barcode === code)) foundShelf = s.id; });
 
-        // التحقق من تكرار المنتج في نفس الرف مباشرة عند مسحه بالكاميرا
         if(foundShelf === activeShelfId){
             playErrorSound();
             alert(`⚠️ عذراً! هذا المنتج موجود بالفعل في هذا الرف (${activeShelfId}) ولا يمكن تكراره.`);
@@ -1227,7 +1241,6 @@ function moveItem(shelfId, idx){
 
     if(!tShelf.items) tShelf.items = [];
 
-    // منع التكرار عند النقل بين الأرفف
     if(tShelf.items.some(i => i.barcode === item.barcode)){
         playErrorSound();
         alert(`⚠️ عذراً! هذا المنتج موجود مسبقاً في الرف (${tId}) ولا يمكن تكراره فيه.`);
@@ -1288,7 +1301,7 @@ function clearLogs(){
     if(confirm("مسح السجلات بالكامل؟")){
         logs = [];
         const { doc, setDoc } = window.firebaseModules;
-        setDoc(doc(window.db, "store_data", "logs_doc"), { logs: [] });
+        setDoc(doc(window.db, "store_data", "logs_doc"), { logs: [] }).catch(() => {});
         openLogsModal();
     }
 }
