@@ -12,8 +12,19 @@
 body{ background:#f4f6f8; padding:10px; }
 .card{ max-width:650px; margin:auto; background:#fff; border-radius:15px; padding:15px; box-shadow:0 4px 15px rgba(0,0,0,0.1); }
 .header-box{ text-align:center; margin-bottom:20px; }
-.logo-img{ max-width:250px; height:auto; margin-bottom:5px; filter: drop-shadow(0 4px 5px rgba(0,0,0,0.2)); }
-.sub-author{ font-size:16px; color:#555; margin-top:-15px; font-weight:bold; }
+
+/* تصميم بديل احترافي للشعار يضمن عدم ضياعه أبدأ */
+.logo-container {
+    background: linear-gradient(135deg, #ff9800, #f57c00);
+    color: white;
+    padding: 20px;
+    border-radius: 15px;
+    margin-bottom: 10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+}
+.logo-title { font-size: 32px; font-weight: bold; margin-bottom: 5px; text-shadow: 2px 2px 4px rgba(0,0,0,0.2); }
+.logo-subtitle { font-size: 16px; font-weight: bold; opacity: 0.95; }
+.sub-author{ font-size: 16px; color: #333; margin-top: 10px; font-weight: bold; }
 
 .toolbar{ display:flex; flex-direction:column; gap:8px; margin-bottom:15px; }
 input, button{ width:100%; padding:12px; font-size:16px; border-radius:8px; border:1px solid #ccc; font-weight:bold; cursor:pointer; }
@@ -38,7 +49,10 @@ button{ color:white; border:none; }
 
 <div class="card">
 <div class="header-box">
-    <img src="https://i.ibb.co/Y2T1F4T/image.png" alt="سنتر التوفير" class="logo-img" onerror="this.style.display='none'">
+    <div class="logo-container">
+        <div class="logo-title">🛒 سنتر التوفير</div>
+        <div class="logo-subtitle">نظام الأرفف الذكي وإدارة المنتجات</div>
+    </div>
     <div class="sub-author">mohamed hossam (MHE)</div>
 </div>
 
@@ -68,14 +82,12 @@ let html5QrCode = null;
 let activeShelfId = null;
 let mode = 'shelf'; 
 
-// استرجاع الأصناف مع دمج النسخ القديمة والجديدة لضمان عدم الضياع
 let savedProds = localStorage.getItem("store_products_v3") || localStorage.getItem("store_products_final");
 if(savedProds) {
     try { products = JSON.parse(savedProds); } catch(e){}
 }
 
 for(let i = 1; i <= 150; i++){
-    // جلب البيانات من المفتاح الجديد أو المفاتيح القديمة تلقائياً
     let saved = localStorage.getItem("shelf_data_v3_" + i) || localStorage.getItem("shelf_data_final_" + i);
     let parsedItems = [];
     if(saved) {
@@ -90,7 +102,6 @@ for(let i = 1; i <= 150; i++){
 function saveShelf(id){
     let shelf = shelves.find(s => s.id === id);
     localStorage.setItem("shelf_data_v3_" + id, JSON.stringify(shelf.items));
-    // حفظ احتياطي للنسخة القديمة أيضاً لضمان الأمان
     localStorage.setItem("shelf_data_final_" + id, JSON.stringify(shelf.items));
     updateStatus();
 }
@@ -304,5 +315,115 @@ function addUnknownToShelf(barcode){
     addToSpecificShelf(barcode, name, price);
 }
 
-function delItem(shelf
-    
+function delItem(shelfId, idx){
+    if(confirm("حذف هذا المنتج من الرف؟")){
+        let shelf = shelves.find(s => s.id === shelfId);
+        shelf.items.splice(idx, 1);
+        saveShelf(shelfId);
+        renderShelves();
+    }
+}
+
+function moveItem(shelfId, idx){
+    let shelf = shelves.find(s => s.id === shelfId);
+    let item = shelf.items[idx];
+    let target = prompt("أدخل رقم الرف الجديد (1 إلى 150):");
+    if(!target) return;
+    let tId = parseInt(target);
+    let tShelf = shelves.find(s => s.id === tId);
+    if(!tShelf){ alert("رقم الرف خطأ!"); return; }
+
+    if(tShelf.items.some(i => i.barcode === item.barcode)){
+        alert("المنتج موجود مسبقاً في الرف المستهدف!");
+        return;
+    }
+
+    shelf.items.splice(idx, 1);
+    saveShelf(shelfId);
+    tShelf.items.push(item);
+    saveShelf(tId);
+    renderShelves();
+    alert("✅ تم النقل بنجاح.");
+}
+
+document.getElementById("textSearch").oninput = function(){
+    let q = this.value.trim().toLowerCase();
+    let box = document.getElementById("searchResBox");
+    if(!q){ box.style.display = "none"; return; }
+
+    box.style.display = "block";
+    let matches = [];
+    shelves.forEach(s => {
+        s.items.forEach(i => {
+            if(i.name.toLowerCase().includes(q) || i.barcode.includes(q) || String(s.id) === q){
+                matches.push({ shelfId: s.id, ...i });
+            }
+        });
+    });
+
+    if(matches.length > 0){
+        let html = "<b>نتائج البحث في الأرفف:</b><br>";
+        matches.forEach(m => {
+            html += `<div style="margin-top:4px;">📍 الرف (${m.shelfId}) | 🏷️ ${m.name} | <span style="color:red;">${m.price}ج</span> | ${m.barcode}</div>`;
+        });
+        box.innerHTML = html;
+    } else {
+        let foundInProds = products.find(row => {
+            let name = String(row["اسم المنتج"] || row["اسم الصنف"] || row["الصنف"] || "").toLowerCase();
+            let bar = String(row["رقم الباركود"] || row["كود الصنف"] || row["الباركود"] || row["Barcode"] || "").toLowerCase();
+            return name.includes(q) || bar.includes(q);
+        });
+
+        if(foundInProds){
+            let pName = foundInProds["اسم المنتج"] || foundInProds["اسم الصنف"] || foundInProds["الصنف"] || "بدون اسم";
+            let pPrice = foundInProds["سعر البيع"] || foundInProds["السعر"] || foundInProds["بيع"] || "0";
+            let pBar = foundInProds["رقم الباركود"] || foundInProds["كود الصنف"] || foundInProds["الباركود"] || foundInProds["Barcode"] || "";
+            box.innerHTML = `❌ غير مسجل بالأرفف، ولكن موجود بملف المحل:<br>🏷️ <b>${pName}</b> (${pPrice}ج)<br><button style="background:#2e7d32; margin-top:6px; padding:6px; font-size:12px;" onclick="addToSpecificShelf('${pBar}', \`${pName}\`, '${pPrice}')">➕ إضافته لرف الآن</button>`;
+        } else {
+            box.innerHTML = "❌ لا توجد نتائج مطابقة نهائياً.";
+        }
+    }
+};
+
+function exportShelvesExcel(){
+    let data = [];
+    shelves.forEach(s => {
+        s.items.forEach(i => {
+            data.push({
+                "اسم الصنف": i.name,
+                "رقم الرف": s.id,
+                "باركود الصنف": i.barcode,
+                "سعر البيع": i.price
+            });
+        });
+    });
+
+    if(data.length === 0){
+        alert("لا توجد منتجات مسجلة في الأرفف لتصديرها!");
+        return;
+    }
+
+    let ws = XLSX.utils.json_to_sheet(data);
+    let wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Shelves_Report");
+    XLSX.writeFile(wb, "Center_AlTawfeer_Shelves.xlsx");
+}
+
+function clearAllShelves(){
+    if(confirm("⚠️ هل أنت متأكد من مسح جميع بيانات الأرفف نهائياً؟")){
+        shelves.forEach(s => {
+            localStorage.removeItem("shelf_data_v3_" + s.id);
+            localStorage.removeItem("shelf_data_final_" + s.id);
+            s.items = [];
+        });
+        renderShelves();
+        document.getElementById("searchResBox").style.display, "none";
+        alert("تم تفريغ جميع الأرفف.");
+    }
+}
+
+renderShelves();
+</script>
+
+</body>
+</html>
