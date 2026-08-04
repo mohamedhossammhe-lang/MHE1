@@ -371,7 +371,10 @@ button{ color:white; border:none; }
         <div style="display:flex; gap:5px; margin-bottom:8px;">
             <input type="text" id="posSearchInput" placeholder="اكتب اسم المنتج أو الباركود للبحث اليدوي..." style="margin:0;">
             <button style="background:#009688; width:auto; padding:0 15px; margin:0;" onclick="playClickSound(); searchPosProducts()">بحث</button>
+            <button style="background:#3f51b5; width:auto; padding:0 12px; margin:0; font-size:16px;" title="مسح باركود بالكاميرا" onclick="playClickSound(); startPosCamScan()">📷</button>
         </div>
+        
+        <div id="posReader" style="width:100%; max-width:300px; margin:5px auto; display:none; border-radius:8px; overflow:hidden;"></div>
         <div id="posSearchResults" style="max-height:150px; overflow-y:auto; margin-bottom:10px;"></div>
 
         <div class="invoice-print-area" id="invoicePrintArea">
@@ -531,9 +534,10 @@ let products = [];
 let shelves = [];
 for(let i = 1; i <= 150; i++){ shelves.push({ id: i, items: [] }); }
 
-let invoiceCart = []; // منتجات الفاتورة الحالية
+let invoiceCart = []; 
 
 let html5QrCode = null;
+let posHtml5QrCode = null;
 let activeShelfId = null;
 let mode = 'shelf'; 
 let passwords = JSON.parse(localStorage.getItem("system_passwords")) || {
@@ -770,6 +774,7 @@ function goBackToDashboard(){
     document.getElementById("attendanceSection").style.display = "none";
     document.getElementById("dashboardSection").style.display = "block";
     stopCamera();
+    stopPosCamera();
 }
 
 function openShelvesModule(){
@@ -807,7 +812,51 @@ function openPosModal(){
 }
 
 function closePosModal(){
+    stopPosCamera();
     document.getElementById("posModal").style.display = "none";
+}
+
+function startPosCamScan(){
+    let readerDiv = document.getElementById("posReader");
+    readerDiv.style.display = "block";
+    if(posHtml5QrCode){ try{ posHtml5QrCode.stop(); }catch(e){} }
+
+    posHtml5QrCode = new Html5Qrcode("posReader");
+    posHtml5QrCode.start(
+        { facingMode: "environment" },
+        { fps: 10, qrbox: { width: 220, height: 120 } },
+        (text) => {
+            stopPosCamera();
+            playScanSound();
+            document.getElementById("posSearchInput").value = text;
+            searchPosProducts();
+            // إذا وجد المنتج مباشرة بالباركود، أضفه للفاتورة فوراً
+            let matchedProd = null;
+            products.forEach(row => {
+                let bar = String(row["رقم الباركود"] || row["كود الصنف"] || row["الباركود"] || row["Barcode"] || "").trim();
+                if(bar === text.trim()){
+                    matchedProd = {
+                        name: row["اسم المنتج"] || row["اسم الصنف"] || row["الصنف"] || "بدون اسم",
+                        price: parseFloat(row["سعر البيع"] || row["السعر"] || 0),
+                        barcode: bar
+                    };
+                }
+            });
+            if(matchedProd){
+                addProductToInvoice(matchedProd.barcode, matchedProd.name, matchedProd.price);
+            }
+        },
+        (err) => {}
+    ).catch(e => { alert("تعذر تشغيل الكاميرا."); stopPosCamera(); });
+}
+
+function stopPosCamera(){
+    if(posHtml5QrCode){
+        posHtml5QrCode.stop().then(() => {
+            let readerDiv = document.getElementById("posReader");
+            if(readerDiv) readerDiv.style.display = "none";
+        }).catch(() => {});
+    }
 }
 
 function searchPosProducts(){
@@ -835,7 +884,6 @@ function searchPosProducts(){
     }
 
     matches.slice(0, 10).forEach(item => {
-        // معرفة مكان المنتج على الأرفف لتقديمه للمستخدم
         let shelfLocationText = "غير محدد على الرفوف";
         shelves.forEach(s => {
             if(s.items && s.items.some(i => i.barcode === item.barcode)){
@@ -882,12 +930,22 @@ function renderInvoiceCart(){
         let itemTotal = item.price * item.qty;
         totalItems += item.qty;
         subTotal += itemTotal;
+
+        // معرفة الرف الحالي للمنتج لكي تظهر أيقونة الرف واضحة
+        let currentShelfNum = "-";
+        shelves.forEach(s => {
+            if(s.items && s.items.some(i => i.barcode === item.barcode)){
+                currentShelfNum = s.id;
+            }
+        });
+
         listDiv.innerHTML += `
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px; border-bottom:1px dashed #eee; padding-bottom:3px;">
             <span><b>${item.name}</b> (${item.price}ج × ${item.qty})</span>
-            <div>
-                <span style="font-weight:bold; margin-left:8px;">${itemTotal} ج</span>
-                <button style="padding:1px 5px; font-size:10px; background:#d32f2f; width:auto;" onclick="playClickSound(); removeInvoiceItem(${idx})">حذف</button>
+            <div style="display:flex; align-items:center; gap:4px;">
+                <span style="font-weight:bold; margin-left:4px;">${itemTotal} ج</span>
+                <button style="padding:2px 5px; font-size:10px; background:#0288d1; width:auto;" title="إدراج أو تعديل رف المنتج" onclick="playClickSound(); assignShelfFromInvoice(\`${item.barcode}\`, \`${item.name}\`, '${item.price}')">📍 رف (${currentShelfNum})</button>
+                <button style="padding:2px 5px; font-size:10px; background:#d32f2f; width:auto;" onclick="playClickSound(); removeInvoiceItem(${idx})">حذف</button>
             </div>
         </div>`;
     });
@@ -895,6 +953,36 @@ function renderInvoiceCart(){
     document.getElementById("invCount").innerText = totalItems;
     document.getElementById("invSubTotal").innerText = subTotal;
     calcInvoiceTotals();
+}
+
+function assignShelfFromInvoice(barcode, name, price){
+    let target = prompt(`📦 إدراج رف للمنتج: "${name}"\nأدخل رقم الرف المطلوب (من 1 إلى 150):`);
+    if(!target) return;
+    let tId = parseInt(target);
+    let tShelf = shelves.find(s => s.id === tId);
+    if(!tShelf){ alert("رقم الرف غير صحيح!"); return; }
+
+    if(tShelf.items && tShelf.items.some(i => i.barcode === barcode)){
+        playErrorSound();
+        alert(`⚠️ هذا المنتج موجود بالفعل في الرف رقم (${tId})!`);
+        return;
+    }
+
+    // إزالة المنتج من أي رف قديم إن وجد
+    shelves.items = shelves.forEach(s => {
+        if(s.items){
+            let idx = s.items.findIndex(i => i.barcode === barcode);
+            if(idx !== -1) s.items.splice(idx, 1);
+        }
+    });
+
+    if(!tShelf.items) tShelf.items = [];
+    tShelf.items.push({ barcode: barcode, name: name, price: price });
+    saveToCloudShelves();
+    playMoveSound();
+    logAction(`إدراج الصنف (${name}) برقم باركود ${barcode} إلى الرف (${tId}) من فاتورة البيع`);
+    alert(`✅ تم إدراج المنتج في الرف (${tId}) بنجاح!`);
+    renderInvoiceCart();
 }
 
 function removeInvoiceItem(idx){
@@ -919,7 +1007,6 @@ function completeAndSaveInvoice(){
     let payMethod = document.getElementById("paymentMethod").value;
     let finalAmount = document.getElementById("invFinalTotal").innerText;
 
-    // استخدام مكتبة html2canvas لحفظ الفاتورة كصورة أوتوماتيكياً
     let printArea = document.getElementById("invoicePrintArea");
     
     html2canvas(printArea).then(canvas => {
@@ -1348,8 +1435,10 @@ function startCamera(){
 function stopCamera(){
     if(html5QrCode){
         html5QrCode.stop().then(() => {
-            document.getElementById("reader").style.display = "none";
-            document.getElementById("closeCam").style.display = "none";
+            let readerDiv = document.getElementById("reader");
+            let closeBtn = document.getElementById("closeCam");
+            if(readerDiv) readerDiv.style.display = "none";
+            if(closeBtn) closeBtn.style.display = "none";
         }).catch(() => {});
     }
 }
