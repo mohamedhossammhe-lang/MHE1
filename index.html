@@ -1,0 +1,1623 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>سنتر التوفير - النظام الإداري المتكامل</title>
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+<script src="https://unpkg.com/html5-qrcode"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+  import { getFirestore, collection, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAyYLa9wLAUJHSPtk7H09Rq5bsAzgtHErk",
+    authDomain: "altawfeer-shelves.firebaseapp.com",
+    projectId: "altawfeer-shelves",
+    storageBucket: "altawfeer-shelves.firebasestorage.app",
+    messagingSenderId: "1059598736844",
+    appId: "1:1059598736844:web:f1a909a6e078491c0f1169",
+    measurementId: "G-SE72MENLBL"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  window.db = db;
+  window.firebaseModules = { collection, doc, setDoc, getDoc, onSnapshot };
+  window.initCloudSystem();
+</script>
+
+<link href="https://fonts.googleapis.com/css2?family=Reem+Kufi:wght@500;700&family=Amiri:wght@700&display=swap" rel="stylesheet">
+
+<style>
+*{ margin:0; padding:0; box-sizing:border-box; font-family:Tahoma,sans-serif; touch-action: manipulation; }
+body{ background:#f4f6f8; padding:10px; overscroll-behavior-y: none; }
+.card{ max-width:680px; margin:auto; background:#fff; border-radius:15px; padding:15px; box-shadow:0 4px 15px rgba(0,0,0,0.1); }
+.header-box{ text-align:center; margin-bottom:15px; }
+.logo-img{ max-width:180px; height:auto; margin-bottom:5px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.25)); }
+
+.author-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: #fff3e0;
+    padding: 12px;
+    border-radius: 12px;
+    margin-top: 10px;
+    border: 1px dashed #ffa726;
+    gap: 8px;
+}
+
+.author-top-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    width: 100%;
+}
+
+.author-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #e65100;
+    animation: verticalSpinPause 6s infinite ease-in-out;
+}
+@keyframes verticalSpinPause {
+    0% { transform: rotateY(0deg); }
+    20% { transform: rotateY(180deg); }
+    40% { transform: rotateY(360deg); }
+    70% { transform: rotateY(360deg); }
+    100% { transform: rotateY(720deg); }
+}
+
+.author-info { text-align: right; }
+.signature-badge {
+    font-family: 'Reem Kufi', sans-serif;
+    font-size: 17px;
+    font-weight: 700;
+    color: #e65100;
+    margin-bottom: 2px;
+}
+
+.phone-mom-row {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 10px;
+}
+.animated-phone { font-size: 14px; font-weight: bold; color: #2e7d32; }
+
+.mom-dua-small {
+    font-family: 'Amiri', serif;
+    font-size: 12px;
+    color: #c2185b;
+    font-weight: bold;
+    text-align: center;
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    border-top: 1px solid #ffe0b2;
+    padding-top: 6px;
+    margin-top: 2px;
+}
+
+.ticker-wrap {
+    width: 100%;
+    overflow: hidden;
+    background: #e3f2fd;
+    border-radius: 8px;
+    margin-top: 10px;
+    padding: 8px 0;
+    border: 1px solid #90caf9;
+}
+.ticker {
+    display: inline-block;
+    white-space: nowrap;
+    animation: marqueeLeftToRight 45s linear infinite;
+}
+@keyframes marqueeLeftToRight {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+#loginSection{ background:#fff; padding:15px; border-radius:10px; text-align:center; }
+.login-title{ font-size:17px; font-weight:bold; margin-bottom:12px; color:#1565c0; }
+
+.login-select-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+select, input, button{ width:100%; padding:12px; font-size:16px; border-radius:8px; border:1px solid #ccc; font-weight:bold; cursor:pointer; margin-bottom:10px; }
+button{ color:white; border:none; }
+.btn-login{ background:#2e7d32; }
+.btn-save-exit { background: #1b5e20 !important; font-size: 13px; padding: 8px; width: auto; margin: 0; }
+
+.user-login-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #1565c0;
+    display: none;
+    box-shadow: 0 0 10px #ffeb3b, 0 0 20px #ff9800;
+    animation: glowPulse 2s infinite alternate;
+}
+@keyframes glowPulse {
+    0% { box-shadow: 0 0 5px #ffeb3b; }
+    100% { box-shadow: 0 0 15px #4caf50, 0 0 25px #2196f3; }
+}
+
+.celebrating {
+    animation: yahooCelebrate 1s infinite linear !important;
+    border: 3px solid #ffeb3b !important;
+}
+@keyframes yahooCelebrate {
+    0% { transform: rotate(0deg) scale(1.1); }
+    50% { transform: rotate(180deg) scale(1.25); }
+    100% { transform: rotate(360deg) scale(1.1); }
+}
+
+.shaking {
+    animation: shakeAnim 0.4s ease-in-out !important;
+    border: 3px solid #d32f2f !important;
+}
+@keyframes shakeAnim {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-8px); }
+    40%, 80% { transform: translateX(8px); }
+}
+
+#dashboardSection{ display:none; text-align:center; }
+.dash-grid{ display:grid; grid-template-columns:1fr; gap:15px; margin-top:15px; }
+@media(min-width: 500px){ .dash-grid{ grid-template-columns:repeat(2, 1fr); } }
+.dash-card{ background:linear-gradient(135deg, #1565c0, #0d47a1); color:white; padding:20px; border-radius:12px; cursor:pointer; font-size:18px; font-weight:bold; box-shadow:0 4px 10px rgba(0,0,0,0.2); transition:0.3s; }
+.dash-card:hover{ transform: translateY(-3px); }
+.dash-card.attendance{ background:linear-gradient(135deg, #2e7d32, #1b5e20); }
+
+#appSection{ display:none; }
+#attendanceSection{ display:none; }
+
+.user-bar{ display:flex; justify-content:space-between; align-items:center; background:#e3f2fd; padding:10px; border-radius:8px; margin-bottom:15px; font-size:14px; font-weight:bold; color:#0d47a1; }
+.toolbar{ display:flex; flex-direction:column; gap:8px; margin-bottom:15px; }
+.btn-file{ background:#ff9800; }
+.btn-fetch-cloud{ background:#0288d1; }
+.btn-export{ background:#2e7d32; }
+.btn-search{ background:#009688; }
+.btn-manual-search{ background:#3f51b5; }
+.btn-pos{ background:#d81b60; font-size: 16px; font-weight: bold; cursor: pointer; }
+.btn-cloud-save{ background:#00acc1; }
+.btn-refresh{ background:#455a64; }
+.btn-clear{ background:#d32f2f; }
+.btn-logs{ background:#673ab7; }
+.btn-pass{ background:#607d8b; font-size:12px; padding:6px; width:auto; margin:0; }
+
+#reader { width:100%; max-width:350px; margin:10px auto; display:none; border-radius:8px; overflow:hidden; }
+#liveCamModal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:2000; justify-content:center; align-items:center; }
+.cam-box { background:#fff; width:95%; max-width:400px; border-radius:12px; padding:15px; text-align:center; }
+
+.shelves-grid{ display:grid; grid-template-columns:1fr; gap:10px; }
+@media(min-width: 500px){ .shelves-grid{ grid-template-columns:repeat(2, 1fr); } }
+
+.shelf-card{ background:#fafafa; border-radius:8px; padding:10px; border:1px solid #ddd; border-right:5px solid #1565c0; }
+.shelf-title{ font-size:14px; font-weight:bold; color:#333; margin-bottom:6px; display:flex; justify-content:space-between; }
+.item-row{ background:#fff; padding:6px; margin-bottom:4px; border-radius:6px; border:1px solid #eee; font-size:12px; display:flex; justify-content:space-between; align-items:center; }
+.search-box-res{ background:#e3f2fd; padding:10px; border-radius:8px; margin-bottom:10px; display:none; font-size:14px; border:1px solid #90caf9; }
+
+#manualSearchModal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:1500; justify-content:center; align-items:center; }
+.manual-box { background:#fff; width:92%; max-width:480px; border-radius:12px; padding:15px; text-align:center; }
+.clickable-item { background:#f1f8e9; padding:9px; margin-bottom:6px; border-radius:6px; border:1px solid #c8e6c9; cursor:pointer; text-align:right; transition:0.2s; font-size:13px; }
+.clickable-item:hover { background:#ded; transform:scale(1.01); }
+
+/* تنسيق مودال فاتورة البيع */
+#posModal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:2500; justify-content:center; align-items:center; overflow-y:auto; }
+.pos-container { background:#fff; width:95%; max-width:450px; border-radius:12px; padding:15px; max-height:92vh; overflow-y:auto; text-align:right; }
+
+/* تنسيق ريسيب الطباعة الحراري المتكامل والمصغر لضمان ظهور كل التفاصيل وطريقة الدفع */
+.invoice-print-area { 
+    background: #fff; 
+    padding: 8px; 
+    border: 1px dashed #999; 
+    border-radius: 6px; 
+    margin-bottom: 10px; 
+    color: #111; 
+    font-size: 11px; 
+    line-height: 1.4;
+    width: 100%;
+}
+
+#logsModal{ display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000; justify-content:center; align-items:center; }
+.logs-content{ background:#fff; width:90%; max-width:600px; max-height:80vh; border-radius:10px; padding:15px; overflow-y:auto; }
+</style>
+</head>
+<body>
+
+<div class="card">
+    <div class="header-box">
+        <img src="logo.png" alt="سنتر التوفير" class="logo-img" onerror="this.style.display='none'">
+        <div style="font-size:15px; font-weight:bold; color:#444;">سنتر التوفير - النظام الإداري الذكي</div>
+        
+        <div class="author-box">
+            <div class="author-top-content">
+                <img src="logo2.png" alt="محمد حسام" class="author-avatar" onerror="this.src='https://via.placeholder.com/60'">
+                
+                <div class="author-info">
+                    <div class="signature-badge">تصميم: محمد حسام</div>
+                    
+                    <div class="phone-mom-row">
+                        <span class="animated-phone">📞 01501437779</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mom-dua-small">🤲🏻 ربي يحفظك ويراعيك يا أمي الغالية، لولا رضاكي ما كنت هنا ❤️</div>
+        </div>
+
+        <div class="ticker-wrap">
+            <div class="ticker">
+                ✨ رَبِّ إِنِّي لِمَا أَنْزَلْتَ إِلَيَّ مِنْ خَيْرٍ فَقِيرٍ ✨ ✦ سبحان الله وبحمده، سبحان الله العظيم ✦ استغفر الله العظيم واتوب إليه ✦ لا حول ولا قوة إلا بالله العلي العظيم ✦ لا إله إلا أنت سبحانك إني كنت من الظالمين ✦ اللهم صل وسلم على نبينا محمد ✦ رَبِّ اغْفِر لي ولوالدي وللمؤمنين يوم يقوم الحساب ✦ حسبي الله لا إله إلا هو عليه توكلت وهو رب العرش العظيم ✦ أستغفر الله الذي لا إله إلا هو الحي القيوم وأتوب إليه
+            </div>
+        </div>
+    </div>
+
+    <div id="loginSection">
+        <div class="login-title">🔐 تسجيل دخول الموظفين (سحابي)</div>
+        
+        <div class="login-select-container">
+            <select id="userSelect" onchange="previewUserAvatar()">
+                <option value="">-- اختر اسم الموظف --</option>
+                <option value="محمد حسام">محمد حسام (المدير العام)</option>
+                <option value="علاء">علاء</option>
+                <option value="شوقي">شوقي</option>
+                <option value="محمود">محمود</option>
+                <option value="احمد محمد امين">احمد محمد امين</option>
+                <option value="محمد ميدو جبر">محمد ميدو جبر</option>
+            </select>
+            <img id="loginUserAvatar" class="user-login-avatar" alt="صورة الموظف" onerror="this.src='https://via.placeholder.com/50'">
+        </div>
+
+        <input type="password" id="passInput" placeholder="أدخل كلمة المرور...">
+        <button class="btn-login" onclick="login();">دخول للنظام</button>
+    </div>
+
+    <div id="dashboardSection">
+        <div class="user-bar">
+            <span id="dashUserName">المستخدم: غير محدد</span>
+            <div style="display:flex; gap:5px;">
+                <button class="btn-save-exit" onclick="playClickSound(); saveAndExit()">💾 حفظ وخروج</button>
+                <button class="btn-pass" style="background:#c62828;" onclick="playClickSound(); logout()">خروج</button>
+            </div>
+        </div>
+        <div style="font-size:16px; font-weight:bold; color:#1565c0; margin-bottom:10px;">اختر النظام المطلوب:</div>
+        <div class="dash-grid">
+            <div class="dash-card" onclick="playClickSound(); openShelvesModule()">
+                📦 نظام الأرفف الذكي
+            </div>
+            <div class="dash-card attendance" onclick="playClickSound(); openAttendanceModule()">
+                ⏱️ الحضور والانصراف والإجازات
+            </div>
+        </div>
+    </div>
+
+    <div id="appSection">
+        <div class="user-bar">
+            <span id="currentUserName">المستخدم: غير محدد</span>
+            <div style="display:flex; gap:5px;">
+                <button class="btn-save-exit" onclick="playClickSound(); saveAndExit()">💾 حفظ وخروج</button>
+                <button class="btn-pass" onclick="playClickSound(); goBackToDashboard()">⬅️ القائمة</button>
+                <button class="btn-pass" onclick="playClickSound(); changeMyPassword()">🔑 الباسورد</button>
+            </div>
+        </div>
+
+        <div class="toolbar">
+            <button type="button" class="btn-pos" onclick="playClickSound(); openPosModal()">🛒 تسجيل فاتورة بيع جديدة</button>
+            <button class="btn-fetch-cloud" onclick="playClickSound(); fetchLatestDataFromCloud()">☁️📥 تحميل أحدث نسخة من السحابة الآن</button>
+            <input type="file" id="excelFile" accept=".xlsx,.xls,.csv" style="display:none">
+            <button class="btn-file" onclick="playClickSound(); document.getElementById('excelFile').click()">📂 اختيار ملف أصناف المحل (Excel)</button>
+            <button class="btn-cloud-save" onclick="playClickSound(); manualCloudSave()">☁️ حفظ ورفع البيانات للسحابة الآن</button>
+            <button class="btn-export" onclick="playClickSound(); exportShelvesExcel()">📥 تحميل شيت الأرفف (Excel)</button>
+            <button class="btn-search" onclick="playClickSound(); startGlobalSearch()">📷 بحث بالكاميرا عن منتج أو رف</button>
+            <button class="btn-manual-search" onclick="playClickSound(); openManualSearchModal()">🔍 بحث يدوي شامل (أرفف وأصناف)</button>
+            <button class="btn-refresh" onclick="playClickSound(); location.reload()">🔄 تحديث يدوي (Refresh)</button>
+            <button id="clearShelvesBtn" class="btn-clear" style="display:none;" onclick="playClickSound(); clearAllShelves()">🗑️ حذف بيانات كل الأرفف</button>
+            <button id="adminLogsBtn" class="btn-logs" style="display:none;" onclick="playClickSound(); openLogsModal()">📊 سجل نشاطات الموظفين</button>
+        </div>
+
+        <div class="search-box-res" id="searchResBox"></div>
+        <div id="reader"></div>
+        <button id="closeCam" style="background:#c62828; display:none; margin-bottom:10px;" onclick="playClickSound(); stopCamera()">إغلاق الكاميرا</button>
+
+        <div class="shelves-grid" id="shelvesContainer"></div>
+        <div id="statusNote" style="text-align:center; font-size:12px; color:#666; margin-top:15px;">🌐 متصل بالسحابة (حفظ تلقائي كل ثانية مفعل)</div>
+    </div>
+
+    <div id="attendanceSection">
+        <div class="user-bar">
+            <span id="attUserName">المستخدم: غير محدد</span>
+            <div style="display:flex; gap:5px;">
+                <button class="btn-save-exit" onclick="playClickSound(); saveAndExit()">💾 حفظ وخروج</button>
+                <button class="btn-pass" onclick="playClickSound(); goBackToDashboard()">⬅️ القائمة</button>
+            </div>
+        </div>
+
+        <div style="background:#e3f2fd; padding:12px; border-radius:10px; margin-bottom:15px;">
+            <div style="font-size:15px; font-weight:bold; color:#0d47a1; margin-bottom:8px;">⏱️ تسجيل الحضور والانصراف (بصورة حية مع منتج عشوائي)</div>
+            <div style="display:flex; gap:10px; margin-bottom:8px;">
+                <button style="background:#2e7d32;" onclick="playClickSound(); startLiveAttendance('حضور')">تسجيل حضور</button>
+                <button style="background:#c62828;" onclick="playClickSound(); startLiveAttendance('انصراف')">تسجيل انصراف</button>
+            </div>
+        </div>
+
+        <div style="background:#fff3e0; padding:12px; border-radius:10px; margin-bottom:15px; border:1px solid #ffe0b2;">
+            <div style="font-size:15px; font-weight:bold; color:#e65100; margin-bottom:8px;">📋 طلب إجازة أو غياب</div>
+            <select id="leaveType" style="margin-bottom:8px;">
+                <option value="إجازة اعتيادي">إجازة اعتيادي</option>
+                <option value="إجازة مرضي">إجازة مرضي</option>
+                <option value="طلب عذر غياب">طلب عذر غياب</option>
+            </select>
+            <input type="date" id="leaveDate" style="margin-bottom:8px;">
+            <input type="text" id="leaveReason" placeholder="سبب الإجازة أو ملاحظة..." style="margin-bottom:8px;">
+            <button style="background:#f57c00;" onclick="playClickSound(); submitLeaveRequest()">إرسال الطلب للمدير محمد حسام</button>
+        </div>
+
+        <div id="managerAdminBox" style="display:none; background:#ede7f6; padding:12px; border-radius:10px; border:1px solid #d1c4e9;">
+            <div style="font-size:15px; font-weight:bold; color:#512da8; margin-bottom:8px;">👑 لوحة إدارة المدير (محمد حسام): حالة الموظفين والصور</div>
+            <button class="btn-export" style="margin-bottom:10px;" onclick="playClickSound(); exportAttendanceExcel()">📥 سحب شيت الحضور والأنصراف (Excel)</button>
+            <div id="managerRequestsList" style="font-size:12px; line-height:1.6;"></div>
+        </div>
+    </div>
+</div>
+
+<div id="posModal">
+    <div class="pos-container">
+        <h3 style="color:#d81b60; margin-bottom:10px; text-align:center;">🛒 نظام تسجيل فاتورة بيع - سنتر التوفير</h3>
+        
+        <div style="display:flex; gap:5px; margin-bottom:8px;">
+            <input type="text" id="posSearchInput" placeholder="اكتب اسم المنتج أو الباركود للبحث اليدوي..." style="margin:0;">
+            <button type="button" style="background:#009688; width:auto; padding:0 15px; margin:0;" onclick="playClickSound(); searchPosProducts()">بحث</button>
+            <button type="button" style="background:#3f51b5; width:auto; padding:0 12px; margin:0; font-size:16px;" title="مسح باركود بالكاميرا" onclick="playClickSound(); startPosCamScan()">📷</button>
+        </div>
+        
+        <div id="posReader" style="width:100%; max-width:300px; margin:5px auto; display:none; border-radius:8px; overflow:hidden;"></div>
+        <div id="posSearchResults" style="max-height:150px; overflow-y:auto; margin-bottom:10px;"></div>
+
+        <div class="invoice-print-area" id="invoicePrintArea">
+            <div style="text-align:center; border-bottom:1px dashed #333; padding-bottom:5px; margin-bottom:5px;">
+                <img src="logo.png" alt="سنتر التوفير" style="max-width:50px; height:auto;" onerror="this.style.display='none'">
+                <div style="font-size:13px; font-weight:bold;">سنتر التوفير - فاتورة بيع</div>
+                <div style="font-size:9px; color:#333;" id="invoiceDateTime">التاريخ: --/--/---- --:--</div>
+                <div style="font-size:9px; color:#0d47a1; font-weight:bold;" id="invoiceCashier">الكاشير: --</div>
+            </div>
+
+            <div style="font-size:10px; font-weight:bold; margin-bottom:3px;">تفاصيل الأصناف:</div>
+            <div id="invoiceItemsList" style="min-height:50px; max-height:140px; overflow-y:auto; border-bottom:1px dashed #333; padding-bottom:4px; margin-bottom:5px; font-size:10px;">
+                <div style="color:#777; text-align:center;">لم يتم إضافة منتجات بعد</div>
+            </div>
+
+            <div style="font-size:10px; line-height:1.5;">
+                <div>📦 إجمالي الأصناف: <span id="invCount" style="font-weight:bold;">0</span></div>
+                <div>💰 إجمالي المبلغ: <span id="invSubTotal" style="font-weight:bold;">0</span> ج</div>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-top:2px;">
+                    <span>🏷️ الخصم: <input type="number" id="invDiscount" value="0" style="width:60px; padding:2px; font-size:10px; display:inline-block; margin:0;" oninput="calcInvoiceTotals()"> ج</span>
+                    <span>طريقة الدفع: <b id="invPaymentMethodDisplay" style="color:#d81b60;">نقدي (كاش)</b></span>
+                </div>
+                <div style="font-size:12px; font-weight:bold; color:#d81b60; margin-top:4px; border-top:1px solid #111; padding-top:3px; text-align:center;">
+                    الصافي المطلوب دفعه: <span id="invFinalTotal">0</span> ج
+                </div>
+                <div style="text-align:center; font-size:9px; color:#555; margin-top:5px; border-top:1px dashed #ccc; padding-top:2px;">
+                    شكراً لتسوقكم في سنتر التوفير ❤️
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-bottom:10px;">
+            <label style="font-size:13px; font-weight:bold; display:block; margin-bottom:4px;">💳 اختر طريقة الدفع:</label>
+            <select id="paymentMethod" style="margin-bottom:8px;" onchange="updatePaymentMethodDisplay()">
+                <option value="نقدي (كاش)">نقدي (كاش)</option>
+                <option value="انستا باي (InstaPay)">انستا باي (InstaPay)</option>
+                <option value="فودافون كاش">فودافون كاش</option>
+            </select>
+        </div>
+
+        <div style="display:flex; gap:8px;">
+            <button type="button" style="background:#2e7d32;" onclick="playClickSound(); completeAndSaveInvoice()">✅ إتمام الدفع وحفظ الفاتورة كصورة</button>
+            <button type="button" style="background:#c62828; width:auto;" onclick="playClickSound(); closePosModal()">إغلاق</button>
+        </div>
+    </div>
+</div>
+
+<div id="manualSearchModal">
+    <div class="manual-box">
+        <h3 style="color:#3f51b5; margin-bottom:10px;">🔍 البحث اليدوي الشامل</h3>
+        <input type="text" id="manualSearchInput" placeholder="اكتب اسم المنتج أو الباركود أو رقم الرف..." style="margin-bottom:10px;">
+        <button type="button" style="background:#3f51b5; margin-bottom:6px;" onclick="playClickSound(); executeManualSearch()">بحث الآن</button>
+        <button type="button" style="background:#c62828;" onclick="playClickSound(); closeManualSearchModal()">إغلاق</button>
+        <div id="manualSearchResults" style="max-height:260px; overflow-y:auto; margin-top:10px; text-align:right;"></div>
+    </div>
+</div>
+
+<div id="liveCamModal">
+    <div class="cam-box">
+        <h3 id="camModalTitle" style="color:#1565c0; margin-bottom:8px;">📷 التقاط صورة حية</h3>
+        <div id="targetProductBox" style="background:#fff3e0; padding:8px; border-radius:6px; font-size:13px; font-weight:bold; color:#e65100; margin-bottom:10px; border:1px solid #ffb74d;"></div>
+        <video id="liveVideo" autoplay playsinline style="width:100%; max-height:220px; border-radius:8px; background:#000; object-fit:cover; margin-bottom:8px;"></video>
+        <canvas id="liveCanvas" style="display:none;"></canvas>
+        <button type="button" style="background:#2e7d32; margin-bottom:6px;" onclick="playClickSound(); captureLiveSelfie()">📸 التقاط الصورة والحفظ</button>
+        <button type="button" style="background:#c62828;" onclick="playClickSound(); closeLiveCamModal()">إغلاق</button>
+    </div>
+</div>
+
+<div id="logsModal">
+    <div class="logs-content">
+        <h3>📊 سجل حركات الموظفين السحابي</h3>
+        <hr style="margin:10px 0;">
+        <div id="logsList" style="font-size:12px; line-height:1.6;"></div>
+        <button type="button" style="background:#d32f2f; margin-top:15px;" onclick="playClickSound(); closeLogsModal()">إغلاق</button>
+        <button type="button" style="background:#f57c00;" onclick="playClickSound(); clearLogs()">مسح السجل</button>
+    </div>
+</div>
+
+<script>
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+function playTone(freq, type, duration) {
+    if (audioCtx.state === 'suspended') { audioCtx.resume(); }
+    let osc = audioCtx.createOscillator();
+    let gain = audioCtx.createGain();
+    osc.type = type;
+    osc.frequency.value = freq;
+    gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + duration);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start();
+    osc.stop(audioCtx.currentTime + duration);
+}
+
+function playClickSound() { playTone(400, 'sine', 0.05); }
+function playScanSound() {
+    if (audioCtx.state === 'suspended') { audioCtx.resume(); }
+    let osc = audioCtx.createOscillator();
+    let gain = audioCtx.createGain();
+    osc.type = 'square';
+    osc.frequency.setValueAtTime(1760, audioCtx.currentTime);
+    gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 0.12);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start();
+    osc.stop(audioCtx.currentTime + 0.12);
+}
+function playMoveSound() { playTone(600, 'triangle', 0.12); }
+
+function playErrorSound() {
+    if (audioCtx.state === 'suspended') { audioCtx.resume(); }
+    let osc = audioCtx.createOscillator();
+    let gain = audioCtx.createGain();
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+    gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 0.3);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start();
+    osc.stop(audioCtx.currentTime + 0.3);
+}
+
+function playAtmAndMoneySound() {
+    if (audioCtx.state === 'suspended') { audioCtx.resume(); }
+    let now = audioCtx.currentTime;
+
+    let osc1 = audioCtx.createOscillator();
+    let gain1 = audioCtx.createGain();
+    osc1.type = 'sine';
+    osc1.frequency.setValueAtTime(523.25, now);
+    osc1.frequency.setValueAtTime(659.25, now + 0.15);
+    osc1.frequency.setValueAtTime(783.99, now + 0.3);
+    gain1.gain.setValueAtTime(0.2, now);
+    gain1.gain.exponentialRampToValueAtTime(0.00001, now + 0.6);
+    osc1.connect(gain1);
+    gain1.connect(audioCtx.destination);
+    osc1.start(now);
+    osc1.stop(now + 0.6);
+
+    for(let i = 0; i < 7; i++){
+        let startTime = now + 0.7 + (i * 0.08);
+        let oscM = audioCtx.createOscillator();
+        let gainM = audioCtx.createGain();
+        oscM.type = 'triangle';
+        oscM.frequency.setValueAtTime(1200 + (i % 2 === 0 ? 300 : -200), startTime);
+        gainM.gain.setValueAtTime(0.15, startTime);
+        gainM.gain.exponentialRampToValueAtTime(0.00001, startTime + 0.06);
+        oscM.connect(gainM);
+        gainM.connect(audioCtx.destination);
+        oscM.start(startTime);
+        oscM.stop(startTime + 0.06);
+    }
+}
+
+let currentUser = localStorage.getItem("active_system_user") || "";
+let products = [];
+let shelves = [];
+for(let i = 1; i <= 150; i++){ shelves.push({ id: i, items: [] }); }
+
+let invoiceCart = []; 
+
+let html5QrCode = null;
+let posHtml5QrCode = null;
+let activeShelfId = null;
+let mode = 'shelf'; 
+let passwords = JSON.parse(localStorage.getItem("system_passwords")) || {
+    "محمد حسام": "111992", "علاء": "123", "شوقي": "123", "محمود": "123", "احمد محمد امين": "123", "محمد ميدو جبر": "123"
+};
+let logs = [];
+let attendanceRecords = [];
+let leaveRequests = [];
+
+let pendingAttendanceType = "";
+let activeAssignedProduct = "";
+let mediaStream = null;
+
+const userAvatars = {
+    "محمد حسام": "logo3.png",
+    "علاء": "logo4.png",
+    "شوقي": "logo5.png",
+    "محمود": "logo6.png",
+    "احمد محمد امين": "logo7.png",
+    "محمد ميدو جبر": "logo8.png"
+};
+
+function previewUserAvatar() {
+    let u = document.getElementById("userSelect").value;
+    let avatarImg = document.getElementById("loginUserAvatar");
+    avatarImg.classList.remove("shaking", "celebrating");
+    if(u && userAvatars[u]) {
+        avatarImg.src = userAvatars[u];
+        avatarImg.style.display = "block";
+    } else {
+        avatarImg.style.display = "none";
+    }
+}
+
+window.initCloudSystem = function() {
+    const { doc, onSnapshot } = window.firebaseModules;
+    const db = window.db;
+
+    onSnapshot(doc(db, "store_data", "shelves_doc"), (docSnap) => {
+        if (docSnap.exists()) {
+            let cloudShelves = docSnap.data().shelves;
+            if(cloudShelves) { shelves = cloudShelves; renderShelves(); }
+        }
+    });
+
+    onSnapshot(doc(db, "store_data", "products_doc"), (docSnap) => {
+        if (docSnap.exists()) {
+            let cloudProds = docSnap.data().products;
+            if(cloudProds) { products = cloudProds; updateStatus(); }
+        }
+    });
+
+    onSnapshot(doc(db, "store_data", "logs_doc"), (docSnap) => {
+        if (docSnap.exists()) { logs = docSnap.data().logs || []; }
+    });
+
+    onSnapshot(doc(db, "store_data", "attendance_doc"), (docSnap) => {
+        if (docSnap.exists()) { attendanceRecords = docSnap.data().records || []; }
+    });
+
+    onSnapshot(doc(db, "store_data", "leaves_doc"), (docSnap) => {
+        if (docSnap.exists()) { 
+            leaveRequests = docSnap.data().requests || [];
+            if(currentUser === "محمد حسام") renderManagerRequests();
+            checkMyLeaveStatus();
+        }
+    });
+
+    if(currentUser){
+        document.getElementById("loginSection").style.display = "none";
+        document.getElementById("dashboardSection").style.display = "block";
+        document.getElementById("dashUserName").innerText = "المستخدم: " + currentUser;
+        document.getElementById("currentUserName").innerText = "المستخدم: " + currentUser;
+        document.getElementById("attUserName").innerText = "المستخدم: " + currentUser;
+        
+        if(currentUser === "محمد حسام"){
+            document.getElementById("adminLogsBtn").style.display = "block";
+            document.getElementById("clearShelvesBtn").style.display = "block";
+            document.getElementById("managerAdminBox").style.display = "block";
+            renderManagerRequests();
+        }
+    }
+
+    setInterval(() => {
+        if(currentUser){ autoBackgroundSave(); }
+    }, 1000);
+};
+
+function fetchLatestDataFromCloud(){
+    const { doc, getDoc } = window.firebaseModules;
+    let db = window.db;
+
+    Promise.all([
+        getDoc(doc(db, "store_data", "shelves_doc")),
+        getDoc(doc(db, "store_data", "products_doc"))
+    ]).then(([shelfSnap, prodSnap]) => {
+        if(shelfSnap.exists() && shelfSnap.data().shelves){
+            shelves = shelfSnap.data().shelves;
+        }
+        if(prodSnap.exists() && prodSnap.data().products){
+            products = prodSnap.data().products;
+        }
+        renderShelves();
+        updateStatus();
+        playAtmAndMoneySound();
+        logAction("تحميل أحدث نسخة للبيانات من السحابة يدوياً");
+        alert("✅ تم تحديث وتحميل أحدث نسخة من الأرفف والمنتجات من السحابة بنجاح!");
+    }).catch(err => {
+        playErrorSound();
+    });
+}
+
+function autoBackgroundSave(){
+    const { doc, setDoc } = window.firebaseModules;
+    if(!window.db) return;
+    setDoc(doc(window.db, "store_data", "shelves_doc"), { shelves: shelves }).catch(() => {});
+    setDoc(doc(window.db, "store_data", "products_doc"), { products: products }).catch(() => {});
+    let note = document.getElementById("statusNote");
+    if(note) note.innerHTML = `🌐 متصل بالسحابة | حفظ تلقائي نشط (${new Date().toLocaleTimeString()})`;
+}
+
+function manualCloudSave(){
+    const { doc, setDoc } = window.firebaseModules;
+    setDoc(doc(window.db, "store_data", "shelves_doc"), { shelves: shelves });
+    setDoc(doc(window.db, "store_data", "products_doc"), { products: products });
+    playAtmAndMoneySound();
+    logAction("قام بحفظ ورفع البيانات للسحابة يدوياً");
+    alert("✅ تم رفع وحفظ جميع الأرفف والمنتجات للسحابة بنجاح تام!");
+}
+
+function saveAndExit(){
+    const { doc, setDoc } = window.firebaseModules;
+    setDoc(doc(window.db, "store_data", "shelves_doc"), { shelves: shelves });
+    setDoc(doc(window.db, "store_data", "products_doc"), { products: products });
+    setDoc(doc(window.db, "store_data", "attendance_doc"), { records: attendanceRecords });
+    setDoc(doc(window.db, "store_data", "leaves_doc"), { requests: leaveRequests });
+    
+    playAtmAndMoneySound();
+    logAction("حفظ الخروج الفوري للسحابة وتوثيق البيانات");
+    alert("💾 تم حفظ كافة البيانات الحالية على السحابة بنجاح تام وجاري الخروج!");
+    logout();
+}
+
+function saveToCloudShelves(){
+    const { doc, setDoc } = window.firebaseModules;
+    setDoc(doc(window.db, "store_data", "shelves_doc"), { shelves: shelves }).catch(() => {});
+    updateStatus();
+}
+
+function saveToCloudProducts(){
+    const { doc, setDoc } = window.firebaseModules;
+    setDoc(doc(window.db, "store_data", "products_doc"), { products: products }).catch(() => {});
+}
+
+function saveToCloudAttendance(){
+    const { doc, setDoc } = window.firebaseModules;
+    setDoc(doc(window.db, "store_data", "attendance_doc"), { records: attendanceRecords }).catch(() => {});
+}
+
+function saveToCloudLeaves(){
+    const { doc, setDoc } = window.firebaseModules;
+    setDoc(doc(window.db, "store_data", "leaves_doc"), { requests: leaveRequests }).catch(() => {});
+}
+
+function logAction(actionText){
+    if(!currentUser) return;
+    let timeStr = new Date().toLocaleString();
+    logs.unshift({ user: currentUser, action: actionText, time: timeStr });
+    if(logs.length > 200) logs.pop();
+    const { doc, setDoc } = window.firebaseModules;
+    setDoc(doc(window.db, "store_data", "logs_doc"), { logs: logs }).catch(() => {});
+}
+
+function login(){
+    let u = document.getElementById("userSelect").value;
+    let p = document.getElementById("passInput").value.trim();
+    let avatarImg = document.getElementById("loginUserAvatar");
+
+    if(!u){ alert("اختر اسم الموظف أولاً!"); return; }
+
+    if(passwords[u] === p){
+        avatarImg.classList.remove("shaking");
+        avatarImg.classList.add("celebrating");
+        playAtmAndMoneySound();
+
+        setTimeout(() => {
+            currentUser = u;
+            localStorage.setItem("active_system_user", u);
+            document.getElementById("loginSection").style.display = "none";
+            document.getElementById("dashboardSection").style.display = "block";
+            document.getElementById("dashUserName").innerText = "المستخدم: " + u;
+            document.getElementById("currentUserName").innerText = "المستخدم: " + u;
+            document.getElementById("attUserName").innerText = "المستخدم: " + u;
+            
+            if(u === "محمد حسام"){
+                document.getElementById("adminLogsBtn").style.display = "block";
+                document.getElementById("clearShelvesBtn").style.display = "block";
+                document.getElementById("managerAdminBox").style.display = "block";
+                renderManagerRequests();
+            } else {
+                document.getElementById("adminLogsBtn").style.display = "none";
+                document.getElementById("clearShelvesBtn").style.display = "none";
+                document.getElementById("managerAdminBox").style.display = "none";
+            }
+            logAction("تسجيل دخول للنظام");
+        }, 1200);
+
+    } else {
+        avatarImg.classList.remove("celebrating");
+        avatarImg.classList.add("shaking");
+        playErrorSound();
+        alert("كلمة المرور غير صحيحة!");
+        setTimeout(() => { avatarImg.classList.remove("shaking"); }, 500);
+    }
+}
+
+function logout(){
+    logAction("تسجيل خروج من النظام");
+    currentUser = "";
+    localStorage.removeItem("active_system_user");
+    document.getElementById("passInput").value = "";
+    document.getElementById("userSelect").value = "";
+    let avatarImg = document.getElementById("loginUserAvatar");
+    avatarImg.style.display = "none";
+    avatarImg.classList.remove("celebrating", "shaking");
+    document.getElementById("loginSection").style.display = "block";
+    document.getElementById("dashboardSection").style.display = "none";
+    document.getElementById("appSection").style.display = "none";
+    document.getElementById("attendanceSection").style.display = "none";
+}
+
+function goBackToDashboard(){
+    document.getElementById("appSection").style.display = "none";
+    document.getElementById("attendanceSection").style.display = "none";
+    document.getElementById("dashboardSection").style.display = "block";
+    stopCamera();
+    stopPosCamera();
+}
+
+function openShelvesModule(){
+    document.getElementById("dashboardSection").style.display = "none";
+    document.getElementById("appSection").style.display = "block";
+    renderShelves();
+}
+
+function openAttendanceModule(){
+    document.getElementById("dashboardSection").style.display = "none";
+    document.getElementById("attendanceSection").style.display = "block";
+    if(currentUser === "محمد حسام") renderManagerRequests();
+}
+
+function changeMyPassword(){
+    let newP = prompt(`تغيير كلمة المرور الخاصة بك (${currentUser}):\nأدخل الباسورد الجديد:`);
+    if(newP && newP.trim() !== ""){
+        passwords[currentUser] = newP.trim();
+        localStorage.setItem("system_passwords", JSON.stringify(passwords));
+        logAction("قام بتغيير كلمة المرور الخاصة به");
+        alert("✅ تم تغيير كلمة المرور بنجاح!");
+    }
+}
+
+/* دوال فاتورة البيع والبحث الذكي */
+window.openPosModal = function() {
+    invoiceCart = [];
+    document.getElementById("posSearchInput").value = "";
+    document.getElementById("posSearchResults").innerHTML = "";
+    document.getElementById("invDiscount").value = "0";
+    document.getElementById("invoiceCashier").innerText = "الكاشير: " + currentUser;
+    document.getElementById("invoiceDateTime").innerText = "التاريخ: " + new Date().toLocaleString();
+    updatePaymentMethodDisplay();
+    renderInvoiceCart();
+    document.getElementById("posModal").style.display = "flex";
+}
+
+function closePosModal(){
+    stopPosCamera();
+    document.getElementById("posModal").style.display = "none";
+}
+
+function updatePaymentMethodDisplay(){
+    let payVal = document.getElementById("paymentMethod").value;
+    let disp = document.getElementById("invPaymentMethodDisplay");
+    if(disp) disp.innerText = payVal;
+}
+
+function startPosCamScan(){
+    let readerDiv = document.getElementById("posReader");
+    readerDiv.style.display = "block";
+    if(posHtml5QrCode){ try{ posHtml5QrCode.stop(); }catch(e){} }
+
+    posHtml5QrCode = new Html5Qrcode("posReader");
+    posHtml5QrCode.start(
+        { facingMode: "environment" },
+        { fps: 10, qrbox: { width: 220, height: 120 } },
+        (text) => {
+            stopPosCamera();
+            playScanSound();
+            document.getElementById("posSearchInput").value = text;
+            searchPosProducts();
+            let matchedProd = null;
+            products.forEach(row => {
+                let bar = String(row["رقم الباركود"] || row["كود الصنف"] || row["الباركود"] || row["Barcode"] || "").trim();
+                if(bar === text.trim()){
+                    matchedProd = {
+                        name: row["اسم المنتج"] || row["اسم الصنف"] || row["الصنف"] || "بدون اسم",
+                        price: parseFloat(row["سعر البيع"] || row["السعر"] || 0),
+                        barcode: bar
+                    };
+                }
+            });
+            if(matchedProd){
+                addProductToInvoice(matchedProd.barcode, matchedProd.name, matchedProd.price);
+            }
+        },
+        (err) => {}
+    ).catch(e => { alert("تعذر تشغيل الكاميرا."); stopPosCamera(); });
+}
+
+function stopPosCamera(){
+    if(posHtml5QrCode){
+        posHtml5QrCode.stop().then(() => {
+            let readerDiv = document.getElementById("posReader");
+            if(readerDiv) readerDiv.style.display = "none";
+        }).catch(() => {});
+    }
+}
+
+function searchPosProducts(){
+    let query = document.getElementById("posSearchInput").value.trim().toLowerCase();
+    let resDiv = document.getElementById("posSearchResults");
+    resDiv.innerHTML = "";
+    if(!query) return;
+
+    let matches = [];
+    products.forEach(row => {
+        let name = String(row["اسم المنتج"] || row["اسم الصنف"] || row["الصنف"] || "").toLowerCase();
+        let bar = String(row["رقم الباركود"] || row["كود الصنف"] || row["الباركود"] || row["Barcode"] || "").toLowerCase();
+        if(name.includes(query) || bar.includes(query)){
+            matches.push({
+                name: row["اسم المنتج"] || row["اسم الصنف"] || row["الصنف"] || "بدون اسم",
+                price: parseFloat(row["سعر البيع"] || row["السعر"] || 0),
+                barcode: bar
+            });
+        }
+    });
+
+    if(matches.length === 0){
+        resDiv.innerHTML = `<div style="color:red; font-size:11px; padding:4px;">❌ لا توجد منتجات مطابقة.</div>`;
+        return;
+    }
+
+    matches.slice(0, 10).forEach(item => {
+        let shelfLocationText = "غير محدد";
+        shelves.forEach(s => {
+            if(s.items && s.items.some(i => i.barcode === item.barcode)){
+                shelfLocationText = `رف (${s.id})`;
+            }
+        });
+
+        resDiv.innerHTML += `
+        <div class="clickable-item" onclick="playClickSound(); addProductToInvoice(\`${item.barcode}\`, \`${item.name}\`, ${item.price})">
+            📦 <b>${item.name}</b> (${item.price}ج) | 📍 <b>${shelfLocationText}</b>
+            <div style="font-size:10px; color:#555;">باركود: ${item.barcode}</div>
+        </div>`;
+    });
+}
+
+function addProductToInvoice(barcode, name, price){
+    let existing = invoiceCart.find(i => i.barcode === barcode);
+    if(existing){
+        existing.qty += 1;
+    } else {
+        invoiceCart.push({ barcode: barcode, name: name, price: price, qty: 1 });
+    }
+    renderInvoiceCart();
+    document.getElementById("posSearchInput").value = "";
+    document.getElementById("posSearchResults").innerHTML = "";
+    playScanSound();
+}
+
+function renderInvoiceCart(){
+    let listDiv = document.getElementById("invoiceItemsList");
+    if(invoiceCart.length === 0){
+        listDiv.innerHTML = '<div style="color:#777; text-align:center;">لم يتم إضافة منتجات بعد</div>';
+        document.getElementById("invCount").innerText = "0";
+        document.getElementById("invSubTotal").innerText = "0";
+        document.getElementById("invFinalTotal").innerText = "0";
+        return;
+    }
+
+    listDiv.innerHTML = "";
+    let totalItems = 0;
+    let subTotal = 0;
+
+    invoiceCart.forEach((item, idx) => {
+        let itemTotal = item.price * item.qty;
+        totalItems += item.qty;
+        subTotal += itemTotal;
+
+        let currentShelfNum = "-";
+        shelves.forEach(s => {
+            if(s.items && s.items.some(i => i.barcode === item.barcode)){
+                currentShelfNum = s.id;
+            }
+        });
+
+        listDiv.innerHTML += `
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:3px; border-bottom:1px dotted #ddd; padding-bottom:2px; font-size:10px;">
+            <span style="max-width:55%; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${item.name}"><b>${item.name}</b> (${item.price}×${item.qty})</span>
+            <div style="display:flex; align-items:center; gap:3px;">
+                <span style="font-weight:bold;">${itemTotal}ج</span>
+                <button type="button" style="padding:1px 3px; font-size:9px; background:#0288d1; width:auto;" title="إدراج أو تعديل رف" onclick="playClickSound(); assignShelfFromInvoice(\`${item.barcode}\`, \`${item.name}\`, '${item.price}')">📍(${currentShelfNum})</button>
+                <button type="button" style="padding:1px 3px; font-size:9px; background:#d32f2f; width:auto;" onclick="playClickSound(); removeInvoiceItem(${idx})">×</button>
+            </div>
+        </div>`;
+    });
+
+    document.getElementById("invCount").innerText = totalItems;
+    document.getElementById("invSubTotal").innerText = subTotal;
+    calcInvoiceTotals();
+}
+
+function assignShelfFromInvoice(barcode, name, price){
+    let target = prompt(`📦 إدراج رف للمنتج: "${name}"\nأدخل رقم الرف (من 1 إلى 150):`);
+    if(!target) return;
+    let tId = parseInt(target);
+    let tShelf = shelves.find(s => s.id === tId);
+    if(!tShelf){ alert("رقم الرف غير صحيح!"); return; }
+
+    if(tShelf.items && tShelf.items.some(i => i.barcode === barcode)){
+        playErrorSound();
+        alert(`⚠️ المنتج موجود بالفعل في الرف رقم (${tId})!`);
+        return;
+    }
+
+    shelves.forEach(s => {
+        if(s.items){
+            let idx = s.items.findIndex(i => i.barcode === barcode);
+            if(idx !== -1) s.items.splice(idx, 1);
+        }
+    });
+
+    if(!tShelf.items) tShelf.items = [];
+    tShelf.items.push({ barcode: barcode, name: name, price: price });
+    saveToCloudShelves();
+    playMoveSound();
+    logAction(`إدراج الصنف (${name}) للرف (${tId}) من فاتورة البيع`);
+    alert(`✅ تم إدراج المنتج في الرف (${tId}) بنجاح!`);
+    renderInvoiceCart();
+}
+
+function removeInvoiceItem(idx){
+    invoiceCart.splice(idx, 1);
+    renderInvoiceCart();
+}
+
+function calcInvoiceTotals(){
+    let subTotal = parseFloat(document.getElementById("invSubTotal").innerText) || 0;
+    let discount = parseFloat(document.getElementById("invDiscount").value) || 0;
+    let final = subTotal - discount;
+    if(final < 0) final = 0;
+    document.getElementById("invFinalTotal").innerText = final;
+}
+
+function completeAndSaveInvoice(){
+    if(invoiceCart.length === 0){
+        alert("⚠️ الفاتورة فارغة! أضف منتجات أولاً قبل إتمام البيع.");
+        return;
+    }
+
+    updatePaymentMethodDisplay();
+    let payMethod = document.getElementById("paymentMethod").value;
+    let finalAmount = document.getElementById("invFinalTotal").innerText;
+    let printArea = document.getElementById("invoicePrintArea");
+    
+    html2canvas(printArea, { scale: 2, useCORS: true }).then(canvas => {
+        let link = document.createElement('a');
+        link.download = `Invoice_${Date.now()}.png`;
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+
+        playAtmAndMoneySound();
+        logAction(`إتمام فاتورة بيع بمبلغ ${finalAmount}ج (الدفع: ${payMethod})`);
+        alert(`🎉 تم تأكيد وإتمام عملية البيع بنجاح!\n💳 طريقة الدفع: ${payMethod}\n💾 تم حفظ الفاتورة كاملة كصورة على جهازك.`);
+        closePosModal();
+    }).catch(err => {
+        alert("حدث خطأ أثناء حفظ الفاتورة كصورة.");
+    });
+}
+
+function startLiveAttendance(type){
+    let inputPass = prompt(`🔐 تأكيد كلمة المرور الشخصية لتسجيل (${type}):`);
+    if(inputPass !== passwords[currentUser]){
+        playErrorSound();
+        alert("❌ كلمة المرور غير صحيحة!");
+        return;
+    }
+
+    pendingAttendanceType = type;
+
+    if(products.length === 0){
+        activeAssignedProduct = "منتج عام بالمحل (باركود سنتر التوفير)";
+    } else {
+        let randIdx = Math.floor(Math.random() * products.length);
+        let pRow = products[randIdx];
+        let pName = pRow["اسم المنتج"] || pRow["اسم الصنف"] || pRow["الصنف"] || "منتج عشوائي";
+        let pBar = pRow["رقم الباركود"] || pRow["كود الصنف"] || pRow["الباركود"] || pRow["Barcode"] || "---";
+        activeAssignedProduct = `${pName} (باركود: ${pBar})`;
+    }
+
+    document.getElementById("camModalTitle").innerText = `📷 تصوير حي لتسجيل (${type})`;
+    document.getElementById("targetProductBox").innerText = `🎯 يجب الإمساك بهذا المنتج في الصورة:\n✨ ${activeAssignedProduct}`;
+    document.getElementById("liveCamModal").style.display = "flex";
+
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: false })
+    .then(stream => {
+        mediaStream = stream;
+        let video = document.getElementById("liveVideo");
+        video.srcObject = stream;
+    })
+    .catch(err => {
+        alert("تعذر فتح كاميرا الموبايل الحية.");
+        document.getElementById("liveCamModal").style.display = "none";
+    });
+}
+
+function closeLiveCamModal(){
+    if(mediaStream){ mediaStream.getTracks().forEach(track => track.stop()); }
+    document.getElementById("liveCamModal").style.display = "none";
+}
+
+function captureLiveSelfie(){
+    let video = document.getElementById("liveVideo");
+    let canvas = document.getElementById("liveCanvas");
+    canvas.width = video.videoWidth || 300;
+    canvas.height = video.videoHeight || 200;
+    let ctx = canvas.getContext("2d");
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    let dataUrl = canvas.toDataURL("image/jpeg", 0.7);
+
+    closeLiveCamModal();
+
+    let now = new Date();
+    let timeStr = now.toLocaleTimeString();
+    let dateStr = now.toLocaleDateString();
+
+    if(pendingAttendanceType === 'حضور'){
+        let alreadyAttended = attendanceRecords.some(r => r.user === currentUser && r.type === 'حضور' && r.date === dateStr);
+        if(alreadyAttended){
+            alert("⚠️ تنبيه: لقد قمت بتسجيل الحضور مسبقاً لهذا اليوم!");
+            return;
+        }
+        attendanceRecords.unshift({
+            user: currentUser, type: 'حضور', date: dateStr, time: timeStr, hours: '-', product: activeAssignedProduct, selfie: dataUrl
+        });
+    } else {
+        let lastAtt = attendanceRecords.find(r => r.user === currentUser && r.type === 'حضور' && r.date === dateStr);
+        let hoursWorked = lastAtt ? "مكتمل" : "انصراف طارئ";
+        attendanceRecords.unshift({
+            user: currentUser, type: 'انصراف', date: dateStr, time: timeStr, hours: hoursWorked, product: activeAssignedProduct, selfie: dataUrl
+        });
+    }
+
+    saveToCloudAttendance();
+    playAtmAndMoneySound();
+    logAction(`تسجيل ${pendingAttendanceType} بصورة حية مع المنتج المطلوب`);
+    alert(`🎉 تم توثيق وتسجيل (${currentUser} ${pendingAttendanceType}) بنجاح!`);
+    if(currentUser === "محمد حسام") renderManagerRequests();
+}
+
+function submitLeaveRequest(){
+    let type = document.getElementById("leaveType").value;
+    let date = document.getElementById("leaveDate").value;
+    let reason = document.getElementById("leaveReason").value.trim();
+
+    if(!date){ alert("اختر تاريخ الإجازة/الغياب!"); return; }
+
+    let reqId = Date.now();
+    leaveRequests.unshift({ id: reqId, user: currentUser, type: type, date: date, reason: reason, status: 'قيد الانتظار' });
+    saveToCloudLeaves();
+    logAction(`إرسال طلب ${type}`);
+    alert("✅ تم إرسال طلب الإجازة للمدير بنجاح!");
+}
+
+function checkMyLeaveStatus(){
+    if(!currentUser || currentUser === "محمد حسام") return;
+    let myReqs = leaveRequests.filter(r => r.user === currentUser);
+    myReqs.forEach(r => {
+        if(r.status !== 'قيد الانتظار' && !r.notified){
+            alert(`📢 تنبيه بخصوص طلبك (${r.type}) بتاريخ ${r.date}:\nالنتيجة: ${r.status}`);
+            r.notified = true;
+            saveToCloudLeaves();
+        }
+    });
+}
+
+function renderManagerRequests(){
+    let listDiv = document.getElementById("managerRequestsList");
+    if(!listDiv) return;
+    listDiv.innerHTML = "";
+
+    let todayStr = new Date().toLocaleDateString();
+    let employees = ["علاء", "شوقي", "محمود", "احمد محمد امين", "محمد ميدو جبر", "محمد حسام"];
+    
+    listDiv.innerHTML += `<div style="background:#e8f5e9; padding:8px; border-radius:6px; margin-bottom:10px; border:1px solid #c8e6c9;"><b>🟢 حالات الحضور لليوم (${todayStr}):</b><br>`;
+    employees.forEach(emp => {
+        let lastRec = attendanceRecords.find(r => r.user === emp && r.date === todayStr);
+        let statusText = "لم يسجل اليوم";
+        let statusColor = "#777";
+        if(lastRec){
+            if(lastRec.type === 'حضور'){
+                statusText = `🟢 ${emp} حضور (الساعة ${lastRec.time})`;
+                statusColor = "#2e7d32";
+            } else {
+                statusText = `🔴 ${emp} انصراف (الساعة ${lastRec.time})`;
+                statusColor = "#c62828";
+            }
+        }
+        listDiv.innerHTML += `<div style="color:${statusColor}; font-weight:bold; margin-top:2px;">• ${statusText}</div>`;
+    });
+    listDiv.innerHTML += `</div>`;
+
+    if(leaveRequests.length === 0){
+        listDiv.innerHTML += "لا توجد طلبات إجازات معلقة.<br>";
+    } else {
+        listDiv.innerHTML += `<b>طلبات الإجازات المعلقة:</b><br>`;
+        leaveRequests.forEach((req, idx) => {
+            let statusColor = req.status === 'موافق عليها' ? 'green' : (req.status === 'مرفوضة' ? 'red' : 'orange');
+            listDiv.innerHTML += `
+            <div style="background:#fff; padding:8px; margin-bottom:6px; border-radius:6px; border:1px solid #ccc;">
+                <b>الموظف: ${req.user}</b> | النوع: ${req.type} | التاريخ: ${req.date}<br>
+                السبب: ${req.reason || 'بدون سبب'}<br>
+                الحالة: <span style="color:${statusColor}; font-weight:bold;">${req.status}</span>
+                ${req.status === 'قيد الانتظار' ? `
+                <div style="margin-top:5px; display:flex; gap:5px;">
+                    <button type="button" style="background:#2e7d32; padding:4px 8px; font-size:11px; width:auto;" onclick="updateLeaveStatus(${req.id}, 'موافق عليها')">موافق</button>
+                    <button type="button" style="background:#c62828; padding:4px 8px; font-size:11px; width:auto;" onclick="updateLeaveStatus(${req.id}, 'مرفوضة')">رفض</button>
+                </div>` : ''}
+            </div>`;
+        });
+    }
+
+    listDiv.innerHTML += `<hr style="margin:10px 0;"><b>سجل الحركات التفصيلي:</b><br>`;
+    if(attendanceRecords.length === 0){
+        listDiv.innerHTML += `<div>لا توجد سجلات حضور بعد.</div>`;
+    } else {
+        attendanceRecords.slice(0, 10).forEach(rec => {
+            let selfieHtml = rec.selfie ? `<br><img src="${rec.selfie}" style="width:70px; height:50px; border-radius:4px; object-fit:cover; margin-top:4px; border:1px solid #333;" alt="صورة حية"/>` : '';
+            let prodHtml = rec.product ? `<br>📦 المنتج المطلوب: <span style="color:#e65100;">${rec.product}</span>` : '';
+            let badgeColor = rec.type === 'حضور' ? '#2e7d32' : '#c62828';
+            listDiv.innerHTML += `
+            <div style="background:#fff; padding:8px; margin-bottom:6px; border-radius:6px; border:1px solid #ddd;">
+                [${rec.date} - ${rec.time}] <b>${rec.user}</b> <span style="color:${badgeColor}; font-weight:bold;">(${rec.type})</span>${prodHtml}${selfieHtml}
+            </div>`;
+        });
+    }
+}
+
+function updateLeaveStatus(id, newStatus){
+    let req = leaveRequests.find(r => r.id === id);
+    if(req){
+        req.status = newStatus;
+        req.notified = false;
+        saveToCloudLeaves();
+        logAction(`تحديث حالة طلب ${req.type} للموظف ${req.user} إلى: ${newStatus}`);
+        renderManagerRequests();
+        alert("✅ تم تحديث الحالة بنجاح!");
+    }
+}
+
+function exportAttendanceExcel(){
+    if(attendanceRecords.length === 0){ alert("لا توجد سجلات لتصديرها!"); return; }
+    let data = attendanceRecords.map(r => ({
+        "اسم الموظف": r.user,
+        "نوع الحركة": r.type,
+        "التاريخ": r.date,
+        "الوقت": r.time,
+        "المنتج المطلوب": r.product || '-',
+        "الحالة": r.hours
+    }));
+    let ws = XLSX.utils.json_to_sheet(data);
+    let wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Attendance_Report");
+    XLSX.writeFile(wb, "Center_AlTawfeer_Attendance.xlsx");
+    playMoveSound();
+}
+
+function updateStatus(){
+    let total = 0;
+    shelves.forEach(s => total += (s.items ? s.items.length : 0));
+    let note = document.getElementById("statusNote");
+    if(note) note.innerText = `🌐 متصل بالسحابة | الأصناف بملف المحل: ${products.length} | إجمالي المنتجات الموزعة: ${total}`;
+}
+
+document.getElementById("excelFile").onchange = function(e){
+    let file = e.target.files[0];
+    if(!file) return;
+    let reader = new FileReader();
+    reader.onload = function(evt){
+        try {
+            let data = evt.target.result;
+            let workbook = XLSX.read(data, {type: 'binary'});
+            let sheet = workbook.Sheets[workbook.SheetNames[0]];
+            products = XLSX.utils.sheet_to_json(sheet);
+            saveToCloudProducts();
+            playMoveSound();
+            logAction("رفع وتحديث ملف أصناف المحل (Excel)");
+            updateStatus();
+            alert("✅ تم رفع وحفظ ملف الأصناف سحابياً للجميع!");
+        } catch(err) { alert("خطأ في قراءة ملف الإكسل."); }
+    };
+    reader.readAsBinaryString(file);
+};
+
+function getProductDetails(code){
+    code = String(code).trim();
+    for(let i = 0; i < products.length; i++){
+        let row = products[i];
+        let bar = String(row["رقم الباركود"] || row["كود الصنف"] || row["الباركود"] || row["Barcode"] || "").trim();
+        if(bar === code || bar.includes(code)){
+            return {
+                barcode: bar,
+                name: row["اسم المنتج"] || row["اسم الصنف"] || row["الصنف"] || "بدون اسم",
+                price: row["سعر البيع"] || row["السعر"] || row["بيع"] || "0"
+            };
+        }
+    }
+    return null;
+}
+
+function renderShelves(){
+    let container = document.getElementById("shelvesContainer");
+    if(!container) return;
+    container.innerHTML = "";
+
+    shelves.forEach(shelf => {
+        let itemsHtml = "";
+        if(!shelf.items || shelf.items.length === 0){
+            itemsHtml = '<div style="color:#888; font-size:11px; text-align:center;">فارغ</div>';
+        } else {
+            shelf.items.forEach((item, idx) => {
+                itemsHtml += `
+                <div class="item-row">
+                    <span><b>${item.name}</b> (${item.price}ج)</span>
+                    <div>
+                        <button type="button" style="padding:2px 6px; font-size:10px; background:#0288d1;" onclick="playClickSound(); moveItem(${shelf.id}, ${idx})">نقل</button>
+                        <button type="button" style="padding:2px 6px; font-size:10px; background:#d32f2f;" onclick="playClickSound(); delItem(${shelf.id}, ${idx})">حذف</button>
+                    </div>
+                </div>`;
+            });
+        }
+
+        let count = shelf.items ? shelf.items.length : 0;
+        container.innerHTML += `
+        <div class="shelf-card">
+            <div class="shelf-title">
+                <span>الرف (${shelf.id})</span>
+                <span>${count} منتج</span>
+            </div>
+            <div style="max-height:120px; overflow-y:auto; margin-bottom:6px;">${itemsHtml}</div>
+            <button type="button" style="background:#f57c00; font-size:12px; padding:6px;" onclick="playClickSound(); openShelfCam(${shelf.id})">📷 مسح بالرف</button>
+        </div>`;
+    });
+    updateStatus();
+}
+
+function openShelfCam(id){ activeShelfId = id; mode = 'shelf'; startCamera(); }
+function startGlobalSearch(){ mode = 'global'; startCamera(); }
+
+function openManualSearchModal(){
+    document.getElementById("manualSearchInput").value = "";
+    document.getElementById("manualSearchResults").innerHTML = "";
+    document.getElementById("manualSearchModal").style.display = "flex";
+}
+
+function closeManualSearchModal(){
+    document.getElementById("manualSearchModal").style.display = "none";
+}
+
+function executeManualSearch(){
+    let query = document.getElementById("manualSearchInput").value.trim().toLowerCase();
+    let resDiv = document.getElementById("manualSearchResults");
+    resDiv.innerHTML = "";
+
+    if(!query){ resDiv.innerHTML = "أدخل كلمة أو اسم صنف للبحث عنه!"; return; }
+
+    let foundAny = false;
+
+    let shelfMatches = [];
+    shelves.forEach(s => {
+        if(s.items){
+            s.items.forEach(i => {
+                if(i.name.toLowerCase().includes(query) || i.barcode.toLowerCase().includes(query)){
+                    shelfMatches.push({ shelfId: s.id, name: i.name, price: i.price, barcode: i.barcode });
+                }
+            });
+        }
+    });
+
+    if(shelfMatches.length > 0){
+        foundAny = true;
+        resDiv.innerHTML += `<div style="background:#e8f5e9; padding:6px; border-radius:6px; margin-bottom:8px; border:1px solid #c8e6c9;"><b>📍 منتجات موجودة بالفعل على الأرفف:</b></div>`;
+        shelfMatches.forEach(r => {
+            resDiv.innerHTML += `
+            <div class="clickable-item" onclick="playClickSound(); chooseTargetShelfForProduct('${r.barcode}', \`${r.name}\`, '${r.price}')">
+                📦 <b>الرف رقم (${r.shelfId})</b> ⬅️ ${r.name} (${r.price}ج)<br><span style="font-size:11px; color:#555;">باركود: ${r.barcode} (اضغط لإعادة توزيعه أو نقله)</span>
+            </div>`;
+        });
+    }
+
+    let storeMatches = products.filter(row => {
+        let pName = String(row["اسم المنتج"] || row["اسم الصنف"] || row["الصنف"] || "").toLowerCase();
+        let pBar = String(row["رقم الباركود"] || row["كود الصنف"] || row["الباركود"] || row["Barcode"] || "").toLowerCase();
+        return pName.includes(query) || pBar.includes(query);
+    });
+
+    if(storeMatches.length > 0){
+        foundAny = true;
+        resDiv.innerHTML += `<div style="background:#e3f2fd; padding:6px; border-radius:6px; margin:8px 0; border:1px solid #90caf9;"><b>🏷️ أصناف مطابقة من ملف المحل (اختر لإضافتها لأي رف):</b></div>`;
+        storeMatches.slice(0, 20).forEach(m => {
+            let name = m["اسم المنتج"] || m["اسم الصنف"] || m["الصنف"] || "بدون اسم";
+            let price = m["سعر البيع"] || m["السعر"] || "0";
+            let bar = m["رقم الباركود"] || m["كود الصنف"] || m["الباركود"] || "---";
+            
+            let currentShelfText = "غير مسجل بالأرفف حالياً";
+            shelves.forEach(s => {
+                if(s.items && s.items.some(i => i.barcode === bar)){
+                    currentShelfText = `موجود حالياً في الرف (${s.id})`;
+                }
+            });
+
+            resDiv.innerHTML += `
+            <div class="clickable-item" onclick="playClickSound(); chooseTargetShelfForProduct('${bar}', \`${name}\`, '${price}')">
+                ✨ <b>${name}</b> (${price}ج)<br><span style="font-size:11px; color:#0d47a1;">باركود: ${bar} | 📍 ${currentShelfText}</span>
+            </div>`;
+        });
+    }
+
+    if(!foundAny){
+        resDiv.innerHTML += `❌ لم يتم العثور على أي منتج مطابق لـ "${query}" في الأرفف أو ملف المحل.`;
+    }
+
+    logAction(`إجراء بحث يدوي عن: ${query}`);
+}
+
+function chooseTargetShelfForProduct(barcode, name, price){
+    closeManualSearchModal();
+    let target = prompt(`📦 المنتج المختار: "${name}"\nأدخل رقم الرف المطلوب إضافته إليه (من 1 إلى 150):`);
+    if(!target) return;
+    let tId = parseInt(target);
+    let tShelf = shelves.find(s => s.id === tId);
+    if(!tShelf){ alert("رقم الرف غير صحيح!"); return; }
+
+    if(tShelf.items && tShelf.items.some(i => i.barcode === barcode)){
+        playErrorSound();
+        alert(`⚠️ عذراً يا مهندس محمد! هذا المنتج موجود بالفعل في الرف رقم (${tId}) ولا يمكن تكراره نهائياً.`);
+        return;
+    }
+
+    shelves.forEach(s => {
+        if(s.items){
+            let idx = s.items.findIndex(i => i.barcode === barcode);
+            if(idx !== -1){
+                s.items.splice(idx, 1);
+            }
+        }
+    });
+
+    if(!tShelf.items) tShelf.items = [];
+
+    tShelf.items.push({ barcode: barcode, name: name, price: price });
+    saveToCloudShelves();
+    playMoveSound();
+    logAction(`إضافة/نقل الصنف (${name}) برقم باركود ${barcode} إلى الرف (${tId})`);
+    alert(`✅ تم توزيع ونقل الصنف إلى الرف (${tId}) بنجاح تام!`);
+}
+
+function startCamera(){
+    let readerDiv = document.getElementById("reader");
+    let closeBtn = document.getElementById("closeCam");
+    readerDiv.style.display = "block";
+    closeBtn.style.display = "block";
+
+    if(html5QrCode){ try{ html5QrCode.stop(); }catch(e){} }
+
+    html5QrCode = new Html5Qrcode("reader");
+    html5QrCode.start(
+        { facingMode: "environment" },
+        { fps: 10, qrbox: { width: 220, height: 120 } },
+        (text) => { 
+            stopCamera(); 
+            playScanSound(); 
+            processCode(text); 
+        },
+        (err) => {}
+    ).catch(e => { alert("تعذر تشغيل الكاميرا."); stopCamera(); });
+}
+
+function stopCamera(){
+    if(html5QrCode){
+        html5QrCode.stop().then(() => {
+            let readerDiv = document.getElementById("reader");
+            let closeBtn = document.getElementById("closeCam");
+            if(readerDiv) readerDiv.style.display = "none";
+            if(closeBtn) closeBtn.style.display = "none";
+        }).catch(() => {});
+    }
+}
+
+function processCode(code){
+    code = String(code).trim();
+
+    if(mode === 'shelf'){
+        let foundShelf = null;
+        shelves.forEach(s => { if(s.items && s.items.some(i => i.barcode === code)) foundShelf = s.id; });
+
+        if(foundShelf === activeShelfId){
+            playErrorSound();
+            alert(`⚠️ عذراً! هذا المنتج موجود بالفعل في هذا الرف (${activeShelfId}) ولا يمكن تكراره.`);
+            return;
+        }
+
+        if(foundShelf && foundShelf !== activeShelfId){
+            let ok = confirm(`⚠️ المنتج موجود مسبقاً في الرف (${foundShelf}). هل تريد نقله إلى الرف الحالي (${activeShelfId})؟`);
+            if(!ok) return;
+            let oldS = shelves.find(s => s.id === foundShelf);
+            oldS.items = oldS.items.filter(i => i.barcode !== code);
+            saveToCloudShelves();
+            playMoveSound();
+            logAction(`نقل المنتج (${code}) من الرف ${foundShelf} إلى الرف ${activeShelfId}`);
+        }
+
+        let shelf = shelves.find(s => s.id === activeShelfId);
+        if(!shelf.items) shelf.items = [];
+
+        let info = getProductDetails(code);
+        let name = info ? info.name : prompt("المنتج غير موجود بملف المحل، أدخل اسمه:", "صنف جديد");
+        if(!name) return;
+        let price = info ? info.price : prompt("أدخل السعر:", "0");
+
+        shelf.items.push({ barcode: code, name: name, price: price });
+        saveToCloudShelves();
+        playMoveSound();
+        logAction(`إضافة المنتج (${name}) للرف (${activeShelfId})`);
+        alert(`✅ تمت الإضافة للرف ${activeShelfId} بنجاح`);
+
+    } else if(mode === 'global'){
+        let foundShelf = null, foundItem = null;
+        shelves.forEach(s => {
+            if(s.items){
+                let itm = s.items.find(i => i.barcode === code);
+                if(itm){ foundShelf = s.id; foundItem = itm; }
+            }
+        });
+
+        let box = document.getElementById("searchResBox");
+        box.style.display = "block";
+        if(foundItem){
+            box.innerHTML = `📍 المنتج موجود في: <b>الرف (${foundShelf})</b><br>🏷️ الاسم: <b>${foundItem.name}</b><br>💰 السعر: ${foundItem.price} ج`;
+            logAction(`بحث بالكاميرا عن منتج موجود: ${foundItem.name}`);
+        } else {
+            let info = getProductDetails(code);
+            if(info){
+                box.innerHTML = `❌ غير مسجل بالأرفف بعد.<br>🏷️ <b>${info.name}</b> (${info.price}ج)<br><button type="button" style="background:#2e7d32; margin-top:8px; padding:8px;" onclick="playClickSound(); chooseTargetShelfForProduct('${code}', \`${info.name}\`, '${info.price}')">➕ إضافته لرف الآن</button>`;
+            } else {
+                box.innerHTML = `❌ الباركود غير موجود بملف المحل.<br><button type="button" style="background:#2e7d32; margin-top:8px; padding:8px;" onclick="playClickSound(); addUnknownToShelf('${code}')">➕ تسجيل وصنف جديد</button>`;
+            }
+            logAction(`بحث بالكاميرا عن باركود: ${code}`);
+        }
+    }
+}
+
+function addUnknownToShelf(barcode){
+    let name = prompt("أدخل اسم الصنف الجديد:", "صنف جديد");
+    if(!name) return;
+    let price = prompt("أدخل السعر:", "0");
+    chooseTargetShelfForProduct(barcode, name, price);
+}
+
+function delItem(shelfId, idx){
+    if(confirm("هل تريد حذف هذا المنتج من الرف؟")){
+        let shelf = shelves.find(s => s.id === shelfId);
+        let removed = shelf.items[idx];
+        shelf.items.splice(idx, 1);
+        saveToCloudShelves();
+        playMoveSound();
+        logAction(`حذف الصنف (${removed.name}) من الرف (${shelfId})`);
+    }
+}
+
+function moveItem(shelfId, idx){
+    let shelf = shelves.find(s => s.id === shelfId);
+    let item = shelf.items[idx];
+    let target = prompt("أدخل رقم الرف الجديد (من 1 إلى 150):");
+    if(!target) return;
+    let tId = parseInt(target);
+    let tShelf = shelves.find(s => s.id === tId);
+    if(!tShelf){ alert("رقم الرف غير صحيح!"); return; }
+
+    if(!tShelf.items) tShelf.items = [];
+
+    if(tShelf.items.some(i => i.barcode === item.barcode)){
+        playErrorSound();
+        alert(`⚠️ عذراً! هذا المنتج موجود مسبقاً في الرف (${tId}) ولا يمكن تكراره فيه.`);
+        return;
+    }
+
+    shelf.items.splice(idx, 1);
+    tShelf.items.push(item);
+    saveToCloudShelves();
+    playMoveSound();
+    logAction(`نقل الصنف (${item.name}) من الرف ${shelfId} إلى الرف ${tId}`);
+    alert("✅ تم النقل بنجاح.");
+}
+
+function exportShelvesExcel(){
+    let data = [];
+    shelves.forEach(s => {
+        if(s.items){
+            s.items.forEach(i => {
+                data.push({ "اسم الصنف": i.name, "رقم الرف": s.id, "باركود الصنف": i.barcode, "سعر البيع": i.price });
+            });
+        }
+    });
+    if(data.length === 0){ alert("لا توجد بيانات لتصديرها!"); return; }
+    let ws = XLSX.utils.json_to_sheet(data);
+    let wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Shelves_Report");
+    XLSX.writeFile(wb, "Center_AlTawfeer_Shelves.xlsx");
+    playMoveSound();
+}
+
+function clearAllShelves(){
+    if(confirm("⚠️ تحذير خطير: هل أنت متأكد من مسح جميع الأرفف بالكامل من السحابة؟")){
+        shelves.forEach(s => { s.items = []; });
+        saveToCloudShelves();
+        document.getElementById("searchResBox").style.display = "none";
+        playMoveSound();
+        logAction("⚠️ مسح وتفريغ بيانات جميع الأرفف بواسطة المدير");
+        alert("تم تفريغ الأرفف بالكامل.");
+    }
+}
+
+function openLogsModal(){
+    let listDiv = document.getElementById("logsList");
+    listDiv.innerHTML = "";
+    if(logs.length === 0){
+        listDiv.innerHTML = "لا توجد سجلات مسجلة حتى الآن.";
+    } else {
+        logs.forEach((log, index) => {
+            listDiv.innerHTML += `<div style="border-bottom:1px solid #ddd; padding:4px 0;"><b>#${logs.length - index} [${log.user}]</b>: ${log.action} <span style="color:#888; float:left; font-size:10px;">${log.time}</span></div>`;
+        });
+    }
+    document.getElementById("logsModal").style.display = "flex";
+}
+
+function closeLogsModal(){ document.getElementById("logsModal").style.display = "none"; }
+function clearLogs(){
+    if(confirm("مسح السجلات بالكامل؟")){
+        logs = [];
+        const { doc, setDoc } = window.firebaseModules;
+        setDoc(doc(window.db, "store_data", "logs_doc"), { logs: [] }).catch(() => {});
+        openLogsModal();
+    }
+}
+</script>
+
+</body>
+</html>
